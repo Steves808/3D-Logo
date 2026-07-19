@@ -1,0 +1,22 @@
+Logo3D next version notes
+=========================
+
+This build continues from the multiview/quilt preview version.
+
+Changes in this pass:
+- Grouped the Quilt/Stereo controls into a collapsible "Quilt & Stereo Export" panel.
+- Kept the Quilt, SBS, and Preview Quilt button IDs unchanged so the existing JavaScript event hookups still work.
+- Left Dot size and Dots/unit beside Export Dots OBJ, since those are part of the Dots OBJ workflow.
+- Updated the compact Commands legend at the bottom of index.html and logo3d.html so it reflects the broader interpreter command set.
+- Made the same HTML changes in both index.html and logo3d.html.
+
+Not changed in this pass:
+- No refactor into multiple source files.
+- No new renderer, z-buffer, glTF exporter, or Quest/WebXR integration.
+- No hardcoded examples, help, or acknowledgements were reintroduced; these continue to load from their text files.
+- Existing OBJ, Dots OBJ, STL, Quilt PNG, SBS PNG, and Preview Quilt logic in logo3d.js is unchanged.
+
+Quick verification performed:
+- logo3d.js syntax checked with node --check.
+- index.html and logo3d.html are identical mirrors.
+- All existing UI element IDs used by the JavaScript are present in index.html.

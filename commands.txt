@@ -1,0 +1,397 @@
+LOGO 3D -- COMMAND REFERENCE
+=============================
+Interpreter: logo3d.js (browser edition)
+All commands are case-insensitive.
+Comments begin with ; and run to the end of the line.
+
+Numeric arguments may be: a literal number, a variable name, an arithmetic
+expression (supports + - * / and parentheses), a RANDOM expression, or a PICK list.
+
+
+MOVEMENT COMMANDS
+-----------------
+
+FD
+  Syntax:  FD distance
+  Moves the turtle forward along its current heading by <distance> units.
+  If the pen is down a line segment is drawn from start to end.
+  Example:  FD 50
+
+BK
+  Syntax:  BK distance
+  Moves the turtle backward (opposite to heading) by <distance> units.
+  If the pen is down a line segment is drawn.
+  Example:  BK 30
+
+AR / ARCRIGHT
+  Syntax:  AR angle radius
+  Sweeps the turtle through a horizontal arc curving to the right.
+  <angle> is in degrees; <radius> is in world units.
+  The arc is approximated as short straight segments (3 degrees each).
+  If the pen is down all chord segments are drawn.
+  Example:  AR 90 40
+
+AL / ARCLEFT
+  Syntax:  AL angle radius
+  Same as AR but curves to the left.
+  Example:  AL 180 25
+
+AU / ARCUP
+  Syntax:  AU angle radius
+  Sweeps the turtle upward through a vertical arc (pitches up while moving).
+  Example:  AU 90 30
+
+AD / ARCDOWN
+  Syntax:  AD angle radius
+  Sweeps the turtle downward through a vertical arc.
+  Example:  AD 45 20
+
+SP
+  Syntax:  SP maxDistance
+  Snap command. Casts a ray forward from the turtle up to <maxDistance> units.
+  If the ray passes within tolerance of an existing (non-snap) segment, the
+  turtle jumps to the nearest point on that segment.
+  A snap-spoke segment is drawn from the old position to the snap point (pen down).
+  Snap-spoke segments are visible in the 3D view but NOT included in OBJ/STL exports.
+  Example:  SP 100
+
+
+ROTATION COMMANDS
+-----------------
+
+LT
+  Syntax:  LT degrees
+  Yaws the turtle left (turns left around its up-axis) by <degrees>.
+  Example:  LT 90
+
+RT
+  Syntax:  RT degrees
+  Yaws the turtle right by <degrees>.
+  Example:  RT 45
+
+UP
+  Syntax:  UP degrees
+  Pitches the turtle upward by <degrees>.
+  Example:  UP 30
+
+DN
+  Syntax:  DN degrees
+  Pitches the turtle downward by <degrees>.
+  Example:  DN 30
+
+RL
+  Syntax:  RL degrees
+  Rolls the turtle left (counter-clockwise around the forward axis) by <degrees>.
+  Example:  RL 45
+
+RR
+  Syntax:  RR degrees
+  Rolls the turtle right (clockwise around the forward axis) by <degrees>.
+  Example:  RR 90
+
+
+PEN CONTROL
+-----------
+
+PU
+  Pen Up. Lifts the pen so movement commands travel without drawing.
+  Syntax:  PU
+  Example:  PU
+            FD 20
+            PD
+
+PD
+  Pen Down. Lowers the pen so movement commands draw line segments.
+  Syntax:  PD
+  Example:  PD
+            FD 50
+
+
+COLOR COMMANDS
+--------------
+
+SC / SETCOLOR
+  Sets the turtle's current drawing color. All subsequent drawn segments use this color.
+  Five syntax forms are accepted:
+
+  Form 1 -- Named color:
+    SC colorname
+    Supported names (case-insensitive):
+      WHITE  BLACK  RED  ORANGE  YELLOW  GREEN  BLUE
+      PURPLE  MAGENTA  CYAN  PINK  GRAY
+    Example:  SC RED
+
+  Form 2 -- Hex color:
+    SC #rrggbb   (also 3-digit #rgb or 8-digit #rrggbbaa)
+    Example:  SC #ff8800
+
+  Form 3 -- RGB list (component values 0 to 99):
+    SC [r g b]
+    Example:  SC [99 50 0]
+
+  Form 4 -- Random color (RC):
+    SC RC
+    Picks a fully random RGB color each time it is executed.
+
+  Form 5 -- Variable or PICK list:
+    SC myColorVar
+    SC PICK [RED BLUE GREEN]
+    Resolves a variable or picks one color at random from a list.
+
+  Note: The alias COLOR is supported only in batch-export.js, NOT in the browser.
+
+WIDTH
+  Sets the turtle's line width (in screen pixels).
+  Syntax:  WIDTH pixels
+  Example:  WIDTH 3
+
+GC / GETCOLOR
+  Returns the turtle's current color as a value (for use in MAKE or SC, not a command).
+  Syntax:  MAKE savedColor GC
+  Example:  MAKE savedColor GC
+            SC RED
+            FD 30
+            SC savedColor
+
+
+VARIABLES AND MATH
+------------------
+
+MAKE
+  Creates or updates a variable. Variables are global in scope.
+  Two syntax forms:
+
+  Form 1 (equals sign):
+    MAKE name=value
+    Example:  MAKE N=10
+
+  Form 2 (space-separated):
+    MAKE name value
+    Example:  MAKE N 10
+
+  The value may be a number, arithmetic expression, variable name, RANDOM, PICK, or color.
+  Examples:
+    MAKE SIDE 50
+    MAKE SIDE SIDE+10
+    MAKE CC RANDOM 6
+    MAKE myColor PICK [RED GREEN BLUE]
+
+RANDOM
+  Produces a random integer from 0 up to (but NOT including) max.
+  Syntax:  RANDOM max
+  Used as a value in MAKE or as a numeric argument to any command.
+  Examples:
+    MAKE N RANDOM 10       ; N = 0, 1, 2 ... 9
+    FD RANDOM 50           ; forward a random distance 0..49
+
+PICK
+  Picks one item at random from a bracketed list.
+  Syntax:  PICK [item1 item2 ...]
+  Used as a value in MAKE or as an argument to any command.
+  Examples:
+    SC PICK [RED GREEN BLUE]
+    FD PICK [10 20 30 40]
+
+Arithmetic Expressions
+  All numeric arguments accept inline arithmetic: +  -  *  /  and parentheses.
+  Variable names are resolved automatically. Colon-prefixed :vars are also supported.
+  Examples:
+    FD SIDE*2
+    FD (SIDE+10)/3
+    LT 360/N
+    FD :len+5
+
+Colon Variables  (:name)
+  Inside procedure bodies, parameters declared with a leading colon can be
+  referenced the same way in expressions.
+  Example:
+    TO spiral :len :ang
+      FD :len
+      LT :ang
+      spiral :len+1 :ang
+    END
+
+
+CONTROL FLOW
+------------
+
+REPEAT / RPT
+  Executes a block of commands <count> times.
+  Syntax:  REPEAT count [ commands ]
+           RPT count [ commands ]
+  Example:  REPEAT 36 [ FD 10  RT 10 ]
+
+IF / ELSE
+  Conditionally executes a block.
+  Syntax:  IF condition [ thenBlock ]
+           IF condition [ thenBlock ] ELSE [ elseBlock ]
+
+  Condition forms supported:
+    Single non-zero value:   IF N [ ... ]           ; true if N != 0
+    Embedded equals sign:    IF CC=1 [ ... ]         ; true if CC equals 1
+    Three-token comparison:  IF CC GT 5 [ ... ]
+    Colon-variable form:     IF :D=0 [ ... ]
+
+  Comparison operators for the three-token form:
+    GT   greater than
+    LT   less than
+    GE   greater than or equal
+    LE   less than or equal
+    =    equal  (also EQ)
+    NE   not equal  (also NEQ)
+
+  Note: compound conditions (AND, OR, NOT) are not supported. Use nested IF blocks.
+  Example:
+    MAKE CC 0
+    REPEAT 6 [
+      SC PICK [RED ORANGE YELLOW]
+      FD 30  RT 60
+      MAKE CC CC+1
+      IF CC GT 5 [ MAKE CC 0 ]
+    ]
+
+STOP
+  Exits the current procedure immediately. Does NOT stop the whole program;
+  only the enclosing procedure returns to its caller. Useful for base-case recursion.
+  Syntax:  STOP
+  Example:
+    TO countdown :n
+      IF :n=0 [ STOP ]
+      FD :n
+      countdown :n-1
+    END
+
+
+PROCEDURES
+----------
+
+TO ... END
+  Defines a named procedure. Procedures can declare colon-prefixed parameters.
+  Syntax:  TO name [:param1 :param2 ...] commands END
+  The procedure is registered globally and may be called from anywhere.
+  Recursive and mutually recursive calls are supported, provided all procedures
+  are defined in the source before they are called.
+  Example:
+    TO square :size
+      REPEAT 4 [ FD :size  RT 90 ]
+    END
+    square 50
+
+  Notes:
+    - Parameters are local: they do not permanently overwrite global variables.
+    - STOP inside a procedure exits only that procedure.
+    - Procedures must be defined (appear in source) before they are called.
+      A procedure called before its TO definition is parsed will have arity 0
+      and its arguments will not be consumed correctly.
+
+Calling a procedure:
+  Write the procedure name followed by argument values separated by spaces.
+  Example:
+    square 50
+    spiral 10 15
+
+IMPORT
+  Syntax:  IMPORT libraryName
+  The IMPORT keyword is silently ignored by the interpreter. Any procedures
+  that the library would supply must be defined explicitly with TO...END.
+  Programs that call library procedures (e.g. SM from libshapes) will throw
+  "Unknown procedure" when those procedures are invoked.
+
+
+MARKS AND POSITION
+------------------
+
+OMARK
+  Saves a complete turtle snapshot (position, orientation, pen state, color, width)
+  to a named slot. Labels are case-insensitive single tokens.
+  Syntax:  OMARK label
+  Example:
+    OMARK branch
+    FD 50
+    GOTO branch
+
+GOTO
+  Restores the turtle to a previously saved OMARK snapshot.
+  No line is drawn during the teleport regardless of pen state.
+  Pen state, color, and width are also restored from the snapshot.
+  Note: GOTO here is NOT a line-jump; it restores a named turtle snapshot.
+  Syntax:  GOTO label
+  Example:  GOTO branch
+
+HOME / CENTER
+  Resets the turtle to the world origin (0,0,0) with default heading,
+  pen down, color white, width 1.5. Also resets the camera pan to center.
+  Syntax:  HOME
+           CENTER
+
+CS / CLEAR
+  Clears all drawn segments from the 3D view. Does NOT reset the turtle.
+  Syntax:  CS
+           CLEAR
+
+
+SYSTEM / MISCELLANEOUS
+----------------------
+
+PAUSE / SLY
+  These keywords are recognized and silently ignored. They exist for
+  compatibility with Logo programs that include timing delays.
+  Syntax:  PAUSE value
+           SLY value
+
+IMPORT
+  (See PROCEDURES section above.)
+
+
+COLOR NAMES QUICK REFERENCE
+----------------------------
+
+  WHITE    #ffffff      RED      #ff3b30      BLUE     #0a84ff
+  BLACK    #000000      ORANGE   #ff9f0a      PURPLE   #bf5af2
+  GRAY     #8e8e93      YELLOW   #ffd60a      MAGENTA  #ff2d55
+  GREEN    #34c759      CYAN     #64d2ff      PINK     #ff2d55
+
+
+LIMITS AND CONSTRAINTS
+-----------------------
+
+Step limit
+  The interpreter allows a maximum of 800,000 execution steps per Run.
+  Each command (FD, LT, IF, MAKE, etc.) counts as one step. An arc command
+  spanning N degrees consumes N/3 steps (one per 3-degree micro-segment).
+  Programs that exceed the limit halt with:
+    "Stopped: too many steps (infinite loop?)"
+
+Arc resolution
+  Arcs are approximated by straight chords of 3 degrees each. A full 360-degree
+  arc at radius 50 produces 120 chord segments. Very tight arcs may appear faceted;
+  reduce arc angle or use FD with small steps to smooth them.
+
+Compound IF conditions
+  Compound boolean conditions (AND, OR, NOT) are not supported.
+  Use nested IF blocks to combine multiple conditions.
+
+Procedures must be defined before their call site
+  Due to the arity pre-pass in the parser, a procedure called before its TO...END
+  definition appears in the source text will be treated as having zero parameters.
+  Always place TO...END definitions above the code that calls them.
+
+Recursive depth
+  There is no explicit recursion limit beyond the 800,000-step cap. Very deep
+  recursion (thousands of nested calls) may exhaust the JavaScript call stack
+  and produce a browser error rather than a Logo error message.
+
+Snap spokes
+  Segments created by the SP (snap) command are flagged internally as snap spokes.
+  They appear in the 3D view but are excluded from all OBJ and STL exports.
+  This flag prevents snap detection from recursing into its own geometry.
+
+No inline JavaScript
+  All interpreter logic lives in logo3d.js as an external script for CSP compliance.
+  Do not add inline <script> tags or event handlers to the HTML file.
+
+No external dependencies
+  The interpreter runs entirely in the browser without network requests, CDNs,
+  or a build step. It works from file:// URLs. (Note: the Help and Acknowledgements
+  modals fetch their .txt files at runtime; on Chrome from a file:// URL this
+  fetch is blocked -- use Firefox or a local web server for that feature.)

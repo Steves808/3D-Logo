@@ -1,0 +1,7716 @@
+Logo whiteJan2025
+////////
+;woven dbl arrow clover corner
+make a=50
+make b=a*2
+make c=a*3
+make n=72
+make n2=45
+
+to 1 fd b rt n fd a lt n2 fd c 
+lt n2 fd a rt n fd b rt 126
+fd b rt n fd a lt n2 fd c
+lt n2 fd a
+rt n fd b rt 126 end
+
+to r rpt 6 [1 pu rt 27 fd 400 
+lt 27 pd] end
+
+make z=8
+omark mm r rpt 6 [goto mm lt 90 r goto mm rt 27 fd a*z
+lt 117 r make z=z+8]
+make z=8
+rpt 6 [goto mm lt 63 pu fd a*z rt 63
+pd omark mm r]
+
+center
+////////
+;diamond circ pattern
+make a=50
+make n=72
+make n2=180-n
+make x=4
+
+to 1 lt 30 al 360 a/x rt 30 fd a lt 120 ar 360 a/x rt 120 rt n2
+fd a rt n fd a rt n2 fd a
+rt n end
+
+to r rpt 8 [1 pu fd a*1.75
+lt 90 fd a*1.25
+rt 90 pd] end
+
+rt 30
+omark k rpt 8 [r goto k
+rt 90 pu fd -a*1.35
+lt 90 
+fd -a*.9
+pd omark k]
+
+center
+////////
+;better than fb 12 sq tri
+make a=50
+make n=360/12
+to s rpt 4 [fd a rt 90] pu
+fd a pd end
+
+to 1 rpt 12 [s rt n
+fd a rt n] end
+
+rpt 24 [1 pu fd a rt n ar n*3
+a*4
+lt n*.95 fd -a pd ]
+up 90 pu fd 100 dn 90 sc red
+fd -a*1.6
+rt 90 fd a*1.1
+lt 90
+pd 1
+;sly 100
+center 
+///////
+;thick squiggle rows color
+make a=30
+make b=a*1.41
+make c=a*2
+make n=45 make cc=1
+make n2=135
+to 1 fd a rt n
+fd b lt n2 fd c rt n2 fd b
+lt n fd a
+end
+to r rpt 8 [if cc=1 [sc [45 0 99] make cc=2] else [sc [0 89 99] make cc=1] 1] end
+to h omark k rpt 8 [r goto k rt 90 pu fd a*4
+lt 90 pd omark k] end
+
+to all omark j h goto j 
+pu fd a*28 pd rt 90 h end
+
+to pl omark m rpt 15 [all goto m up 90 pu fd 2 dn 90 omark m]
+end #timeout=60 
+omark hh pl goto hh up 90 pl
+center
+///////
+;thick squiggle rows h v
+make a=30
+make b=a*1.41
+make c=a*2
+make n=45 
+make n2=135
+to 1 fd a rt n
+fd b lt n2 fd c rt n2 fd b
+lt n fd a
+end
+to r rpt 8 [1] end
+to h omark k rpt 8 [r goto k rt 90 pu fd a*4
+lt 90 pd omark k] end
+
+to all omark j h goto j 
+pu fd a*28 pd rt 90 h end
+
+to pl omark m rpt 15 [all goto m up 90 pu fd 2 dn 90 omark m]
+end #timeout=60 
+omark hh pl goto hh up 90 pl
+center
+////////
+;3 wide tri 9 narrow
+
+make a=400
+omark k pu fd 5 fd -5 rt 90
+fd 5 fd -10 fd 5 lt 90 fd -5
+
+rpt 3 [goto k lt 90 pu fd a/9
+fd a/3  rt 90 fd -a/2.5
+pd rt 20 rpt 3 [fd a rt 120]
+goto k rt 45 omark k]
+
+goto k 
+pu fd a/10 rt 90 
+make b=a*1.2 fd -b/2 pd
+rpt 9 [fd b rt 160]
+
+////////
+; dave star in hex quilt
+make a=50
+to 1 rpt 2 [fd a rt 60
+fd a rt 120
+] pu fd a rt 60 fd a 
+pd end
+to 6 rpt 6 [1] sc magenta 
+omark mm omark m rpt 17 [fd a rt 60
+rpt 5 [fd a*2 rt 60] fd a goto m up 90 fd 1 dn 90 omark m] 
+goto mm
+sc [0 99 89] omark m rpt 17 [fd a rt 60
+rpt 5 [fd a*2 rt 60] fd a goto m dn 90 fd 1 up 90 omark m] 
+goto mm
+sc white end
+to r rpt 6 [6 lt 90 pu fd a*2.57
+rt 90 fd a*1.53 pd] end
+to all omark k rpt 6 [r goto k fd a*3.1
+omark k] end
+omark jj all
+center
+////////
+;sq in sq complex quilt geo fb
+make a=25 make b=a*4.75
+to s rpt 4 [fd a rt 90] end
+to 1 
+rpt 2 [fd b rt 90 fd b rt 90 s fd a
+s rt 90 fd a s lt 90 s fd -a
+lt 90 fd a rt 90]
+lt 90 pu fd a rt 90 fd -a pd rpt 2 [s lt 90 fd -a*2 s fd a*2 rt 90 fd a s fd -a
+fd b+a+a rt 90 fd b+a+a rt 90] lt 90 pu fd a rt 90 fd -a 
+pd rpt 4 [fd a*4 rt 90 pd fd a pu fd -a lt 90 fd a pd rt 90 fd a fd -a lt 90 fd a*4 rt 90] 
+end
+
+to 2 1 pu fd b*3.365 up 180 pd rt 90 pu fd a*2 pd lt 90 1 end
+
+to r rpt 4 [2 up 180 pu fd a*2
+rt 90 fd a*2 lt 90 pd] end
+
+to r2 omark k rpt 2 [r goto k lt 90 pu fd b*1.9 rt 90 fd b*1.9 pd omark k] end
+
+to all rpt 4 [r2 pu fd -b*3.8 pd omark k] end
+
+rt 45 omark j 
+rpt 3 [all goto j rt 90 fd 1 lt 90 fd 1 omark j]
+
+center
+////////
+;left right
+to a fd 50 end
+to b fd 100 end
+to n rt 80 end
+to n2 rt 120 end
+to l lt 80 end
+to l2 lt 120 end
+to 1 rpt 4 [
+a n b l b n b l a n2 a] end
+
+to 2 1 pu fd 139
+lt 90
+fd -52
+rt 30
+pd 1 end
+
+to 4 rpt 4 [2 pu lt 30 fd 320
+rt 3 pd] end
+
+1 fd -50 sly 100
+to z b l b n b l b n a l2 b l b n b l b end
+z 1 z 1 z 1 z 1
+center
+////////
+;einstein
+to a fd 100 end
+to b fd 50 end
+to l lt 90 end
+to 6 lt 60 end 
+to r rt 60 end
+to 9 rt 90 end 
+
+a l b r a r b 9 a 6 a
+9 b 6 b 9 a
+r a l b r b 9 a
+///////
+;degress rows rect pyra
+make a=100 make b=a/2
+make t=10
+to da dn 90 fd b up 90
+fd a fd -a up 90 fd b dn 90 end
+to db dn 90 fd b up 90
+fd b fd -b up 90 fd b dn 90
+end
+rpt 10 [
+rpt 4 [rpt t [fd a da rt 90 fd b db rt 90
+fd a da rt 90 fd b db rt 90 pu fd a
+pd] rt 90 pu fd b pd]
+rt 90 pu fd b lt 90 fd b pd
+make t=t-1 up 90 pu fd b pd
+dn 90] rt 90 rpt 4 [fd b rt 90]
+
+center
+
+////////
+;cube of diag edge intersects
+to r 
+make a=400
+make x=20
+
+rpt 4 [fd a rt 90]
+
+center
+rpt 10 [pu rt 90 fd x lt 90 pd 
+omark k make d=a*.02
+make e=d*3 make a=a-e
+fd a+d rt 90 fd a*1.03
+goto k] end
+
+to b omark z r goto z 
+pu fd 400 rt 90 fd 400
+rt 90 pd r end
+
+to c b goto z up 90 b goto z
+pu fd 400 pd dn 90 b
+goto z fd 400 dn 90 b end
+to u c lt 90 pu fd -200 dn 90
+end
+u 
+pd sly 200 c
+////////
+;bird pair of dice
+rpt 2 [omark m 
+make aa=400 make cc=1
+rpt 12 [if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0] make cc=cc+1
+make y=.02 make x=20
+
+rpt 4 [fd aa rt 90]
+
+center
+omark j rpt 6 [make a=aa rpt 20 [pu rt 60 fd x lt 60 pd 
+omark k make d=a*y
+make e=d*3 make a=a-e
+fd a+d rt 60 fd a*1.03
+goto k] goto j pu fd aa
+rt 90 up 3 omark j omark k pd make y=y-.005 rr 17] goto j make aa=aa-60 
+] goto m up 60 lt 90]
+////////
+;rainbow dream catcher wet
+make r=200
+rpt 10 [make cc=1
+
+make d=24
+make t=12
+rpt t [
+omark k pu fd r rt 90 pd ar 360 r
+goto k rpt d [
+if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0] make cc=cc+1
+fd r fd -r 
+rt 360/d]
+rt 30/t make mr=r/t 
+make r=r-mr] up 90 pu fd 30
+pd dn 90 make r=r-125]
+
+////////
+;color circ in circ sq sheets
+make cc=1
+make r=300
+make r2=r*.75
+make r3=r*1.334
+make d=31
+make n=60
+rpt 16 [rpt d [if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0] make cc=cc+.25
+ar 360/d r rt n ar 360 r2 lt n
+rpt 4 [fd r3 rt 90]]
+up 90 fd 100 dn 90 make r=r-75]
+center
+
+///////
+;concentric rainbow spheres
+make a=500
+make b=300
+make d=100
+make n=78
+make x=171 make cc=1
+to 1 rpt d [
+ lt n au 359 b lt x
+] end
+rpt 6 [if cc=1 [sc purple]
+if cc=2 [sc blue] if cc=3 [sc green] if cc=4 [sc yellow] if cc=5 [sc orange] if cc=6 [sc red make cc=0] make cc=cc+1 1 dn 90 fd -b/5 up 90
+make a=a*.8 make b=b*.8
+]
+
+;pd sly 400
+#timeout=200
+center
+
+////////
+:torus
+make a=500
+make b=300
+make d=100
+make n=57
+
+rpt d [rt n au 360 b lt n ar 360/d a]
+
+center
+////////
+;elect sequen v spreas
+make r=300
+make d=6
+make n=12
+make x=120
+make y=12
+ar 360 r
+
+rpt 45 [ar 360 r rpt d [omark k rt 90 rt n
+fd x goto k rt 90 lt n
+fd x goto k pu ar 360/d r pd]
+make x=x-18 rt 90 pu fd y pd lt 90
+make r=r-y up 90 fd 12 dn 90]
+center
+////////
+;v spread project in circ
+make r=300
+make d=21
+make n=12
+make x=r*1.95
+
+ar 360 r
+
+rpt d [omark k rt 90 rt n
+fd x goto k rt 90 lt n
+fd x goto k pu ar 360/d r pd]
+
+center 
+////////
+;taeppe of 6 angle legs
+make a=60
+make b=60
+make c=120
+make n=120
+make n2=60
+
+to 1 rpt 6 [fd a rt n fd c lt n fd b rt n2] end
+
+to 7 rpt 10 [1 pu fd a*4.5
+lt 90 fd a*.85 rt 90 pd ] end
+
+omark k rpt 6 [7 goto k
+pu lt 90 fd a*3.5
+rt 90 fd -a*3.0 omark k pd 7
+goto k pu lt 90 fd a*4.5
+rt 90 fd a*2 pd omark k]
+
+center
+////////
+;3 puzzle pirces not fitting
+make a=50
+to a fd a end
+to 2 rt 120 a end
+to l lt 120 a end
+to 7 rt 60 a end
+to 4 lt 120 a end
+to 8 lt 60 a end
+
+to 1 rpt 3 [a 2 l 7 2 4 8 7 
+rt 60] end
+
+1 pu lt 90 fd a*3.5 
+rt 90 pd 1 pu fd a*4.5
+rt 90 fd a*2
+lt 90 up 180
+pd sly 100 1
+
+center
+
+///////
+;disk polapse x4 branch 6
+make a=50
+make b=a*4
+
+to 4 rpt 4 [fd b rt 45 fd a rt 90 fd a rt 45 fd b lt 90] end
+
+to s rpt 19
+ [ 4 rt 5
+] end
+to b omark m2 rpt 2 [omark mm rpt 2 [
+make cc=1
+rpt 12
+ [if cc=1 [sc [58 0 99] ] if cc=2 [sc [0 88 98]] if cc=3 [sc [95 60
+0] make cc=0] make cc=cc+1 s up 60 make a=a*1.002
+] goto mm up 180] goto m2
+lt 180] end
+
+omark jj rpt 6 [pu fd 500
+pd b goto jj up 60 omark jj]
+#timeout=300
+center
+////////
+;disk polapse
+make a=50
+make b=a*4
+
+to 4 rpt 4 [fd b rt 45 fd a rt 90 fd a rt 45 fd b lt 90] end
+
+to s rpt 19
+ [ 4 rt 5
+] end
+
+make cc=1
+rpt 12
+ [if cc=1 [sc [58 0 99] ] if cc=2 [sc [0 88 98]] if cc=3 [sc [95 60
+0] make cc=0] make cc=cc+1 s up 60 make a=a*1.05
+]
+///////
+;why 36 two work 3 go nuts
+make a=500
+make b=a*.9
+make c=a*.5
+make d=a*.34
+
+to 1 fd a rt 90 fd c rt 101
+fd b rt 60 fd d end
+
+to o rpt 36
+[omark k 1 goto k pu
+fd c lt 90 fd c rt 80
+fd -a pd ] end
+
+rpt 2 [o pu fd -a*2.35
+rt 90 fd a*.25
+lt 90 make a=a*.5
+pd rt 90 up 180]
+sly 200 
+center
+////////
+;tri rings condense to point
+make a=500
+to 1 rpt 3 [pu fd a*.1 pd 
+fd a*.8 pu fd a*.1 pd rt 120]
+end
+
+to 2 rpt 30 [1 lt 90
+pu ar 360/30 a*5 pd rt 90]
+end
+
+rpt 20 [
+2 pu fd a*1.15
+pd make a=a*.77]
+
+;pd sly 100
+center
+
+////////
+;pente spiral fd
+make a=400
+
+repeat 24 [
+  repeat 5 [fd a rt 72] 
+ rt 108 fd a lt 36
+make a=a*.78 ]
+
+center
+; fd=forward lt=left turn ...
+; 78 percent redution works
+
+////////
+;stained glass jew star
+;star lessons 1 4 16 s fin
+make a=400
+make b=.577
+
+to 1 rpt 3 [fd a rt 90 fd a*b
+fd -a*b lt 90 fd a rt 120] end
+
+to 4 1 lt 60 make a=a pu fd a*2 rt 120 pd 1
+pu fd a*2 pd 1 rt 60 pu fd a*2
+lt 60 fd -a*2 pd 1 end
+
+to 16 rpt 3 [ 4 rt 60] end
+
+to s rpt 3 [16 rt 60] end
+
+to fin make cc=1 make xc=cc*5
+rpt 199 [if cc lt 15 [sc [60-xc 0 99]] else [sc [0 99-xc 91-xc ]] 
+if cc gt 30 [make cc=0] make cc=cc+1 s make a=a-2 up 90 fd 3 dn 90] end
+
+fin
+
+#timeout=200
+center
+////////
+;stained glass jew star
+make a=400
+make b=.577
+to 1 rpt 3 [fd a rt 90 fd a*b
+fd -a*b lt 90 fd a rt 120] end
+
+to 4 1 lt 60 make a=a pu fd a*2 rt 120 pd 1
+pu fd a*2 pd 1 rt 60 pu fd a*2
+lt 60 fd -a*2 pd 1 end
+
+to 16 rpt 3 [ 4 rt 60] end
+
+rpt 3 [16 rt 60] 
+
+center
+////////
+;sphere color pins vari
+
+make d=150
+make t=125
+make r=3
+make cl=1
+
+rpt t [omark k rpt t [ pu 
+fd d pd 
+if cl=1 [fd 5*r sc [99 89 0]]
+if cl=2 [fd 15*r sc [45 0 99]]
+if cl=3 [fd 23*r sc [0 99 89]]
+if cl=4 [fd 15*r sc [45 0 99]]
+if cl=5 [fd 5*r sc [99 89 0] make cl=0]
+make cl=cl+1 goto k 
+rt 360/t omark k]
+up 360/t omark k make r=r+1]
+
+center
+
+#timeout=300
+////////
+;sphere
+;sphere
+
+make d=150
+make t=90
+make r=4
+make o=1
+
+rpt t [omark k rpt t [ pu 
+fd d pd fd o goto k 
+rt 360/t omark k]
+up 360/t omark k]
+
+center
+////////
+;unusual spaced circle flower
+make a=200
+
+to xx rt 90 omark a
+fd a rt 180 omark b 
+
+goto b rt 120 al 90 a end
+
+make t=1 mark m rpt 60 [rpt t [
+rt 90 omark a fd a fd -a 
+lt 90 
+ar 360 a goto a fd a rt 180
+lt 90 ar 360 a
+
+goto a 
+lt 60
+fd 200 rt 120 fd 200 rt 120
+fd 200
+fd 1 lt 90 fd 1 rt 90 rpt 9 [rt 120 fd a]
+goto m rt 180/t] make t=t+.0001
+]
+////////
+;double fresnal spiral
+make a=1
+make b=1
+to 1 
+rpt 300
+[ar a b make a=a+1
+make b=b+1
+] end
+
+omark j 1 goto j up 90 
+fd 50
+dn 90 omark j make a=1
+make b=1 1
+////////
+;go fly a kite
+make a=50
+rpt 180 [ar 1 a pu ar 1 a pd]
+make cc=1 to 2 
+omark m rpt 5 [if cc=1 [sc [45 0 99] make cc=2] else [sc [0 88 96] make cc=1] rpt 90 [ar 2 2 rt 2 omark k sp 200 
+goto k ] goto m up 90 fd 17 dn 90 omark m] end
+
+to 4 omark hh 2 goto hh up 180
+make a=50 2 end
+
+omark gg 4 goto gg rt 180 
+dn 90 4
+
+center
+
+////////
+;pentagon rings on rings tree
+make a=50
+to h rpt 5 [fd a rt 72] end
+to x rpt 5 [fd a lt 72] end
+to t lt 72 fd a end
+to r rt 72 x fd a end
+to y :n rpt :n [x fd a rt 72 x fd a ] end to 6 fd a*.67 end
+
+to 1 rpt 5 [x fd a rt 72]
+lt 108 fd a rt 72 end
+
+to 2 sc red y 1 6 y 1 6 y 1 6 y 1 6 y 1 end
+
+to 3 sc green lt 72 fd a rt 35 y 1 6 rpt 4 [y 1 t r 6 ] x end
+
+omark k rpt 50 [1 2 3 goto k 
+pu up 90 fd 4 dn 90 pd omark k make a=a-1]
+
+center
+////////
+;octagons spaced with squares
+make a=50
+make b=a*1.333
+make n=45
+make n2=114
+make n3=89
+to 1 rpt 8 [fd a rt n] omark k rt 67.5 fd a*2.6 goto k pu fd a rt n fd a rt 45 rt 67.5 
+pd fd a*2.6 end
+to 2  omark m 1 goto m
+end
+to 8 omark j 2 goto j lt 90 pu
+fd a*5
+rt 90 pd 2 end
+to 6 omark z rpt 6 [1 goto z lt 90 pu fd a*2.415 rt 90 pd omark z ] end
+to 36 omark y rpt 6 [6 goto y pu fd -a*2.415 pd omark y] end
+to many 36 up 90 36 rl 90 dn 90 36 rr 90 up 90 36 end
+omark gg many goto gg make a=40 sc [0 88 99] many
+center
+
+////////
+;progressive squares octagons
+make n=67.5
+make d=1.85
+make aa=150
+to o rpt 8 [fd a rt 360/8] end
+to s rpt 4 [fd a rt 90] end
+
+make a=aa 
+rpt 14 [o pu fd a rt n
+pd make a=a*d
+s make a=aa*.28
+pu fd a rt 90 fd a lt 113
+make aa=aa*.704 make a=aa pd
+o pu lt 360/8 fd -a ]
+
+center
+///////
+;sp lines form a wedge
+make a=50 make b=20
+to s :n rpt :n [fd 1 pu fd 1
+pd] end
+
+to 1 rpt 2 [s a rt 90 s b rt 90] end
+
+to bx 1 up 90 1 pu fd 100 pd dn 90 1 pu fd 100 pd dn 90 1 end
+
+make c=21
+rpt 16 [bx rt 45 fd 4 lt 45
+make a=a-2 make b=b-2]
+make cc=1 rpt 8 [
+if cc=1 [sc magenta]
+if cc=2 [sc [50 0 99]]
+if cc=3 [sc [0 78 89]]
+if cc=4 [sc [45 0 99]]
+make cc=cc+1 rpt 4 [
+
+omark j rpt 12 [ rt random 360 up random 360 sp 999 goto j] fd 100 rt c]
+make c=c+5]
+
+center
+////////
+;chicken tai iron cross
+make a=100
+make b=a*.435
+make n=153
+make n2=n
+make x=60
+to 1 
+fd a
+rt n2 fd b lt 90 fd b rt n2
+fd a rt n 
+end 
+
+to 4 rpt 4 [omark k 1 goto k rt 90] end
+
+to a 4 pu fd a rt 108
+make y=a*.62
+pd rpt 4 [fd y rt 90 fd y
+lt 90 fd y rt 90] end
+to 2 omark j rpt 2 [goto j a pu fd a*1
+rt 70 fd a*1.6 omark j
+pd ] end
+2
+center
+/////////
+;distort many tri sp with arc
+to n rt 120 up 90 pu fd 10
+dn 90 pd end
+
+make a=300
+to 1 omark k rpt 10
+[sp a goto k rt 10
+omark k] end
+
+to 2 omark j rt 20 1
+rpt 3
+ [goto j ad 100 80
+omark j rt 20 1] end
+to 4 rpt 3 [
+sc [0 88 77] 2 goto j fd 80 n
+fd 2 sc [50 0 99] 2 goto j fd 80 n
+fd 2 sc [99 75 0 ] 2 goto j fd 80 n
+fd 2 sc [50 0 99] 2 goto j fd 80 n] end
+rpt 6 [omark mm
+4 goto mm lt 60 up 180 
+fd -a rt 90 fd a lt 90 4 rr 7
+make a=a+5]
+center
+#timeout=200
+////////
+;random red through dor maze
+make a=1
+make b=3
+make l=50
+make cd=1
+omark mm rpt 112 [rpt 10 [rpt 3 [
+rpt l [fd a pu fd b pd]
+rt 90] make l=l-4] omark xx goto mm
+up 90 fd 1 dn 90 omark mm
+make a=1 make l=50]
+rpt 10 [goto xx sc red rpt 40 [rt random 360
+up random 360 sp 100]]
+center
+#timeout=300
+////////
+;18 tri along circ fb modify
+make a=50
+make n=135
+make n2=90
+make e=a/2
+to 1 lt 180-n pu fd e pd fd a rt n2 fd a 
+rt n fd a*1.4 rt 180 pu fd -e pd end
+
+to 2 rpt 18 [
+1 pu ar 360/18 a*4 pd] end
+
+make d=-10 rpt 3 [omark k
+rpt 14 [2 pu rt 90 make x=3/5 make x=x*a fd x
+lt 90 pd make y=7/50 make y=y*a 
+make a=a-y up d
+] goto k up 90 pu fd 65
+pd dn 90 make d=d+10 make a=50]
+
+center
+///////
+;sp in dot fluff slow
+make a=50
+make n=110 make x=90
+to z :y rpt :y*25 [fd 1 pu fd 1 pd] end 
+to 1 rpt 5 [z 1 omark k
+z 22
+rt n z 8 rt n*.98
+z 8 z 16 rt n z 24
+omark o
+goto k rt 72 ]
+end
+omark vv make cm=1
+rpt 40 [1 goto vv up 90 fd 40 dn 90 rt 2
+omark vv if cm=20 [omark bb] 
+make cm=cm+1] sc orange
+goto bb rpt 150 [rt random 360
+up random 360 sp 1000 goto bb]
+
+#timeout=350
+center
+
+////////
+;cones off center
+make a=200
+make b=2
+make t=90
+make d=250
+make n=d*2
+make d2=90*2.25
+to 1 rpt t
+[ar b a pu ar b a pd]
+rt 90 pu fd d2
+up 90 fd d dn 90 omark k pd
+rpt t [sp 300 goto k rt 4 
+omark k ] end 
+rpt 12 [sc pick [red orange magenta [0 88 99]]
+1 pu fd d2*.85
+rt 90
+dn 90 fd d up 90 make a=a-25 
+]
+center
+///////
+;hex dia colors on 3 sides
+sc [99 90 0]
+make a=400
+to h rpt 6 [fd a rt 60] end
+omark k rpt 2 [
+rpt 36 [h rt 45 pu fd a*.175
+lt 45 pd make a=a*.85
+fd -a*.05 up 90 pu fd a*.1
+pd dn 90]
+goto k up 180 rt 60 make a=400]
+omark j rpt 2 [sc [48 0 99]
+rpt 2 [omark m rpt 4200 [sp 1400 goto m
+rt random 360 dn random 360
+omark m] goto j rt 60 fd 750
+lt 180  sc [0 91 99]]
+goto j rt 60 fd 375 lt 90
+fd 375 rt 180]
+center
+#timeout=200
+///////
+;hex diamond
+make a=400
+to h rpt 6 [fd a rt 60] end
+omark k rpt 2 [
+rpt 36 [h rt 45 pu fd a*.175
+lt 45 pd make a=a*.85
+fd -a*.05 up 90 pu fd a*.1
+pd dn 90]
+goto k up 180 rt 60 make a=400]
+
+center
+////////
+;8 circ in circ plus sq
+make a=200
+omark k
+pu fd a/2 lt 90 fd a/2 rt 180
+pd rpt 4 [rpt 4 [fd a*.16
+rt 90] fd a rt 90]
+goto k 
+pu lt 90 fd a rt 90 pd 
+ar 360 a rpt 8 [ar 360 a*.275
+ar 45 a ]
+
+///////
+;color splash on fringed sq
+make a=150
+make b=100
+to s omark k
+ rpt 6 [sc pick [magenta  purple [99 80 0] [0 92 99]]
+rpt 45 [dn 2 fd b fd -b ]
+goto k rpt 45 [up 2
+fd b fd -b ] goto k fd a
+rt 60 omark k] end
+rpt 5 [s up 90 s fd a dn 90 s ar 210 a]
+
+center
+////////
+;almost 6 nested circ shapes 
+make a=50
+make b=a*5
+make c=a*3
+
+make n=117
+make n2=90
+make n3=60
+to 1 
+
+fd a lt n3
+fd c lt n3 fd c lt n3
+fd c rt n fd c lt n3 fd c*.65
+rt 126 fd b rt n fd a lt n2 fd a
+rt n2 fd a lt n fd b rt n
+fd c rt n3 fd c lt n
+fd c rt n3 fd c rt n3 fd c
+rt n3 fd a rt n
+end
+
+rpt 6 [1 rt 60 ]
+center
+////////
+;matrix of diamond with dunce
+make a=75
+to s rpt 4 [fd a rt 90] end
+to 4 pu omark j rpt 4 [goto j s rt 90 fd a lt 90 omark j] end
+to 16 omark k rpt 4 [4 goto k fd a omark k] end
+to star pu 16 rt 90 fd a rt 90 fd a lt 90 fd a rt 135 
+pd rpt 4 [fd a*1.4 lt 90] 
+rt 72
+rpt 4 [fd a*2.2 lt 143
+fd a*2.2 rt 52] end
+to row omark m rpt 4 [star
+goto m lt 90 pu fd a*4
+rt 92 pd omark m] end
+lt 75
+omark x rpt 6 [row goto x pu fd -a*4 omark x pd]
+pd row
+
+sly 100
+center
+////////
+;stopsign of tri swirls
+make a=150
+make b=3.5
+make n=1.1
+make d=.94
+make c=28
+make x=.21
+to t rpt 3 [fd a rt 120] end
+
+to 7
+rpt c [t rt 60 pu fd b lt 60
+fd x lt n make a=a*d pd ] end
+to 3 omark k 7 goto k
+make a=150 fd a rt 120 fd a
+rt 180 7 goto k lt 60 make a=150 7 end
+to all omark j 3 goto j make a=150 fd a*2 rt 180 3 end
+all
+
+center
+
+///////
+;trapazoid attemt at sqs fb-
+make a=100
+to 1 fd a*2 rt 90 fd a rt 90
+fd a rt 45 fd a*1.42 end
+to 2 fd a*2 lt 90 fd a lt 90
+fd a lt 45 fd a*1.42 end
+to 3 1 lt 135 2 end
+to 4 rpt 4 [3 pu fd a*1.4 
+rt 135 pd ] end
+to 5 2 lt 135 1 end
+to 6 rpt 4 [5 rt 45] end
+to 7 omark k 
+6 pu fd a*4 pd lt 180 1 rt 135
+2 goto k lt 45 pu fd a*1.42
+lt 135 fd -a*2 pd 1
+goto k  rt 45 pu fd a*1.42
+rt 135 fd -a*2 pd 2 goto k
+lt 90 pu fd a*2 rt 90 omark j
+fd -a pd 2 goto j pu fd a lt 180 fd -a pd 1 end
+rpt 2 [rpt 4 [
+7 up 180 7 lt 180 7 dn 180 7
+rt 180 ]
+rt 180
+///////
+;double squares
+make a=10
+make t=40
+
+to s rpt 4 [fd a rt 90] end
+rpt 9 [omark k 
+rpt t [s fd a] goto k
+fd a rt 90 fd a
+rpt t [s fd a] goto k
+fd a rt 90 fd a lt 90
+make a=a*2 make t=t/2 make t=t-1 if t lt 0 [pu]]
+
+////////
+----------- BACKED UP. 9-4-2025 -----------------
+///////////
+;3 arrows not fitting fb
+make a=50 make b=a*3
+make c=2
+make n=60
+to s sly 50 end
+to 1 fd a*.7 lt n
+fd a rt 100 fd a*2 rt 80 
+fd a*2 rt 100 fd a lt n 
+fd a*.7 lt 110
+fd -a*c fd a*c 
+fd a*2.4 lt 110 
+fd a*3.8
+lt 80 fd a*3.8
+lt 100
+fd a*3.2 end
+
+omark k 1 goto k pu fd -a*1.5
+lt 110 rt 50 fd -a*.2
+lt 50 
+pd 1 pu rt 90 fd a*.7
+rt 90 fd 0
+rt 279 
+pd 1
+////////
+;jumping dot change angle rep
+make a=200
+rpt 4 [rpt 36 [pu fd a pd fd 1 fd -1
+pu fd -a rt 10] make a=a-45]
+
+sc red pu fd a pd rpt 61 [lt
+187
+sp 200 rt 365
+sp 150]
+
+////////
+;flower
+make n=70
+make n2=30
+make a=99
+to 1 rpt 7
+[ ar n a ad n2 a
+lt 20
+up 20
+]
+
+rpt 6
+[ al n a au n2 a
+rt 20
+dn 20 ] end
+
+omark j rpt 280 [1 goto j lt 90
+omark j make a=a-.2]
+
+#timeout=300
+////////
+;rings of sq and circ fb
+make a=25
+to s rpt 4 [fd a rt 90] end
+to sl rpt 4 [fd a lt 90] end
+to t rpt 3 [fd a rt 120] end
+to tl rpt 3 [fd a lt 120] end
+to f fd a end
+to 6 rt 60 end to 6l lt 60 end
+to 9 rt 90 end to 9l lt 90 end
+to 1 rt 120 end to 3 rt 30 end
+to 1l lt 120 end 
+to ts fd a 1 rpt 4 [fd a 9l] pu fd a pd 1 fd a 1 end
+
+rpt 6 [ts 6l ]
+f 3 fd a 9 f 3
+to all rpt 6 [sl f 9l t 1 tl f 6l tl s 9 ] f 9l f 3 rpt 6 [s 9 f sl f 9l t 6 t 6 f 6l tl]
+
+f rpt 6 [s 9 f 9l s 9 f 9l t 1 tl f 1l t 6 t 6 f 1l t 6 ] end
+omark k rpt 16 [all goto k up 90 pu fd 22 pd dn 90 omark k make a=a-2]
+
+center
+////////
+;threads intercting l r color
+make a=30
+make b=128
+
+to 1 
+rpt 43
+[ar 360/b a pu 
+ar 360/b*2 a pd] end
+
+to 2 :d
+1 pu up 90 fd 35 dn 90 pd
+1
+rpt 43
+[ar 360/b a omark k dn 88
+rt 18
+sp 100 goto k pu
+if :d=1 [ar 360/b*2 a pd] else [al 360/b*2 a pd] ] end
+
+rpt 10 [sc pick [[50 0 99] [30 77 58] [70 55 30] ] rpt 3 [2 2] 2 2 dn 90 rt 60]
+#timeout=300
+center
+////////
+;5 star cone - base of thread
+make a=30
+make b=128
+
+to 1
+rpt 43
+[ar 360/b a pu 
+ar 360/b*2 a pd] end
+
+to 2 
+1 pu up 90 fd 35 dn 90 pd
+1
+rpt 43
+[ar 360/b a omark k dn 88
+rt 18
+sp 100 goto k pu
+ar 360/b*2 a pd] end
+omark j rpt 5 [
+2 lt 180 2 goto j au 360/5 a*3
+omark j]
+
+center
+////////
+;pants shaped pzzle pieces fb
+; 50  90  145 
+
+make a=30
+make x=35
+make b=30
+make c=125
+make d=85.4
+to 1 
+fd x lt b fd a rt c fd a 
+lt d fd a rt c fd a lt d
+fd a rt c fd a lt b fd x 
+rt d fd x rt d fd a lt c fd a
+rt d fd x end
+omark k 1 goto k
+pu fd a*4.2
+lt 90 fd a*2.5
+rt 180
+pd sly 100 1
+///////
+;simple shield of color arcs
+make a =3 omark k
+rpt 360 [sc pick [[44 88 99] [50 0 99] [89 75 31]] rpt 12 [au 180 a ar 180 a ad 60 a 
+al 60 a
+] goto k up 1 omark k]
+#timeout=300
+
+///////
+;box of 4 sq diamond mid fb
+to 2 rpt 2 [make a=.5 make c=a*4 
+make d=c 
+make t=a*20
+make cn=a*2
+rpt t+t-2 [fd a fd -a*2 fd a rt 90 pu fd c lt 90
+pd if cn gt t-1 [make a=a+d] else [make a=a-d] make cn=cn+1]] end
+to 4 omark 2 2 goto 2 
+pu fd a*72
+rt 90 fd a*72 pd 2 end
+to cu
+omark m 4 goto m rt 45 fd a*100 up 90 lt 45 omark m 4
+goto m rt 45 fd a*100 up 90
+lt 45 omark m 4 goto m rt 45
+fd a*100 up 90 lt 45 4 end
+omark g cu goto g pu rt 45
+fd a*100 lt 45
+pd sly 100 4
+
+center
+////////
+;5 star jungle gym
+omark m rpt 5 [
+make a=400
+
+to s rpt 5 [fd a rt 144] end
+
+to 6 rpt 6 [s pu fd a rt 144 fd a*.4
+lt 145 pd make a=a*.5 ] end
+omark j 
+make a=a*4
+s rpt 5 [goto j pu fd a*.62 lt 110 fd a*.16
+rt 90 pd 
+make a=a*.3
+6 goto j make a=1600 pu fd a rt 144 omark j pd]
+goto m up 72 omark m]
+center
+///////
+;matrix of puzzle shapes fb
+make a=50
+to a fd a end
+to 2 fd a*2.5 end
+to 1 fd a*1.5 end
+to r rt 90 end
+to l lt 90 end
+to z
+2 r a l a r a r a l a r 2
+l a l 2 r 1 r a l a r a r a
+l 2 r 1 r a l 2 r a l 1 end
+
+to y omark k rpt 2 [z goto k
+pu 
+rt 90 fd -a omark k
+pd z
+goto k pu fd a*8
+rt 90 fd a*5 omark k
+pd ] end
+to 6 omark j rpt 6 [y goto j pu fd a*10 lt 90 fd a*2 rt 90 omark j pd] end
+omark m rpt 6 [6 goto m
+pu lt 90 fd a*10
+rt 90 fd a*1.75 omark m pd ]
+center
+
+////////
+;sq plus 4 circ fb
+make x=1
+omark m rpt 10 [make a=10*x make b=12*x
+make d=.5*x make c=1
+
+to s rpt 4 [fd a rt 90] end
+
+rpt 18 [s 
+if c=9 [omark k rt 90 pu fd a/2 lt 90 pd ar 360 a/2 al 360 a/2
+goto k pu fd a rt 90 fd a/2 lt 90 pd ar 360 a/2 al 360 a/2
+goto k]
+
+make a=a+b lt 90 pu fd b*d
+rt 90 fd -b*d pd make c=c+1]
+pu fd a/2 lt 90 fd a*.07
+rt 90 pd ar 360 a*.57
+goto m pu up 90 fd a*.17 dn 90 pd
+make x=x-.1 omark m]
+////////
+;intersect circs spiral
+make aa=100
+
+rpt 36 [make a=aa omark k 
+rpt 3 [ar 360 a rpt 6 [pu ar 60 a pd
+al 360 a]
+lt 90 pu fd a*2 pd rt 90 
+make a=a*3]
+
+make a=aa goto k 
+rpt 3 [al 360 a rpt 6 [pu al 60 a pd
+ar 360 a]
+rt 90 pu fd a*2 pd lt 90 
+make a=a*3]
+make aa=aa-2.5 pu ar 15 a
+up 3]
+sly 100
+
+center
+#timeout=300
+////////
+;band of stars separted by sq
+make a=40
+to 1 fd a rt 120
+fd a rt 30
+fd a/3 rt 90
+fd a rt 90 
+fd a/3 rt 30 end
+to 2 pu fd -a pd 1 fd a rt 120 fd a rt 30
+fd a*.667 rt 30 1
+rt 180 fd -a end
+to 3 omark k rpt 3 [2 goto k rt 120
+omark k ] end  to m omark j
+make x=a*3 rpt 4 [3
+pu lt 30 make x=100 fd x rt 30
+goto j lt 60 omark k pd ] end
+to o omark t rpt 4 [m goto t rt 90 pu fd a*3.5 pd omark t]
+end omark u rpt 4 [o goto u rt 90 pu
+fd a*7 pd lt 90 omark u]
+center
+///////
+EMAILED ----------------- 
+/////////
+
+;star of double tip fd 
+
+make a=40
+to 1 fd a rt 120
+fd a rt 30
+fd a/3 rt 90
+fd a rt 90 
+fd a/3 rt 30 end
+
+to 2 1 fd a rt 120 fd a rt 30
+fd a*.667 rt 30 1
+rt 180 fd -a end
+
+to 6 rpt 6 [2 pu fd a lt 30 fd a*.667
+lt 30 pd ] end
+
+to m rpt 6  [6 pu lt 120 fd a*4 rt 120 pd ] end
+
+omark k
+rpt 6 [m goto k pu fd a*2.75
+pd omark k]
+
+center
+///////
+;6 tri varis x y grow 1.05 .6
+make a=5 make x=1.25
+make y=.4
+
+to t rpt 6 [fd a rt 120] end
+
+to 6 rpt 6 [t rt 60 pu fd a/2 pd] end
+
+omark k rpt 6
+[6 goto k 
+pu fd a*x lt 90 fd -a*y
+rt 90 pd rt 60
+make a=a*3
+make x=x*1.05
+make y=y*.6]
+
+center
+////////
+;cone of circs 6 up
+omark mm rpt 6 [make a=100
+omark j rpt 6 [
+omark k rpt 3 [
+make cc=1
+make s=3
+rpt 20 [
+rpt s [fd a rt 360/s]
+make s=s+1 up 90 fd a dn 90 if cc=1 [sc blue ] if cc=2 [sc purple ] if cc=3 [sc green make cc=0 ]
+make cc=cc + 1] goto k
+up 90 fd 1 dn 90 omark k
+] goto j rt 60 omark j] goto mm up 60 omark mm]
+center
+#timeout=180
+////////
+;cone of circs
+make a=100
+omark j rpt 6 [
+omark k rpt 19 [
+make cc=1
+make s=3
+rpt 20 [
+rpt s [fd a rt 360/s]
+make s=s+1 up 90 fd a dn 90 if cc=1 [sc blue ] if cc=2 [sc purple ] if cc=3 [sc green make cc=0 ]
+make cc=cc + 1] goto k
+up 90 fd 1 dn 90 omark k
+] goto j rt 60 omark j]
+center
+
+///////
+; star in poly
+make a=50
+make n=117
+make b=72
+rpt 2 [
+rpt 8 [
+fd a rt n fd a lt b] 
+pu fd a*2 pd rt 90 fd a*2.25 
+rpt 7 [rt 45 fd a*2.4 
+] make a=a*.5]
+
+////////
+;box with 4 windows 
+make aa=100 make a=aa make x=2
+
+to s rpt 20 [rpt 4 [fd a
+rt 90] pu fd 2 rt 90 fd 2
+lt 90 pd make a=a-4] end
+
+omark k 
+to v goto k make a=aa end
+
+to bx s v up 90 
+make a=aa s v
+goto k fd a up 90 s v
+pu fd a up 90 fd a pd up 90 s
+v rl 90 s v pu fd a rt 90 
+fd a up 90
+pd s end
+
+bx make aa=80 bx
+////////
+;nested jagged gridwork
+make a=500
+to 1 make n=130
+fd a*2
+rt n fd a
+lt n
+fd a*2 
+rt n fd a*4
+rt n
+fd a*4 end
+rt 90
+to 2 1
+pu fd -a*.9
+lt 80
+fd -a*3.1
+pd 1 end
+to 6 rpt 6 [omark k 2 goto k
+pu fd -a*3 omark k
+pd ] end
+to 18 omark j 6 6 goto j 
+fd -a*1.4
+pu lt 90 fd a*8 rt 90 pd
+make a=a*2 6 end
+to 36 omark m 18 goto m rt 180 
+make a=500 fd a*31.45
+lt 90 fd a*4
+rt 90 18 end
+omark s 36 goto s up 90 
+make a=500 36
+center
+////////
+;tri on arcs 8 grow concentric
+make aa=50 omark m rpt 10 [make a=aa 
+rpt 6 [ar 360 a*6 omark k
+pu lt 90 fd a*6
+rt 90 pd make b=a*12
+ar 360 b 
+goto k rpt 7 [lt 90 fd a*6.2
+rt 90 ar 360/16.6
+b
+rt 107
+fd a*6.2 make c=a*6.5
+lt 120 ar 360/7 c ]
+make a=a*2 lt 90 fd a*2.8
+rt 90
+] goto m up 90 pu fd aa*20
+dn 90 pd omark m make aa=aa-3]
+////////
+;circ sets inter from edge ---
+make a=400
+make n=8
+to d make x=1 rpt 8 [ar 360 a*x make x=x-.15] end 
+ar 360/n a omark 1
+ar 360/n a omark 2
+ar 360/n a omark 3
+ar 360/n a omark 4
+ar 360/n a omark 5
+ar 360/n a omark 6
+ar 360/n a omark 7
+ar 360/n a omark 8
+
+goto 3 d goto 5 d
+goto 7 d
+
+;to s :b goto :b d end
+////////
+;sequential arcs fb
+make a=500 
+make num=20
+make t=15.31
+
+rpt 2 [
+make d=1/num make y=100/t
+make n=1-d
+ar 360 a rpt t [rpt num [make n=n-d
+au 360 a*n] pu ar 360*y a
+pd make n=1-d]
+sc orange make a=400
+make t=27.1
+
+center
+////////
+;pat dbl damond inverted fb
+make a=75 to sh omark k
+rt 45 rpt 4 [rt 90 fd a]
+rt 135 pu fd a*.35
+lt 135 pd rpt 4 [rt 90 fd a*.5
+] rt 135 fd a*.35 rt 45 
+fd a*.25 fd -a*.25 lt 90 
+fd a*.25 goto k lt 135 pu
+fd a lt 45 pd fd a*1.35
+lt 45 fd a lt 90 fd a
+lt 45 fd a*1.35
+lt 135 fd a lt 45 fd a*.25
+lt 135 fd a*.75 rt 135 fd a*.75 rt 45 fd a*.75 rt 90 
+fd a*.75 rt 45 fd a*.75 rt 135
+fd a*.75 rt 45 fd a*.17 lt 135
+fd a*.6 rt 135 fd a*.4 rt 45 fd a*.6
+rt 90 fd a*.6 rt 45 fd a*.4 rt 135 fd a*.6 end
+to 2 omark m sh goto m pu up 180 lt 90 fd a*1.42 rt 90 fd a*2.75 pd sh end to 8 omark z
+rpt 6 [2 goto z pu lt 90 fd a*2.85 rt 90 omark z pd] end
+to dd omark yy rpt 6 [8 goto yy pu fd a*2 lt 90 fd a*.85
+rt 90 omark yy pd] end dd
+center 
+///////
+;cone made of circs
+make a=200
+make n=18
+make d=.9
+omark j rpt 6 [rpt n [pu ar 360/n a*5 pd sc red ar 
+180 a sc white omark k al 360 a*d sc green ad 359.8 a omark m sp a*6 rt 90 sp a*4 goto m ar 180 a*d sc white al 360 a*d/2
+goto k au 360.1 a ar 180 a]
+goto j up 90 pu fd a dn 90 rt 90 fd a
+lt 90 pd omark j make a=a-30]
+
+center
+////////
+;squaresin 8 star stacked bowl
+make a=100
+
+to s rpt 4 [fd a rt 90] end
+to c s up 90 s fd a dn 90 s
+fd a dn 90 s end
+
+make t=6
+make b=170
+to ay omark k rpt t [c goto k pu
+ar 360/t b pd omark k] end
+omark vv rpt 8 [
+rpt 8 [ay rt 90 pu 
+fd -600
+lt 90 
+up 90 fd a*2 dn 90 pd
+make b=b+100
+make t=t*1.1 make a=a*1.3
+] goto vv rt 360/8 omark vv
+make b=170 make a=100 make t=6]
+#timeout=200
+center
+/////////
+;circle of life fb
+make a=80
+
+to r rpt 7 [ar 360 a pu 
+ar 360/7 a*2.75
+pd] end
+
+omark k
+r make a=50 pu rt 90 fd a*1.67
+lt 90 pd 
+r make a=30 pu rt 90 fd a*1.67
+lt 90 pd r
+goto k ar 360 a*7.4
+center
+///////
+;petal branches two 7 side str
+make aa=400
+make a=aa
+to 1 make n=30
+fd a rt n fd a rt 150
+fd a rt n fd a end
+to 7 rpt 7 [1 rt 180 ] end
+to z rpt 8 [7 lt 90 pu fd a lt n fd a
+lt n*3
+make a=a*.6
+pd ] omark v end
+to r
+make t=7
+omark j rpt t [goto j z ar 360/t 900
+lt 0
+omark j make a=aa] goto v ar 360/t*.5 1600
+rt 90 end  
+
+r make aa=200 rt 30 pu 
+fd -aa*2 lt 90 fd -aa*2.6 pd r
+////////
+;expandig mandala stack 7x
+omark j rpt 7 [
+make a=300
+make n=12
+make b=a/2
+omark k rpt 12 [make b=a/2 pu fd a pd rt 90
+rpt n [ar 360 b pu ar 360/n
+a pd] goto k up 90 fd 50  dn 90
+pd omark k make a=a-35]
+goto j up 90 fd 1 dn 90 lt 90
+fd 1 rt 90 omark j]
+center
+
+#timeout=300
+////////
+;overlapping arcs as star ptls
+make aa=300 make a=aa
+make t=8
+to g :b rpt :b [ar 360/t a] end
+to h :b rpt :b [al 360/t a] end make cc=1
+omark m rpt 26 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue make cc=0] make cc=cc+1
+omark j rpt 8 [omark k rpt 2 [g 3 pu g 1
+pd g 2
+h 2 pu h 1 pd h 3
+goto k rt 90 pu fd a/4
+lt 90 pd make a=a*.75] goto j
+lt 360/t omark j make a=aa]
+goto m up 90 pu fd 35
+dn 90 pd omark m make aa=aa-3 make a=aa]
+center
+
+#timeout=250
+////////
+;opposing arrow matric fb
+make y=55 make x=130
+make a=100 make v=.26
+make w=.465 to 1 
+make n=110 make b=a*w
+pu fd b pd fd a-b
+rt 90 fd a rt 90
+fd a rt 90
+fd a-b lt 90
+fd a*v rt 70
+fd b*.8 rt n
+fd b lt 90 fd b
+rt n fd b*.8 rt 70 fd a*v end
+to 2 1 pu fd a*1.5
+rt 90 fd a*w pd 1 end
+to 4 2 pu fd a*1.9
+lt 90 lt 90 fd a
+rt 90 fd a*.4
+pd 2 end
+to 8 4 pu fd a*3.3
+rt 90 fd -a*1.3 pd 4 end
+to 16 8 pu fd a*3.9
+rt 90 fd a*1.1 pd 8 end 
+to 32 16 pu fd a*5.7
+rt 90 fd -a*.75 16 end
+32 pu fd a*4.5
+lt 90 fd a*4.0 pd 32
+center 
+////////
+;square circ pyramids
+make a=400 make cc=1
+rpt 13 [if cc lt 8
+ [sc [0 89 79]] else [sc [50 0 99]] make cc=cc+1 rpt 25 [
+rpt 4 [fd a rt 90]
+pu fd a/2 pd
+ar 360 a/2
+rt 90 pu fd 1 lt 90 fd 1
+up 90 fd 3 dn 90 
+fd -a/2 pd make a=a-2]
+
+rt 90 pu fd 2 lt 90 fd 2
+up 90 fd 3 dn 90 
+pd make a=a-4]
+center
+////////
+;atomic
+make a=300 make b=360/8
+omark 1 ar b a 
+omark 2 ar b a 
+omark 3 ar b a 
+omark 4 ar b a 
+omark 5 ar b a 
+omark 6 ar b a 
+omark 7 ar b a 
+to s rpt 6 [ar 360 a up 60]
+end
+
+s goto 1 s goto 2 s goto 3 s
+////////
+;partial stars in rows  fb
+make a=20
+make n=135
+make x=60
+to st fd a*1.5 lt x
+fd a*2 rt n
+fd a*2 lt x
+fd a*2 rt n
+fd a*2 lt x
+fd a*2 rt n
+fd a*2 lt x
+fd a*1.5
+rt 100
+fd a*.85 rt x fd a*1.5
+lt n
+fd a*1.5 rt x*1.2
+fd a*1.5 rt x fd a*1.5 lt n fd a*1.5 rt x*1.2 fd a fd -a*9
+rt 101
+end
+rpt 20 [st] rt 80
+fd -a*50 lt n fd a*4 
+make a=a*1.3 rpt 6 [st]
+sly 300
+////////
+;5 star of arms dn almost fb
+make aa=200 make a=aa
+make n=104.5
+to t omark k lt n fd -a*2 goto k
+fd a rt n
+fd a*2 end
+to arm make a=aa
+omark j rpt 2 [rpt 8 [ t
+fd -a*.4 lt 180 make a=a*.6 ]
+goto j up 180 make a=aa
+fd -a
+] end
+to st arm fd a lt 72 arm rt 72
+fd -a arm fd a lt 72 arm 
+rt 72 fd -a arm end 
+omark mm rpt 7 [make cc=1
+rpt 4 [if cc=1 [sc magenta]
+if cc=2 [sc [50 0 99]]
+if cc=3 [sc [0 78 89]]
+if cc=4 [sc orange]
+make cc=cc+1 st pu fd a*.27
+rt 90 fd -a*.27
+lt 90 pd 
+make aa=aa/2] goto mm make aa=200 lt 90 fd 1 rt 90 up 90 fd 3 dn 90 omark mm]
+#timeout=300
+center
+////////
+;8 single pie and tris fd
+make a=250
+to xx rpt 8[fd a rt 360/8]
+rt 67.37 fd a*2.61 end
+make b=a*1.3 make n=67.5
+rpt 8 [fd a rt 360/8] rpt 4
+[rt n fd b lt 135 fd b 
+rt 112.5 fd a rt 360/8
+] rpt 8 [lt n fd b rt 135 
+fd b lt 22.5
+]  lt n fd b rt n*1.33 
+rpt 8 [fd a*1.85 rt 45] 
+lt 90 rpt 8 [fd b rt 90 fd a*1.85 
+rt 90 fd b lt n*2] 
+rpt 8 [pu fd b pd rt 45
+fd b rt 90 fd b pu rt 45
+fd b lt 135 pd] pu fd b
+rt 45 fd b rt 67
+pd
+rpt 8 [fd a*3.4 rt 45 ]
+center
+////////
+;pents in pents level 4 fb
+to nano  
+rpt 5 [fd n/3 rpt 5 [fd n/3
+rt 72] pu fd n/3 pd fd n/3 
+rt 72] end
+
+to tiny
+rpt 5 [fd t/3 nano pu fd t/3 pd fd t/3 rt 72] end
+
+to small
+rpt 5 [fd a/3 tiny pu fd a/3 pd fd a/3 rt 72] end
+
+to norm
+rpt 5 [fd b/3 small pu fd b/3
+pd fd b/3 rt 72] end
+
+make b=300
+make a=b/3
+make t=a/3
+make n=t/3
+rpt 5 [fd b norm pu fd b 
+pd fd b  rt 72] 
+center
+
+////////
+; incr polys 9 span 5 ring
+omark h rpt 8 [
+omark j rpt 12
+[make a=100 make s=3
+omark k make cc=1
+rpt 5 [if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue] make cc=cc+1
+
+rpt 9 [rpt s [fd a rt 360/s]
+ rt 180/s] make s=s+1
+goto k make a=a*1.3
+goto j rt 90 fd .3 lt 90
+omark j] make v=a
+goto h rt 48 fd v*2.5 lt 90
+omark h]
+
+center
+#timeout=200
+///////
+;lace doily mandala fb
+make a=100 
+to arc
+rpt 9 [ar 360 a rt 180/9]
+end 
+
+to ring 
+rpt 24 [arc rt 90 pu fd a*2 rt 90 up 180 pd pd arc rt 90 pu fd a*1.85 rt 90 fd a*.7 lt 90 rt 75 fd -a up 180 pd ] 
+end
+
+rpt 8 [ring pu fd a*3
+make a=a*.8 pd ]
+
+center
+
+#timeout=300
+////////
+;large pent
+make a=20
+to w rpt 5 [ fd a rt 72] end
+to m lt 72 fd -a rt 108 end
+to r rpt 5 [w m ] end
+to r4 rpt 4 [w m ] end
+to y fd a up 180 end
+
+to s rpt 12 [r y r y r y r4 y]
+end
+
+omark k make h=4.4 make i=.3
+make j=1
+rpt 7 [s goto k pu fd -a*j lt 90 
+fd a*h
+fd a*i
+rt 90 pd make a=a*.83 make h=h*1.6 make j=j*1.7
+make i=i*1.2
+]
+
+center
+
+;sly 80
+
+;rpt 12 [r fd a y r4 y r y r4 
+;y r4 y r y ]
+
+////////
+;large pent concent rings
+make a=20
+to w rpt 5 [ fd a rt 72] end
+to m lt 72 fd -a rt 108 end
+to x rpt 5 [fd a lt 72] end
+to r rpt 7 [w m ] end
+to o fd a rt 72 fd a lt 108
+fd -a end
+
+to s omark k w rpt 5 [r goto k fd a rt 72 omark k] end
+to 2 omark j s goto j lt 90 pu
+fd a*8.05 rt 90 pd s end
+
+rpt 16 [r fd a lt 72 rpt 4 [w o ]]
+
+center
+;sly 60
+////////
+;slightly different pent mail
+make a=20
+to w rpt 5 [ fd a rt 72] end
+to m lt 72 fd -a rt 108 end
+to x rpt 5 [fd a lt 72] end
+to r rpt 7 [w m ] end
+
+to s omark k w rpt 5 [r goto k fd a rt 72 omark k] end
+to 2 omark j s goto j lt 90 pu
+fd a*8.05 rt 90 pd s end
+omark m 2 pu goto m fd a*8.5
+pd 2
+center
+;sly 60
+////////
+;10 circ dimin star attempt
+make a=200 omark j
+rpt 1 [
+rpt 10 [ al 36 a*2.3 omark k
+ar 360 a make b=a rpt 6 [pu
+lt 90 fd -a*.35
+rt 90 pd 
+pu ar 240
+b*.66 pd 
+ar 360 b*.66
+pu ar 360/2.75
+b*.66 pd lt 60 ar 360 b*.58
+goto k make b=b*.66] ]
+goto j rt 90 pu fd -a*.8
+lt 90 pd omark j 
+make a=a*.66]
+;sly 150
+#timeout=120
+center
+///////
+;boxes of mazes
+import lmaze
+make a=25 
+to 3s 256 up 90 pu lt 90 
+fd a*11 rt 90 fd a*4 dn 90 
+fd a*4 up 90 pd 256 pu 
+fd a*4 up 90 fd a*4 lt 90 
+fd a*11 rt 90 pd 256 end
+rpt 25 [sc rc
+3s up 90 fd a*2
+dn 90 make a=a*.9
+#timeout=200
+centers 
+////////
+;mazes without color fb
+make a=50
+to 1 fd a lt 90 fd a rt 90 fd a*2
+lt 90 fd a rt 90 fd a rt 90
+fd a*6 pu fd a pd fd a rt 90
+fd a rt 90 fd a*3 lt 90
+fd a rt 90 fd a rt 90 fd a
+lt 90 fd a*2 lt 90 fd a
+lt 90 fd a rt 90 fd a*2
+rt 90 fd a end 
+
+to 2 1 lt 180 pu fd a rt 90
+fd a pd 1 end 
+to 4 2 pu fd -a lt 180 pd 2 end
+to 16 4 pu fd a*10 lt 90 
+fd a rt 90 pd 4 end
+to 64 16 pu lt 90 fd a*11
+rt 90 fd -a*10
+pd 16 end
+to 128 omark k 64 goto k 
+pu fd a*20 pd 64 end 
+128 goto k pu rt 90 fd a*20
+lt 90 pd 128 
+
+center
+////////
+;objects on cube circ tri colr
+make a=400 make n=12
+
+to l rpt n [pu fd a/n pd
+rpt 3 [fd a/n rt 120]
+sc pick [[89 78 0] [0 78 87] [64 0 89] magenta] ar 360 a/n/3 sc [50 0 99] 
+] end
+
+to s rpt 4 [ l rt 90 ] end
+
+to c s up 90 s pu l dn 90 pd s
+pu l dn 90 pd s end
+
+omark k rpt 6 [c goto k rt 45 dn 45 fd 15 up 45
+lt 45 pd make a=a-25 omark k 
+]
+center 
+;sly 400
+
+#timeout=200
+///////
+;a kind of circ flower fb
+to f 
+make z=1.15
+rpt 8 [ 
+ar 360/8 a omark k rt 60
+ar 360/6
+a/z omark j rt 180
+al 360/6 a/z
+lt 120
+al 360/6 a/z 
+goto k]
+goto j rt 60 al 360 a/8
+rpt 2 [ goto k lt 120 rpt 8 [al 165
+a/2.6 rt 120] goto k ar 360/16
+a omark k] end
+omark m make a=300
+f make a=200 goto m pu rt 90
+fd a/2
+lt 90 pd f
+center
+
+///////
+;islam wall
+make a=100
+make n=180
+make b=a*.5
+to 1 omark k
+rpt 4 [ar n a
+al n a ]
+goto k rt 0
+rpt 4 [ar n b rt 180 ar n b 
+al n b lt 180 al n b
+] end
+to 2 omark j
+rpt 4 [al n a
+ar n a ]
+goto j 
+rpt 4 [al n b lt 180 al n b 
+ar n b rt 180 ar n b
+] end
+to 4 1 pu fd a*2 pd 2 end
+omark 2m omark m rpt 4 [goto 2m 4 pu goto 2m fd a*4 pd
+omark 2m ]
+goto m pu fd -a*2 lt 90 fd -a*2 pd  omark h
+rpt 4 [ 4 goto h pu
+fd -a*4 pd omark h]
+////////
+;arc left right up down 
+make a=500
+make n=96
+rpt n [ar 360/n a au 360 a]
+rpt n [ar 360/n a al 360 a]
+
+rpt n [ar 360/n a ad 360 a]
+rpt n [ar 360/n a ar 360 a]
+
+rpt n [al 360/n a au 360 a]
+rpt n [al 360/n a al 360 a]
+
+rpt n [al 360/n a ad 360 a]
+rpt n [al 360/n a ar 360 a]
+center
+
+////////
+;another purpplish mandala
+omark k rpt 3 [
+make a=500
+make n=24 sc [50 0 99]
+rpt n [sc red ar 360/n a sc orange rpt 3 [
+fd a/2 lt 120] sc green rpt 3 [
+fd a/2 rt 120] sc blue rpt 4 [
+fd a*.75 lt 90] sc [50 0 99] rpt 4 [
+fd a*.75 rt 90] sc magenta ar 360 a/2.5 sc [50 0 99] 
+al 360 a/2.5]
+///////
+;odd shape stack rotate color
+make r=99 make b=1 make g=5
+make a=200 make b=a*.5
+make n=60 omark m rpt 125 [
+rpt 13 [sc [r g b] fd b lt n
+fd a
+lt 90 fd a
+lt n fd b
+rt n*1.2
+fd b*.5
+lt n fd a
+rt 80 fd a
+lt 80 
+fd b*.5
+rt 60
+] goto m up 90 fd 7 dn 90
+omark m make a=a-1 
+make r=r-8 make b=b+8
+make g=g+4 if r lt 11 [make r=99]  if b gt 90 [make b=1]
+if g gt 94 [make g=5]]
+center
+////////
+;odd shape of 13 fro fb
+make a=200 make b=a*.5
+make n=60
+rpt 13 [fd b lt n
+fd a
+lt 90 fd a
+lt n fd b
+rt n*1.2
+fd b*.5
+lt n fd a
+rt 80 fd a
+lt 80 
+fd b*.5
+rt 60
+]
+////////
+;concentric david star circ
+sbgc white sc black
+make a=500 make m=1.73
+rpt 30 [
+ar 360 a
+omark k rt 60 fd a*m
+rt 120 fd a*m
+rt 120 fd a*m
+goto k
+ar 60 a
+
+rt 60 fd a*m
+rt 120 fd a*m
+rt 120 fd a*m
+goto k rt 90 pu fd a*.1
+lt 90
+pd make a=a*.9
+]
+center
+////////
+;a maze zing
+make a=100 to s fd a*.66 end
+to f fd a*.18 end
+to 5 fd a*.5 end
+to 8 fd a*.85 end
+to l sc red lt 90 end to r sc [0 99 85] rt 90 end
+
+rt 45 fd a*.18
+to 2 rpt 6 [
+r fd a l s l f
+l 5 r 8 r f r s l f l s r f
+l fd a r s r f
+r 5 l 8 l f l s r f r s l f 
+] end
+to xx
+omark k rpt 6 [2 goto k
+lt 90 pu fd a*1.2
+rt 90 fd a*1.44 
+omark k
+pd ] end
+sly 300 omark j omark m rpt 2 [ rpt 4 [xx xx goto m
+pu fd -a*8.4 pd omark m
+] goto j lt 90 pu fd a*14.4
+rt 90 fd a*15.8
+pd omark j omark m]
+
+center
+////////
+;bent concentric cones rainbow
+make a=200
+make t=120
+make s=80
+make n=10
+make cc=1 omark m
+rpt 7 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [50 0 99] make cc=0] make cc=cc+1 
+rpt t [pu ar 360/t a pd
+lt n rpt s [fd a/4
+rt 360/s] rt n up 90 pu fd 12
+pd dn 90 ] make t=t+2
+make s=s+1 make n=n+5 goto m
+make t=120 make n=10
+make a=a*.86]
+
+#timeout=200
+centerk
+///////
+;basket of rainbow polys
+make a=200
+omark k rpt 6 [
+make t=12
+make s=3
+make n=30
+make cc=1
+
+rpt 10 [if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [50 0 99] make cc=0] make cc=cc+1 
+rpt t [ pu ar 360/t a pd
+lt n rpt s [fd a/4
+rt 360/s] rt n] make t=t+2
+make s=s+1 make n=n+5 up 90
+pu fd a/6 pd dn 90]
+goto k make a=a+1]
+center
+////////
+; 6 sets of double cones up
+to h make a=600
+rpt 50 [
+ar 360 a
+; .041
+rt 90 pu fd 20
+lt 90 up 90 fd 20
+dn 90 pd make a=a*.96
+]
+rpt 50 [
+ar 360 a
+lt 90 pu fd 20
+rt 90 up 90 fd 20
+dn 90 pd make a=a*1.04
+] end
+
+omark k rpt 6 [h rt 90 h goto k 
+ar 360/6 2400 omark k]
+#timeout=200
+
+center
+////////
+;flat cube design many layers
+make a=100
+make b=90
+make n=60
+to d
+fd a rt n fd b fd -b lt n*2
+fd b end
+
+to 2 d lt 120 d end
+to 3 2 rt 60
+2 lt 60 pu fd a*2
+rt 120 fd a rt 120 pd d end
+
+to st rpt 6 [3 pu fd a*2 pd ]
+pu fd -a*2 rt 90 fd a*1.6 pd
+lt 90 d end
+
+to 16 st pu fd a*4.9
+pd st end
+to 32 16 pu fd a*4.9
+rt 122 pd 16 end
+omark m rpt 11 [sc pick [[50 0 99] [0 78 89]] rpt 5 [32 lt 180 ] goto m up 90 fd 150 
+dn 90 omark m make a=a*.9]
+#timeout=200
+/////////
+;orbits nested select poly leg
+make x=90 make y=7
+make a=300
+rpt 6 [omark k rpt 150
+[sc rc rt random 360 
+up random 360 pu fd a
+rt x pd rpt y [fd 120/y 
+if y gt 4 [omark m lt 180/y make cc=gc 
+sc [40 0 99] rpt 2[ fd 90/y rt 90 fd .3 rt 90 fd 90/y lt 90 fd .3 lt 90 ] goto m sc cc 
+up 360/y] ] goto k]
+make x=x+17 make a=a-65
+make y=y-1]
+#timeout=200
+
+////////
+;tilt square tiling
+make a=400
+to 1 sc [50 50 50] rpt 4 [rt 90 fd a]
+rt 120 sc red
+rpt 4 [fd a*.87
+rt 90] end
+to 2 omark k
+1 goto k
+pu fd a pd 1 end
+to 4 omark k 2 goto k pu rt 90
+fd a lt 90 pd 2 end
+to many rpt 4 [omark m 4 goto m pu fd a*2 pd ] end
+rpt 4 [omark j many goto j pu lt 90
+fd a*2 rt 90 pd ]
+
+///////
+;x chain mail squares
+to f
+make a=300  make n=80 
+make d=10 
+rpt 6 [
+omark k ar n 
+a goto k pu rt 90 fd 20
+lt 88.5
+fd 7 make a=a*.9 omark k pd
+make n=n-1 ] end
+to j
+omark j f rpt 6 [goto j rt 90 fd a*3 pu
+goto j rt 90 fd a/d lt 90 fd 10
+pd omark j make d=d-1 ] end
+to 4 rpt 4 [
+j pu fd a*3 lt 270 fd - a*1.2 make d=300
+make d=10 pd ] end
+to 8 omark k 4 pu goto k 
+fd -a*4 lt 7 pd 4 end
+to 16 8 pu goto k up 180 rt 18 lt 90
+fd a/2 rt 90 pd 8 end 
+omark k 16 goto k fd -a*7.5 lt 10
+16
+sly 200
+center
+////////
+;6 tri make 3 as tunnel
+make a=150 make n=37
+make n2=42
+to t rpt 3 [fd a rt 120] end
+to 6 rpt 3
+[t pu fd a rt n pd t 
+pu fd a*.92
+rt n2
+fd a*.52
+rt n2 pd ] end
+to 24 rpt 4
+[6 pu lt 90 fd a*1.25
+rt 90 fd a/2 pd] end
+to all rpt 8 [24 pu fd a*1.3
+rt 110 fd a*5.2
+lt 120
+pd ] end 
+omark k all goto k up 90 
+rpt 12 [all
+dn 90 all dn 90 all dn 90 
+]
+sly 300
+center
+////////
+;6 tri wabble penta dbl 
+make a=600 make n=10
+make n3=90
+make n2=31
+to t rpt 3 [fd a rt 120] 
+up n3 rpt 3 [fd a rt 120] dn n3 end
+omark k rpt 2 [rpt 7 [rpt 5
+[t fd a rt n t fd a rt n2
+fd a*.2 rt n2 ] rt 60 fd a*1.05 lt 60 make a=a*.45]
+goto k up 180 make a=600 
+rt 90 fd a*.6 lt 90 fd a*.7
+rt 90 up 90 fd a*.4 dn 90
+]
+center
+////////
+;parallel planes of sq colored
+to a rpt 4 [fd a*2 rt 90]
+pu fd a rt 90 pd fd a*2
+pu fd -a rt 90 pd fd a
+fd -a*2 fd a/2 lt 90
+fd a/2 rt 90 fd a rt 90 fd a
+rt 90 fd a lt 90 fd a/2 end
+to b a rt 90 fd a*2.5 
+dn 180 a end
+to c b lt 90 up 180 
+fd -a*1.5 b end
+to ba
+rpt 2 [rpt 2 [c fd a*2 lt 90 fd -a/2 rt 90 ] fd -a*4 
+rt 90 fd a*4 lt 90] end 
+to sq rpt 4 [ba pu lt 90 
+fd a*16 rt 90 fd a*4 pd ] end
+omark z rpt 6 [make a=100 make cc=1
+omark m rpt 14 [if cc=1 [sc [0 99 89]] if cc=2 [sc [99 89 0]] if cc=3 [sc [64 0 99] make cc=0] make cc=cc+1 sq goto m pu 
+up 90 fd a dn 90 fd a/2
+rt 90 fd a/3
+lt 90 pd 
+make a=a*.95 
+omark m] goto z up 90 fd 1 dn 90 rt 90 fd 1 lt 90 omark z]
+#timeout=200
+center
+////////
+;grid of patterns
+make a=100
+to a rpt 4 [fd a*2 rt 90]
+pu fd a rt 90 pd fd a*2
+pu fd -a rt 90 pd fd a
+fd -a*2 fd a/2 lt 90
+fd a/2 rt 90 fd a rt 90 fd a
+rt 90 fd a lt 90 fd a/2 end
+to b a rt 90 fd a*2.5 
+dn 180 a end
+
+to c b lt 90 up 180 
+fd -a*1.5 b end
+to ba
+rpt 2 [rpt 2 [c fd a*2 lt 90 fd -a/2 rt 90 ] fd -a*4 
+rt 90 fd a*4 lt 90] end 
+to sq rpt 4 [ba pu lt 90 
+fd a*16 rt 90 fd a*4 pd ] end
+omark m rpt 14 [sq goto m pu 
+up 90 fd a dn 90 fd a/2
+rt 90 fd a/3
+lt 90 pd 
+make a=a*.95 
+omark m]
+#timeout=200
+////////
+;spinning and counter spin 50
+make a=150 make t=22
+make d=5
+to 1 omark j rpt t [
+ar 130 a rt 20 fd a goto j
+rt 360/t omark j] end
+
+to 2 omark j rt d rpt t [
+al 130 a lt 20 fd a goto j
+lt 360/t omark j] end
+
+omark k rpt 50 [1 pause .05
+clear rt 10 2 pause .05 clear 
+lt 5 make d=d+1
+
+////////
+;box pattern walls of box
+make a=100 to 1
+rpt 4 [rpt 4 [fd a rt 90]
+rpt 4 [fd a/2 rpt 4 [
+fd a/2 rt 90] fd a/4 rt 90]
+fd a rt 90 fd a] end
+
+to 2 1 fd a*2
+1 lt 90 fd a*2 
+rt 90
+1 fd -a*2 1 end
+to 4
+2 fd a*4 rt 90 fd a*2 lt 90
+2 end
+
+to 16 4 lt 90 fd a*2 rt 90 fd -a*4 4 end
+to hb 16 fd a*3 lt 90 fd -a*6
+rt 90 up 90 fd a 16 end
+;sly 300 
+hb fd a*2 rt 90 fd a*6
+lt 90 up 90 hb
+;sly 200 
+
+center
+////////
+;9 sided polys to 3rd ring
+make a=50
+rpt 9 [
+rpt 9 [fd a rt 40]
+rpt 9 [fd a lt 360/9]
+fd a rt 360/9]
+
+rpt 4 [fd a lt 360/9] 
+rpt 9 [
+rpt 2 [rpt 9 [fd a rt 40]
+pu fd -a*1.9
+pd] pu fd a*1.9
+rt 40 
+fd -a*1
+pd]
+rpt 4 [fd a rt 40] pu fd -a*1.9 pd 
+rpt 9 [rpt 2 [rpt 9 [fd a lt 40] pu fd a*1.85
+pd ] pu fd a rt 90 fd a/1.66
+lt 50 pd]
+
+////////
+;ukraine
+to 1 make n=45 make cc=1
+rpt 5 [if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [64 0 99] make cc=0] make cc=cc+1
+omark k fd a lt n fd a/2
+fd -a/2 rt n*2 fd a/2 omark j goto k rt 72]
+
+goto j rt 80
+fd -a/2 
+
+rpt 5 [fd a*1.9
+rt 72] end
+
+make a=300 rpt 550
+[1 goto k up 90 pu fd 1
+pd dn 90 make a=a*.997
+]
+////////
+;eiful
+to 1 make n=45
+rpt 5 [omark k fd a lt n fd a/2
+fd -a/2 rt n*2 fd a/2 omark j goto k rt 72]
+
+goto j rt 80
+fd -a/2 
+
+rpt 5 [fd a*1.9
+rt 72] end
+
+make a=300 rpt 30
+[1 goto k up 90 pu fd 60 
+pd dn 90 make a=a*.9
+]
+///////
+;penta 5 clover
+make a=150 make n=45
+rpt 5 [omark k fd a lt n fd a/2
+fd -a/2 rt n*2 fd a/2 omark j goto k rt 72]
+
+goto j rt 80
+fd -a/2 
+
+rpt 5 [fd a*1.9
+rt 72]
+////////
+;sequ polys on 10 sided web
+make r=1
+make a=200
+make t=10
+make u=3
+rpt 9 [sc [50+r 100-r 50-r] 
+rpt t [fd a rt 360/t
+rpt u [fd a rt 360/u]
+] up 90 pu fd a/5 pd dn 90
+make u=u+1 make r=r+6]
+center
+
+////////
+
+///////
+*****************************************************
+Logo Apr 2025 black
+////////////
+
+////////////
+;4 sided jaggad puzzle pyra
+make a=50
+to r rt 90 fd a end
+to l lt 90 fd a end
+
+to 1 rpt 4 [r l r l r r l] end
+
+to db omark j rpt 8
+[1 rt 90 pu fd 20
+lt 90 fd -10
+pd make a=a-7 up 90 pu fd 25
+pd dn 90 ] goto j end
+
+to 4 rpt 4
+[db lt 90 pu fd a*3.80
+lt 90 fd a*1.2
+rt 90 pd make a=50] end
+
+4
+////////////////
+;pyra triple rows of tris fb
+make aa=75
+omark jj rpt 26 [goto jj make a=aa
+rpt 2 [rpt 3 [rpt 3 [fd a rt 120 rpt 3 [fd a lt 120
+] lt 120] fd a rt 120]
+fd a*.7 rt 90 pu fd a*.286
+lt 90
+pd make a=a*.67] goto jj up 90
+fd 5 dn 90 make aa=aa-1 omark jj ]
+
+center
+////////////
+;gossimer 6 star
+make a=10
+to c ar 180
+ a end
+to 1 rpt 60
+[c rt 90 pu fd 5 up 8
+pd lt 90
+make a=a+4
+c] end
+
+omark k rpt 6 [1 goto k rt 60
+omark k make a=10]
+
+center
+#timeout=250
+////////////
+;6 overlap spiral balls
+make a=10
+to c ar 180
+ a end
+to 1 rpt 60
+[c rt 90 pu fd 5 up 3
+pd lt 90
+make a=a+4
+c] end
+
+omark k rpt 6 [1 goto k rt 60
+omark k make a=10]
+
+center
+#timeout=250
+///////////:
+;offset 4 rings in sq to line
+
+make a=50
+make x=16
+
+to 1 omark j up 90 pu fd 60
+dn 90 pd sc [45 0 99] rpt 16 [al 360 a pu dn 90 fd 1 up 90 pd] goto j al 360/x a
+sc [88 67 0] ar 360 a ar 360*.83
+a sc [0 89 79] al 360 a al 360*.83
+a omark j dn 90 pu fd 60 up 90 pd sc [45 0 99] rpt 16 [ar 360 a pu up 90 fd 1 dn 90 pd] goto j ar 360*.3
+a lt 85
+fd a*.83
+sc red rpt 4 [lt 90 fd a*3.25] end
+
+to 4 rpt 4 [1 pu fd a*.86
+lt 90 fd a*1.83 pd] end
+
+to r rpt 4 [
+4 lt 90 pu fd a*6.5
+rt 90 pd ] end
+to george
+omark k rpt 4 [r goto k pu fd -a*6.6
+lt 90 fd a*.67
+rt 90
+pd omark k] end
+
+omark m george goto m up 90 george
+#timeout=200
+
+center
+/////////////
+;puzzle piece not quite
+make a=50
+make n=142
+make n2=72
+to 1 
+fd a rt n2 fd a
+rt n2 fd a rt n fd a lt n2
+fd a rt n end
+
+////////////
+;3 circs arc tri in lg circ
+make n=45
+make x=5
+make a=50
+to 1 omark k pu lt 90 fd a rt 90 pd
+ar 360 a goto k rt 150 pu 
+fd a*2 omark j lt 90 fd a
+rt 90 pd ar 360 a
+goto j rt 120 pu  fd a*2
+omark m lt 90 fd a rt 90 pd ar 360 a
+goto k rt 138
+ar n a*x
+goto j rt 109
+ar n a*x
+goto m rt 109
+ar n a*x rt 60
+ar 360 a*2.75 end
+
+rpt 111 [
+1 goto k up 90 pu fd 1 dn 90
+make a=a-.5 fd -.25]
+
+center
+////////////
+;cats cradle pyramid
+make a=200 
+
+rpt 4 [fd a rt 90]
+to 1 rpt 4 [
+omark k rt 30
+fd a*1.15
+goto k
+pu fd a/2
+omark k rt 63.8
+pd fd a*1.1
+goto k pu fd a/2 omark k
+rt 135
+pd fd a*1.4
+goto k rt 90] end
+rpt 9
+[omark j 1 goto j pu up 90
+fd a/6 dn 90 rt 45 fd a/8
+lt 45 fd -a/24 pd make a=a*.85
+]
+
+center
+////////////
+;good woven a 90 but diag suck
+make a=30
+to 1 rpt 2 [
+fd a*2 pu fd a*1.75 pd fd a*2 rt 60
+fd a rt 60 fd a rt 60] end
+
+to 4 rpt 4 [1 pu fd a*6 pd] end
+
+to 16 omark k rpt 4 [4 goto k pu lt 90 fd a*6 pd rt 90 omark k] end
+omark m 
+omark j 16 goto j pu fd a*20 rt 90 fd a*.75
+lt 90 pd lt 90 16
+
+goto m lt 40
+pu fd a*5.0
+rt 90 fd a*7.5
+lt 90
+pd 16
+center
+////////////
+;tipped x shaped dbl sq star
+make a=50
+
+to 1 lt 90 rpt 4 [fd a
+rt 45 fd a rt 90 fd a rt 45
+fd a lt 90] end
+
+to 6 omark k rpt 10 [1 goto k lt 45 pu fd a*6.75 rt 45 pd omark k] end
+
+omark j rpt 12 [6 goto j pu
+fd -a*4.75
+omark j pd]
+
+center
+////////////
+; failed to close
+make a=100 make n=60
+make x=120
+fd a rt x fd a*2
+rt x fd a/2 lt 85
+fd a/2 rt 90 fd a/2
+lt x fd a*2 rt x fd a
+rt n fd a lt x fd a rt n 
+fd a rt n fd a rt n fd a/2
+rt x fd a/2 lt n fd a
+lt n fd a lt n fd a rt x
+fd a 
+
+center
+///////////
+:tri floating pyras
+make a=300
+make n=60
+make n2=16.14
+make t=8
+make c=t*5
+to 1 make b=a*1.04 rpt 3 [fd a rt 120 fd a fd -a up n rt n2 fd b fd -b 
+lt n2 dn n ] end
+
+omark k rpt t
+
+ [1 goto k 
+pu up 45 fd c*.357
+dn 45 
+rt 90 fd c*.58
+lt 90  lt 45 fd c*.429 rt 45 pd
+make a=a-c pd omark k]
+
+center
+////////////
+;another funnel but puzzle sh
+make a=100
+make n=78
+make n2=66
+
+to a fd a end
+to n rt n end
+to l lt n end
+to 2 rt n2 end
+
+;rpt 3 [a l a 2 a n a 2 a l rt 30]
+to 1 a 2 a n a 2 a end 
+to 3 make z=90 1 lt z
+1 lt z 1 end
+
+omark m rpt 16
+[rpt 6 [3 pu fd a*3
+lt 30 pd ] goto m up 90 fd 
+a/2 dn 90 make a=a-5 fd -a/622
+omark m]
+
+center
+////////////
+;jew pyra
+make i=-5 make t=50
+omark k rpt 5 [rpt t [rpt 6 [ rpt 6 [fd i
+lt 60 ] lt 60 make i=i+10]
+goto k up 90 fd 1152
+dn 90 omark k make t=t-3]
+
+////////////
+;tri fractal
+to t :l :d
+if :d=0 [fd :l stop]
+rpt 3 [fd :l/3 t :l/3 :d-1
+fd :l/3
+rt 120 ] end
+
+t 200 5
+center
+
+//////////
+;self similar squares
+to s :l :d
+if :d=0 [stop]
+rpt 4 [ fd :l rt 90
+s :l*.4 :d-1
+] end
+
+s 200 4
+////////////
+;iteration wing
+make aa=20 make st=1
+to g sc pick [[45 0 99] [0 99 89]]make a=aa omark k rpt 10 [ fd a lt 15 fd a fd -a 
+rt 15 fd a/3 rt 15 fd a
+fd -a lt 15 make a=a-1] 
+if st gt 50 [stop] make st=st +1 goto k rt 5 make aa=aa*1.1 g end
+
+g
+///////////
+; iterations wirh stop spiral
+to spiral :n :s :a
+  if :n lt 1 [stop]
+  fd :s
+  rt :a
+ spiral :n-1 :s+2 :a
+end
+
+sc red
+spiral 100 5 9
+
+////////////
+;counter spoke mandala stack
+make a=500
+make t=23
+make n=30
+make n2=30
+make x=.58
+to 1 rpt 2 [sc yellow
+rpt t*2 [ar 360/t a pu 
+ar 360/t a pd]
+omark k
+rpt t [rt n ar 120 a*x
+omark j sc [0 99 89] rt n2 sp a goto j sc yellow
+al 120 a*x goto k pu ar 360/t
+a omark k pd]
+up 180] end
+omark m 
+rpt 10 [pu fd a*.2 rt 90 fd -a*.4 lt 90 pd 1 goto m up 90 pu
+fd 90 dn 90 omark m make a=a-60 make t=t-2]
+center
+#timeout=200
+////////////
+;4star ang fb quilt
+make a=100
+make b=a/4
+make c=a-b
+make d=a*1.5
+make e=a*1.6
+to 1 
+rpt 4 [fd b lt 90 fd d-b fd -d
+rt 135 fd e fd -e lt 135 
+fd b rt 90 fd c rt 135
+fd a lt 45] end
+
+to r rpt 6 [1 pu fd -a*2.3
+rt 90 fd a
+lt 90 pd] end
+to sh
+omark k rpt 6 [r goto k pu 
+fd a rt 90 fd a*2.3
+lt 90 omark k pd] end
+omark m rpt 3 [sh goto m up 60 omark m ]
+center
+////////////
+;ben white flares 2
+make nc=1 omark k rpt 7 [
+make a=50 make x=165
+rpt 170
+[make n=random 135 
+make n=n+10
+up n pu fd x+random 360 rt random 80 lt random 280 pd 
+make v=10+random 55 
+make w=random a if nc=17 [make tt=5 make nc=0] else [make tt=1] make nc=nc+1 omark vv rpt tt [ar v w goto vv up 90 fd 1 dn 90 omark vv] goto k
+] rt random 70 omark k]
+sc [70 70 70] rpt 60 [pu fd 150 pd ar 360 175 au 360 120 goto k rt 33 omark k] 
+////////////
+;tri sq color ring
+make a=30
+to s rpt 4 [fd a rt 90] end
+to t fd a lt 90 fd a lt 135
+fd a*1.4 end
+to a fd a end
+to b fd a*1.4 end
+to 9 rt 90 end
+to 9l lt 90 end
+to 3 rt 135 end
+to 3l lt 135 end
+to 4 rpt 4 [
+t a t a t b s b b s
+b a t a t a t b b ] end
+make cc=1 rpt 360 [if cc=1 [sc red] if cc=2 [sc orange] if cc=3 [sc yellow] if cc=4 [sc green] if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99] make cc=0] make cc=cc+1 omark m rpt 5 [s t s t goto m up 90 fd 1 dn 90 omark m] up 45 pu fd 10
+pd dn 44]
+center
+////////////
+;tri sq sequnse makes board
+make a=30
+
+to s rpt 4 [fd a rt 90] end
+
+to t fd a lt 90 fd a lt 135
+fd a*1.4 end
+
+to a fd a end
+to b fd a*1.4 end
+to 9 rt 90 end
+to 9l lt 90 end
+to 3 rt 135 end
+to 3l lt 135 end
+
+to 4 rpt 4 [
+t a t a t b s b b s
+b a t a t a t b b ] end
+
+rpt 8 [4 pu lt 270 b rt 270 
+up 90 fd a*3 dn 90 pd
+make a=a*.75 ]
+
+pd 
+center
+////////////
+;puzzle shapes tapestry
+make a=50
+make b=a*3
+make c=a*.5
+to 9 rt 90 end
+to 1
+fd a 9 fd b 9 fd a fd -c
+9 fd a+c lt 90 fd c
+omark k 9 fd c 9 fd c fd -c*2
+goto k fd c fd -c*.5 end
+to a 
+omark j 1 pu fd c lt 90 fd a+c
+rt 90 pd 1 end
+to hb fd c omark k 9 fd c lt 90 fd c lt 90 fd c goto k lt 90 fd a
+9 fd c 9 fd c fd -c lt 90
+fd a+c end
+to b
+hb rt 180 pu fd -a*.5
+lt 90 fd a rt 90 pd hb end
+to rw rpt 8 [a pu fd a*1.6
+pd b pu fd -a*4.5 lt 90 
+fd -a*2.4 rt 90 pd lt 180] end
+to sh omark jj rpt 12 [rw goto jj pu lt 90 fd a*3 rt 90 fd a*3 pd omark jj] end
+sh up 90 rt 90 sh
+center
+
+///////////
+;multiple halbert attempts-
+make a=50
+make b=a*2
+
+to f fd a end
+to l lt 90 fd a end
+to r rt 90 fd a end
+to b lt 90 fd b end
+to x rt 90 fd b end
+rpt 4 [f l r r l b l r r l x f r l
+l r b l r r l x
+r l l r x r l l r b f l r r
+l x r l l r f f
+l r r l x l r r l b f r l l
+r x l r r l f f lt 90 pu fd a*14 pd 
+f f l r r l x r
+l l r f b l r r l x l r r l
+f f r l l r x l
+r r l f b r l l r x r l l r
+x l r r l b r l]
+
+to xx r l l r b f l r r l x f r l l
+r b f l r r l end
+
+center
+
+/////////////
+;cube fract cell antenna
+make a=50
+make b=a*2
+to f fd a end
+to l lt 90 fd a end
+to r rt 90 fd a end
+to b lt 90 fd b end
+to x rt 90 fd b end
+to 1 rpt 4 [
+f l r r l b l r x f
+r r b l l r r l b l r r b
+l l x r r l l r x r l l r
+r l l x r r l l r x
+r l b l r r b lt 90] end
+to m omark k rpt 5 [1 goto k lt 90 pu fd a*7.0 rt 90 pd omark k] end
+omark j m goto k up 90 rt 90 m
+goto j up 90 pu fd a dn 90 pd
+m
+
+center
+////////////
+;90 deg cross capsel rows
+make a=55
+make b=100
+make c=65
+make n=60
+
+to 1 fd b rt 90 fd a rt 90 fd b rt n fd c lt n fd b
+lt 90 fd a lt 90 fd b
+lt n fd c end
+to 4 
+rpt 4 [1 rt n fd b rt 90 pu fd a*2.5 pd] end
+to r rpt 8 [4 pu lt 90 fd a*4.33 rt 90 pd ] end
+omark j rpt 8 [r goto j pu fd a*4.33 omark j
+pd ]
+;sly 150 
+
+center
+////////////
+;attempt cross chain groups
+make a=75
+make b=a*4
+
+to 1 rpt 2 [rpt 2 [fd b rt 45 fd a rt 90 fd a rt 45] fd a*2.75 rt 90 pu fd -a*1.25 pd]
+end
+to 2 1 pu fd -a*5.4 pd 1 end
+to xx 2 lt 90 pu fd a*2.75 rt 90 fd a*1.2 lt 90 end
+to h rpt 2 [fd b rt 45 fd a rt 90 fd a rt 45] end 
+to 6 rpt 6 [h pu fd a*5.5 pd ]
+end
+to 40 omark k rpt 8 [6 goto k lt 90 pu fd a*5 rt 90 pd omark k] end
+omark j 40 goto j pu 
+fd a*20
+lt 45 fd -a*12
+pd sly 200 40
+
+center
+////////////
+;bullseye bent trap rings cone
+make a=100 
+to 1
+make b=a*1.334
+make c=a*2.28
+make n=79.95
+fd a rt 90 fd b rt 20
+fd b rt 90 fd a rt n
+fd c end
+
+to r rpt 13
+[1  lt 360/13 pu fd c rt n
+pd] end
+
+rpt 39 [r pu lt n fd -c/1.9 
+rt 93.9 make a=a*.8 fd -a 
+up 90 fd a dn 90 pd]
+
+center
+
+////////////
+;bullseye bent trapazoid rings
+make a=100 
+to 1
+make b=a*1.334
+make c=a*2.28
+make n=79.95
+fd a rt 90 fd b rt 20
+fd b rt 90 fd a rt n
+fd c end
+
+to r rpt 13
+[1  lt 360/13 pu fd c rt n
+pd] end
+
+rpt 18 [r pu lt n fd -c/1.9 
+rt 93.9 make a=a*.8 fd -a pd]
+
+center
+///////////
+;zig zag at 45 degrees
+make a=25
+make b=a*10
+make c=a*4
+make n=125
+make n2=90
+make n3=105
+
+to 1 rpt 6 [fd a lt n3 fd a rt n2 fd b
+lt n fd b rt n3 fd a rt 75
+fd b lt n3 fd a lt 75 fd b
+rt n fd b lt n fd a rt n2 
+fd a lt n fd c rt 175] end
+
+to rw rpt 9 [omark k 1 goto k pu lt 90 fd b*3 rt 90 rt 120 fd b*2.8 lt 120 pd ] end
+make x=4.15
+omark j sly 100 rw goto j pu
+fd b*x 
+lt 90 fd b*x
+rt 90
+lt 45
+sly 200 pd sc yellow rw
+center
+////////////
+;10 pente in ring chain row
+make a=50
+to 1 rpt 10 [rpt 5 [fd a lt 72] fd a rt 36] end
+
+to 6 rpt 6 [1 pu lt 90 fd a*4.0 rt 90 fd -a*1.3 pd] end
+to b omark k 6 goto k pu fd a*6
+pd 6 end
+omark mm rpt 6 [b
+b b goto mm pu fd -a*11
+
+pd sly 200 omark mm pd]
+center
+////////////
+;starfish 
+make a=50
+make n=68
+make x=-5
+make y=40
+make n2=42
+make r1=40 make r3=99
+to a sc [0 r1 r3] pu fd x pd sc [r3 0 r1] ar 360 y sc [0 r1 r3] pu fd -x pd fd a end
+to rn rt n a end
+to ln lt n a end
+to r2 rt n2 a end
+to l2 lt n2 a end
+to xx a r2 rn rn l2 rn l2 l2 
+rn l2 rn rn r2 r2 ln r2
+r2 ln  end
+
+to yy rn rn l2 rn l2 l2 
+rn l2 rn rn r2 r2 ln r2
+r2 ln rn l2 rn  end
+
+to 3 omark jh rpt 3 [yy goto jh rt 120 fd -a/2 omark jh] end
+omark ff rpt 6 [3 rt 60 3 goto ff up 90 fd 35 dn 90 omark ff make a=a-8 make r1=r1+11 make r3=r3-16]
+#timeout=250
+center
+
+////////////
+;ring of springs
+make a=200 make n=.2
+make n2=n*1.2
+to 1 
+rpt 6 [fd a*n2 rpt 8 [rpt 5 [fd a*n lt 72] fd a*n rpt 5 [fd a*n 
+rt 72]]
+fd a rt 60] end
+
+to 4 1 up 90 1 fd a*3
+dn 90 1 fd a*3 dn 90 1 end
+
+to 16 rpt 16 [4 up 60] end
+
+16 
+
+#timeout=300
+center
+////////////
+;taeppe of sq dbl swast in hex
+make a=50
+to 1 rpt 4 [omark k fd a/2 rt 90 fd a rt 90 
+fd a*2
+rt 90 fd a*2.5
+goto k rt 90 ] end
+
+to 6 rpt 6 [omark j pu fd a*4.1
+pd 1 goto j rt 60 ] end
+
+to r rpt 12 [omark mh 6 lt 90 pu fd a*7.1
+rt 90 fd a*4 pd] end
+
+rpt 9 [omark gh r goto gh 
+pu fd a*8 pd]
+pd sly 150  
+
+center 
+////////////
+;4 jagged 256 taeppe 2 color
+make a=30
+make b=a*2
+to a fd a end to b fd b end
+to r rt 90 end to l lt 90 end
+
+to 1 rpt 2 [a r b 
+rpt 3 [l a l a r a r a ]
+
+l a l b r a r a l b r 
+rpt 3 [a
+r a l a l a r] a r b l r] end
+
+to 2 sc [99 88 0] 1 lt 90 pu fd a*.1
+rt 90 fd a lt 90 pd sc [0 88 99] 1 end
+to rw rpt 8 [omark m 2 goto m 
+pu rt 90 fd a*17
+lt 90 fd -a*1 pd] end
+to r2 omark hh rw goto hh
+pu fd -a*8.0
+lt 90 fd a*9.1
+rt 90 pd rw end
+rpt 8 [omark kk r2 pu goto kk 
+fd -a*17
+lt 90 fd a
+rt 90 pd]
+pd sly 150
+
+center
+///////////
+;deca penta g=5 tapistry
+make a=50
+
+to 1 rpt 10 [ fd a rpt 5 [
+lt 72 fd a] rt 36] end
+
+to r rpt 8 [1 pu fd a*6 pd] end
+
+make g=5
+rpt 8 [omark k r goto k lt 90 pu
+fd a*g
+rt 90 pd]
+
+pd sly 100 r
+
+center
+///////////
+;attempt diag chain links
+make a=200
+make n=90
+make n2=n*.5
+
+to 1 fd a rt n2 fd a rt n
+fd a rt n2 fd a rt n2
+fd a rt n fd a rt n2 end
+
+to row rpt 12 [1 pu fd -a*1.5 pd ] end
+
+to 9 omark k rpt 8[row goto k
+lt 90 pu fd a*2.75
+rt 90 pd omark k ] end
+
+to 11 omark j 9 goto j rt 60
+lt 90 pu fd -a*6.5
+rt 90 fd -a*7.5
+pd sly 150 9 end
+to color rpt 7 [sc rc omark m 11 goto m up 90 omark m 11 fd a*3 dn 90 ] end
+11
+///////////
+;taeppe of keyholes
+make a=200
+make b=a*.11
+make c=a-b make c=c/2
+to 1
+rpt 3 [fd a rt 60] 
+fd b*2 lt 90 fd c lt 30
+rpt 5 [fd a*.5 rt 60]
+lt 90 fd c lt 90 fd b*2
+rt 60 
+fd c rt 90
+fd c rt 60
+rpt 5 [fd a*.5 lt 60]
+rt 120 
+fd c rt 90 fd c end
+
+to 2 sc green rpt 2 [1
+pu rt 60 fd -a*2
+lt 90 fd -a*1.4 pd sc magenta] end
+to 16 rpt 8 [2 up 180
+fd -a*1.1 pd ] end
+to all omark k rpt 6 [16
+goto k lt 90 pu fd a*3.05
+rt 90 omark k pd] end
+omark j rpt 6 [all goto j rt 90 fd 1 lt 90 fd 1 omark j]
+center
+////////////
+;wheels as gears
+make a=500
+make b=a*.1
+make t=33
+
+to 1 rpt 16 [rpt t
+[al 360 b ar 360/t a
+] al 180 b al 360 a*1.2
+al 180 a*1.2 rt 60 pu fd a*.7
+pd make a=a*.87 up 90 fd 9100/a
+dn 90
+] end
+
+omark k 1 goto k make a=500
+dn 180 lt 180 1
+
+#timeout=200
+center
+///////////
+; 10 concent spheres color
+make a=50
+
+to 1 :x rpt :x
+ [ omark k au 360 a goto k pu ar 2 a/16 pd] end
+
+make cc=1 make x=87
+rpt 10 [if cc=1 [sc [99 77 0]] if cc=2 [sc [0 89 99]] if cc=3 [sc [50 0 99]] if cc=3 [make cc=0] make cc=cc+1
+1 x up 90 fd 5
+dn 90 make a=a-5 make x=x-5]
+
+center
+#timeout=200
+////////////
+; 4 by 6 sq pyra 370 times 6 
+make a=400
+
+to s rpt 4 [fd a rt 90] end
+
+to 4 rpt 2 [s pu fd a pd s]
+pu fd a rt 90 
+rpt 4 [omark k rpt 4 [ s pu
+fd a pd s] goto k lt 90 pu
+fd -a rt 90]
+end
+to 16 omark j 
+rpt 4 [4 goto j rt 45 omark j make a=a*1.42 pd 4 goto j rt 45 omark j make a=100 ] end
+to wing
+rpt 9 [16 up 10] end
+to xx omark mm sc [0 99 91] wing goto mm
+make a=425 up 90 lt 45 sc [99 78 0] wing end
+omark gg rpt 370 [4 goto gg pd lt 90 s fd 1 rt 90 fd 1
+lt 90 make a=a-1 up 90 fd 6 dn 90 omark gg]
+sly 200 #timeout=120
+
+center
+////////////
+; 4 by 6 squares x 1.42 18 5
+make a=100
+
+to s rpt 4 [fd a rt 90] end
+
+to 4 rpt 3 [s pu fd a pd s]
+pu fd a rt 90 
+rpt 4 [omark k rpt 5 [ s pu
+fd a pd s] goto k lt 90 pu
+fd -a rt 90]
+end
+to 16 omark j 
+rpt 4 [4 goto j rt 45 omark j make a=a*1.42 pd 4 goto j rt 45 omark j make a=100 ] end
+
+rpt 18 [16 up 5]
+center
+
+////////////
+;large tapistry puzzle shapes
+import libshapes
+make a=50
+make b=a*3
+make n=120
+make n2=60
+
+ to a1 sm  pu fd -a*11
+pd sm end
+
+to a2 a1 rt 90 pu fd a*2.6
+lt 90 fd a*7.5 pd a1 end
+
+to a3 rpt 8 [a2 rt 90 pu fd a*12.28 lt 90 fd -a*30.98 pd ]
+end
+
+to a4 a3 pu fd -a*25.2
+lt 90 fd a*120.75
+rt 90 pd a3 end
+
+a4 up 90 a4
+
+center
+////////////
+;hpv
+make a=50 make n=1
+omark j rpt 9 [
+rpt 925 [pu fd 1 pd fd 1 rt n
+fd a fd -a lt n make n=n+2 rt 
+.5] goto j up 90 pu fd 50 dn 90 omark j make a=a+6]
+
+center
+///////////
+;box tri intersect in square
+make a=100 make b=a*.1
+make c=a*.05
+
+to t rpt 3 [fd a rt 120] end
+to 4
+rpt 4 [t lt 90 pu fd c rt 90 
+fd c pd fd a fd b rt 90 rt 90 pu fd c lt 90 pd] end
+
+4 up 90 4 pu fd a+b+c pd dn 
+90 4 pu fd a+b+c pd dn 90 4
+lt 90 dn 90 4
+
+center
+////////////
+;filament in triangled
+make a=50 make n=3011
+
+to l rpt a [fd 1 pu fd 1 pd] end
+
+omark k rpt 6 [ rt n rpt 3 [
+l rt 120 ] lt n up 60]
+pu rt 90 fd 40 pd
+
+rpt 2 [omark k rpt 100 [up random 360 lt random 360 sp 200 goto k]
+fd -20 up 180]
+
+///////////
+;uneven trapazoid around hex
+make a=50
+make b=a*.6
+make c=a*2
+make d=a*1.2
+make n=105
+make n2=45
+make n3=60
+make n4=75
+
+rpt 6 [fd a fd b omark k lt 90
+fd a*.5
+lt n4 fd d lt n4
+fd b goto k fd -b rt 60]
+
+center
+
+////////////
+;simple sphere
+make a=50
+
+rpt 180 [ omark k au 360 a goto k pu ar 2 a/16 pd]
+center
+///////////
+;pent with tri part done fb
+make a=80
+make b=a*.45
+make c=a*.27
+make n=145
+make n2=n
+make n3=110
+to 1 rpt 5 [
+fd c lt n3
+rpt 5 [fd b rt 72]
+rt n3 fd b fd c
+rt n fd b 
+rt n2 fd c lt n3 fd b
+lt n3 fd c rt n2 fd b
+rt n fd a rt 72 
+] omark k 
+rpt 5 [fd c lt n3 rpt 3 [fd b fd c lt n fd b lt n fd c] goto k fd a rt 72 omark k] end
+1
+pu fd a*4
+lt 90 fd a*2
+rt 90
+pd sly 100 1
+////////////
+;moure dots one above the oth
+make a=15
+make b=2
+make c=2
+make d=5
+make e=5
+to 1 rpt a [ar 360 .3 pu fd b pd] end
+
+to 2 rpt a [
+omark k 1 goto k rt 90 pu fd c
+lt 90 pd] end
+
+omark j 2 goto j
+up 90 pu fd d dn 90 rt 90
+fd e lt 90 fd e rt 45
+pd 2
+
+/////////////
+;draw 3 points 2 sph 1 spi cl
+omark 1
+pu fd 85 omark 2
+goto 1 lt 135 fd 120 pd omark 3
+make a=325
+make b=400
+make c=150
+goto 1
+rpt 1120 [sc orange ar 360/20 a omark 1 goto 2 pause .01
+
+sc purple al 360/15 b dn random 360 omark 2 goto 3
+
+sc magenta au 360/125 c*5 up 7 lt 3 omark 3 goto 1
+up random 360]
+
+#timeout=60
+////////////
+;multi arcs from ctr coneed
+make la=400
+make b=263
+make n=100
+make t=90
+make n2=70 rpt 2 [
+omark k lt 90 pu fd a
+pd rt 90 ar 360 a
+rpt 13 [
+sc pick [magenta orange [0 88 99] purple ] goto k rpt t [dn n2 ar n  b
+goto k rt 360/t omark k]
+up 90 fd 10 dn 90 omark k
+goto k rpt t [dn n2 al n  b
+goto k rt 360/t omark k]
+make t=t-20 make n2=n2-10]
+goto k up 180
+make a=400
+make b=263
+make n=100
+make t=90
+make n2=70]
+///////////
+;sp based on sq ar up
+make a=1
+make j=10
+make g=10
+to s rpt 4 [rpt 50 [ fd a pu 
+fd a pd] rt 90] end
+
+to 1 s omark k rpt 112 [
+pu fd a*50 ar 90 a*j
+rt g pd sp 200 goto k
+pu fd a*1 pd omark k make j=j+2 make g=g+3] end
+omark ff rpt 13 [sc pick [red orange magenta purple [0 88 99]]
+omark hh rpt 4 [goto hh 
+1 up 180 rt 90 make a=1 make j=10
+make g=10 omark hh] goto ff
+up 90 fd 50 dn 90 rt 31 omark ff]
+#timeout=200
+
+center
+////////////
+;megshift match petal shape
+make a=100
+make d=35
+to 1
+fd a lt 30
+fd a rt d fd a rt d fd a
+rt d fd a rt 105
+fd a lt 30 
+omark m 
+fd a rt d fd a rt d fd a
+rt d fd a end
+to 2
+rpt 11
+ [1 rt 72]
+goto m fd a*.25 rt 207 rpt 5
+[1 rt 182 fd a
+lt 38 
+1 fd -a 
+rt 98
+fd -a up 180 lt 265
+1 lt 90 up 180 fd a*1.8
+lt 62 fd -a*1.3] end
+make cc=1
+omark k rpt 120 [if cc=1 [sc [99 77 0]] if cc=14 [sc [0 89 99]] if cc=21  [sc [50 0 99]] if cc=28 [make cc=0] make cc=cc+1 2 goto k up 90 fd 4 dn 90 omark k 
+make a=a-1 ]
+center
+////////////
+;snap from center cube
+make a=1
+
+to s rpt 4 [rpt 50 [ fd a pu 
+fd a pd] rt 90] end
+
+omark k pu fd 50 up 90 fd 50
+lt 90 fd 50 rt 180 pd s
+up 90 s pu fd 100 dn 90 pd s
+pu fd 100 dn 90 pd s
+
+goto k rpt 6000 [rt random 390
+up random 390 sp 200 goto k]
+////////////
+;from 3 to 50 and back 
+make a=100
+make b=a
+make c=a*.5
+make n=79.8
+make n2=180-n
+
+to 1 fd a rt n fd b rt n2 fd b
+rt n fd a rt n2 fd a rt 120
+fd c rt 90 fd a*.8 lt 160
+fd a*.8 rt 90 fd c end
+
+make ct=1 omark m make t=2 rpt 100 [
+omark k rpt t [1 goto k
+rt 360/t omark k]
+pause .1 if ct lt 100 
+[clear] goto m 
+if ct lt 51 [make t=t+1 au 5 a] else
+ [make t=t-1 ad 5 a] make ct=ct+1 omark m]
+
+///////////
+;7 sided with star spiral
+make a=100
+make b=a*2.25
+make n=103
+make x=0
+to 1 rpt 7
+[ fd a rt n fd b
+fd -b lt n rt 360/7] end
+
+;rpt 7 [1 rt 360/7]
+
+rpt 10 [rpt 7 [1 ar 360/7 x
+up 90 pu fd 35 pd dn 90 
+make x=x+10]
+center
+
+///////////
+;square rings cocentric down
+make n=60
+make a=150
+
+to s rpt 4 [fd a rt 90] end
+
+to t lt n rpt 12 [s rt 90 pu fd a lt n fd -a pd pause .1 ] end
+
+rpt 8 [t make a=a*.7 pu lt 90 
+fd a*1.45 lt 90 fd a*3.83 pd]
+
+center
+
+; to _ give the name to the
+;   procedure until  end
+
+; rpt= repeat  lt= left turn
+; fd = forward 
+; pd= pen up   pd= pen down
+////////////
+;tappe sq tilt sq triangles
+make a=100
+make b=110
+
+to 1 rpt 3 [fd a lt 90 fd b 
+lt 90 fd a lt 90 fd b lt 90
+pu fd a rt 120 pd] end
+
+rt 32 
+to 2 omark k rpt 12 [1 pu fd a lt 90 fd b/2
+rt 60 fd a*1.1
+rt 30 pd ] goto k end
+rpt 12 [
+2 pu rt 60 fd a*2.7
+lt 60 fd -a*1.3
+pd ]
+sly 200 
+center
+//////////:/
+;moire brick of dos
+make b=2
+make a=1
+make m=50
+
+to 1 rpt m [fd a pu fd b pd] end
+to pl
+omark k rpt 20 [1 goto k rt 90 fd 1
+lt 90 pu fd a omark k pd 1
+goto k rt 90 pu fd b lt 90
+fd -b pd omark k] end
+omark j rpt 12 [pl goto j up 90 fd b
+dn 90 omark j]
+
+center
+#timeout=200
+
+////////////
+
+;60 120 a a/2 ang fit tarp clr
+make a=100 make n=60
+make b=a/2
+to 1
+fd a rt 120 fd a/2 lt n
+fd a rt n fd a rt n fd a/2
+rt 120 fd a lt n fd a lt n
+fd a/2 rt 120 fd a/2 rt n end
+
+to 6 rpt 6 [1 pu rt n fd b pd]
+end
+to 24 rpt 6 [6 pu fd a*3 pd ]
+end
+to many omark k rpt 5 [24 goto k pu rt 90
+fd a*2.6
+lt 90 fd a*1.5
+pd omark k 24 goto k pu rt 90 
+fd a*2.6 lt 90 fd -a*1.5
+omark k pd] end
+to bend omark j many goto j up 90 many end make cc=1
+omark m rpt 4 [if cc=1 [sc [99 77 0]] if cc=2 [sc [0 89 99]] if cc=3 [sc [50 0 99]] make cc=cc+1 make a=a*.83 bend goto m up 90 pu
+fd a*5 dn 90 fd a*5 pd omark m]
+#timeout=200
+center
+////////////
+;60 120 a a/2 angle fit tarp
+make a=100 make n=60
+make b=a/2
+to 1
+fd a rt 120 fd a/2 lt n
+fd a rt n fd a rt n fd a/2
+rt 120 fd a lt n fd a lt n
+fd a/2 rt 120 fd a/2 rt n end
+
+to 6 rpt 6 [1 pu rt n fd b pd]
+end
+to 24 rpt 6 [6 pu fd a*3 pd ]
+end
+omark k rpt 5 [24 goto k pu rt 90
+fd a*2.6
+lt 90 fd a*1.5
+pd omark k 24 goto k pu rt 90 
+fd a*2.6 lt 90 fd -a*1.5
+omark k pd]
+
+center
+////////////
+;boxes of curls as checkerbord
+to 1
+make a=50
+fd a ar 97 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.7
+make a=110
+ar 100 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.5
+make a=50
+ar 97 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.7 fd a*.6 end
+
+to 2 rpt 4 [1 rt 99 ] end
+to c
+omark k 2 goto k up 90 2 
+goto k fd a*5.8
+up 90 2 fd a*5.8 up 90 2
+rl 90 2 fd a*5.8 dn 90 
+fd a*5.4 dn 90 2 end make t=6
+to 6 omark j rpt t [c goto j pu fd a*11.6 omark j pd ] end
+sly 200 omark m 6 goto m up 90
+pu fd 11.6 pd dn 90 omark m 
+omark j omark k make t=5
+6
+
+center #timeout=200
+
+////////////
+;thick segment lined triangle
+to l rpt 150 [ fd 1 pu
+fd 1 pd] end
+to 1 
+rpt 3 [l rt 120]
+
+rpt 3 [omark k rt 23
+sp 400 goto k rt 16
+sp 400 goto k rt 37
+sp 400 goto k rt 30
+sc red sp 400 sc white
+goto k pu fd 300 rt 120 pd]
+end
+
+to t omark j rpt 150 [1 goto j up 90 fd 1 dn 90 omark j] end
+
+t
+
+center
+#timeout=300
+////////////
+;confused fragmented david st
+to l rpt 150 [ fd 1 pu
+fd 1 pd] end
+to 1 
+rpt 3 [l rt 120]
+
+rpt 3 [omark k rt 23
+sp 400 goto k rt 16
+sp 400 goto k rt 37
+sp 400 goto k rt 30
+sc red sp 400 sc white
+goto k pu fd 300 rt 120 pd]
+end
+
+to t omark j rpt 50 [1 goto j up 90 fd 1 dn 90 omark j] end
+omark m t goto m lt 180 
+pu fd -300 lt 90 fd 148 rt 90
+pd t
+
+#timeout=300
+///////////
+;curves then 3d rings
+to a :b :c arcright :b :c end
+
+to 1 rpt 10 [a 40 150 au 140 150] end 
+to 2 rpt 10 [a 120 150 ad 120 150 ] end 
+to 3 a 65 400 end
+rpt 2 [rpt 4 [rpt 8
+[1 ] pu fd 350 pd
+] rt 90 ]
+
+center
+////////////
+;curves in wheels
+to a :b :c arcright :b :c end
+
+to 1 a 40 150 end 
+to 2 a 120 150 end 
+to 3 a 65 400 end
+
+rpt 8
+[1 2 3 lt 90 fd 110 rt 90]
+
+center
+////////////
+;6 star formed by sp fluff
+make n=86 make t=20
+to 1 rpt t [fd 1 omark k rt n
+sp 1000 goto k pu fd 2 pd] end
+ 
+to s rpt 8 [1 rt 30 1 al 180 20 1
+rt 210 ] end
+
+omark j rpt 12 [s goto j up 90 pu
+fd 15
+pd dn 90 make t=t-1 omark j]
+
+center
+////////////
+;color determined by sp length
+to 1 make cc=1 omark k rpt 12 [if cc=1 [sc red]
+if cc=2 [sc green] if cc=3 [
+sc yellow make cc=0] make cc=cc+1 sp 200*cc goto k rt 30 omark k] end
+
+make t=32
+
+rpt 7 [rpt 360/t [1 rt t fd 200] up 360/7]
+
+center
+////////////
+;sp up and rt start sq
+to 1 omark k fd 1 rpt 6 [sp 1000 goto k rt 60 omark k] end
+to m
+omark j rpt 6 [rpt 4 [ rpt 20 [1 pu fd 22 pd] 
+rt 90] goto j up 60 omark j]
+fd 700 up 120 rpt 48 [1 au 360/48 
+700] end
+
+omark z m goto z lt 180 m
+
+center
+#timeout=200
+////////////
+;color gosimer builing blocks
+make t=25
+make n=135
+make v=65
+make cc=1
+to 1 rpt t [fd 1 omark k
+dn n sp 200 goto k rt v 
+sp 200 goto k pu fd 2 pd] end
+
+to s rpt 4 [1 rt 90] end
+
+to c sc [50 0 99] s up 90 sc [88 35 71]  s rpt 5
+[if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99] make cc=0] make cc=cc+1 fd t*3 dn 90 s] end
+
+c c rt 90 c
+center
+///////////
+;gosemer color flip waves
+make t=50
+make n=40
+make cc=1
+to 1 rpt t/3 [fd 1 omark k rt n sp 300 goto k pu fd 2 pd] end
+
+to 2 rpt t [ar 2 20 omark k rt n sp 300 goto k pu ar 1 20 pd] end
+rpt 6 [if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99]] make cc=cc+1
+2 rt 70
+1 dn 150 rr 77 make t=t+15
+]
+
+center
+///////////
+;ball with sp wings
+rt 90 
+to 1 omark m omark k pu
+rpt 200
+ [fd 1 pu fd 2 pd rt 1] pu
+goto k pu fd 150 rt 90
+fd 300 rt 100 fd 100 omark j 
+rpt 30 [lt 3 omark j pd sp 100
+goto j pu ] end
+to 24 
+omark z rpt 24 [1 goto z
+rt 360/24 omark z] end
+
+omark y rpt 18 [24 up 360/18
+omark y]
+#timeout=400
+
+center
+///////////
+;sun ball sp
+to 1 
+rt 90 
+omark m rpt 6 [omark k
+rpt 200
+ [fd 1 pu fd 2 pd]
+goto k pu fd 150 pd rt 90
+fd 75 rt 180 omark j 
+rpt 50 [lt 3 ar 360/75
+15
+omark j sp 100
+goto j] goto m pu ar 360/6
+25
+omark m] end
+
+omark hh rpt 12 [omark z 1 goto z ar 360/12
+45
+1 goto hh up 30 omark hh]
+center
+#timeout=300
+///////////
+;sun using sp
+to 1 
+rt 90 
+omark m rpt 6 [omark k
+rpt 200
+ [fd 1 pu fd 2 pd]
+goto k pu fd 150 pd rt 90
+fd 75 rt 180 omark j 
+rpt 50 [lt 3 ar 360/75
+15
+omark j sp 100
+goto j] goto m pu ar 360/6
+25
+omark m] end
+
+omark z 1 goto z ar 360/12
+45
+1
+center
+///////////
+
+;doedeca with shafts layers
+make a=50
+make b=1.5 make cl=1
+make v=0  make dd=12
+make ff=4.3 make ll=3.9
+rpt 6 [if cl=1 [make dd=12 make ff=4.3 make ll=3.9] if cl=2 [make dd=6 make ff=3.8 make ll=3.1] if cl=3 [make df=5 make ff=2.9 make ll=2.9 make cl=0] to 1 make n=360/dd lt 1.5
+pu fd a rt n pd 
+rpt 6 [fd a rt n fd a lt v
+fd a*b fd -a*b rt v rt n] end
+to 4 
+omark k rpt 8 [1 goto k
+pu fd a*ff
+pd omark k ] end
+to pl
+omark j rpt 8 [4 goto j
+pu lt 90 fd a*ll
+rt 90 fd a*2
+pd omark j] end
+omark m pl goto m
+up 90 pu fd 300 dn 90 lt 90 fd 500 rt 90 pd omark m make cl=cl+1]
+center
+
+;360/6 fd a*3.8  fd a*3.1
+;360/5  2.9  2.9 
+;360/12 4.3  3.9
+
+////////////
+;doedeca with shafts every 2
+make a=50
+make b=1.5
+make n=360/12
+make v=0
+
+to 1 lt 1.5
+pu fd a rt n pd 
+rpt 6 [fd a rt n fd a lt v
+fd a*b fd -a*b rt v rt n] end
+to 4 
+omark k rpt 8 [1 goto k
+pu fd a*4.3
+pd omark k ] end
+
+omark j rpt 8 [4 goto j
+pu lt 90 fd a*3.9
+rt 90 fd a*2
+pd omark j]
+center
+;360/6 fd a*3.8  fd a*3.1
+;360/5  2.9  2.9 
+;360/12 4.3  3.9
+////////////
+;4 semi diam as concent bx cl
+make cc=1 make a=50 omark gf rpt 4 [if cc=1 [sc [45 88 99]] if cc=2 [sc [50 0 99]] if cc=3 [sc yellow] if cc=4 [sc red make cc=0] make cc=cc+1 make b=a*1.4
+make n=51
+make o=120
+to 1 fd b rt n fd a rt o fd a
+rt n fd b end
+lt 20
+to 4 omark k rpt 4 [1 goto k lt 90 omark k] end
+to 16  make y=69
+omark j rpt 4 [4 goto j
+lt y pu fd a*4.37
+rt y omark j pd] end
+to 64 omark m rpt 4 [16 goto m
+rt 20
+pu fd a*4.35 lt 20 rt 90 fd a*.08 lt 90  pd omark m ] end 
+to pl omark bb 64 goto bb 
+rt 20 fd a*2.1
+lt 20 lt 69 fd a*2.1
+rt 69  pd 64 end
+to plc omark zy rpt 1 [pl goto zy up 90 fd a*.3 dn 90 omark zy make a=a-2] end 
+omark tt rpt 4 [plc goto tt rt 30
+pu fd a*15 up 90 lt 30
+pd omark tt] goto gf dn 45 fd -a*3 up 45 fd a*5 omark gf make a=a-3] goto gf sly 300 #timeout=200
+center
+///////////
+;4 semi diam in offset rows
+make a=50 make b=a*1.4
+make n=51
+make o=120
+to 1 fd b rt n fd a rt o fd a
+rt n fd b end
+lt 20
+to 4 omark k rpt 4 [1 goto k lt 90 omark k] end
+to 16  make y=69
+omark j rpt 4 [4 goto j
+lt y pu fd a*4.37
+rt y
+omark j pd] end
+to 64 omark m rpt 4 [16 goto m
+rt 20
+pu fd a*4.35 lt 20 rt 90 fd a*.08 lt 90 
+pd omark m ] end 
+omark bb 64 goto bb 
+rt 20 fd a*2.1
+lt 20 lt 69 fd a*2.1
+rt 69 
+pd sly 100 64
+
+center
+
+///////////
+;flower of 6
+make a=50 omark m 
+rpt 5 [rpt 6 [
+rpt 12 [
+rpt 2 [fd a rt 120 fd a rt 60]
+lt 60 pu fd -a rt 60 fd a 
+rt 30 pd]
+
+rpt 4 [fd a lt 90] pu fd a
+rt 30 pd rpt 11 [fd a rt 90 fd a
+lt 60] 
+pu fd a pd lt 120 rpt 11 [fd a lt 60 
+fd a*2.667 pd ] pu fd -a*4.2
+pd ] goto m up 90 pu fd 150 
+pd dn 90
+omark m make a=a-5]
+
+center
+////////////
+;semi circ hurricane colors
+make a=40 make b=a*12
+to 1 omark k rpt 10 [
+ar 180 a rt 166
+] goto k rt 0 fd a up 180
+rt 200
+rpt 8 [al 180 a lt 167] end
+
+make t=26 omark j rpt 5 [
+sc pick [[99 74 0] [50 0 99] [0 88 99]]
+omark h rpt 26 [1 goto h pu lt 22
+fd a*1.5 au 31 a omark h pd ]
+goto j lt 90 pu fd a*3
+rt 90 up 90 fd -a*4
+dn 90 omark j pd make a=a-3
+make t=t-2]
+
+center
+
+#timeout=200
+////////////
+;triangles offset 60 up dn 
+to cn
+make a=300 make j=.5
+make ct=1
+omark mm rpt 40 [rpt 3 [rpt 3 [fd a rt 120] pu fd a pd
+fd a rt 120 fd a*j
+rt 60
+fd a pu rt 120 fd a rt 60 fd a
+pd rpt 3 [fd a rt 120]
+pu fd a rt 120 pd ]
+goto mm up 90 fd 25
+dn 90 omark mm if ct lt 36 [make j=j+.1 make a=a-10]
+make ct=ct+1] end
+
+omark zz rpt 6 [cn goto zz rt 60 up 60 
+omark zz]
+;sly 200
+center
+////////////
+;nippon corner
+make a=150 make b=a*1.75
+rt 30 to 1 
+rpt 6 [fd a rt 60]
+rt 90 rpt 2 [fd b
+lt 120 fd b
+lt 120 fd b
+pu lt 90 fd a pd lt 90]
+pu fd a/1.75 lt 60 fd a*.58
+omark k pd rpt 6 [fd a*.58 goto k rt 60 omark k] end
+
+to 6 omark m rpt 10 [1 goto m
+pu fd a*1.015
+pd omark m ] end
+
+omark ff rpt 2 [omark gg rpt 6 [omark hh rpt 6 [6 goto hh
+pu lt 90 fd a*1.735
+rt 90 pd omark hh] goto gg
+up 90 fd 4 dn 90 omark gg]
+goto ff up 90]
+#timeout=120
+center
+///////////
+;squiggle worm sine wheel
+make a=25 make t=7
+to g 
+rpt t [ar 180/t a omark k al 270 a/4 goto k]
+rpt t [al 180/t a omark k ar 270 a/4 goto k] end
+to 2 
+omark j rpt t [ar 180/t a*8 omark m g goto m]
+goto j up 180
+rpt t [al 180/t a*8 omark m
+lt 180 
+g goto m] end
+
+omark bb rpt 5 [
+omark h rpt 6 [2 goto h rt 30 
+omark h ] goto bb up 90 fd 50
+dn 90 omark bb make t=t-1
+make a=a-1
+] #timeout=300
+////////////
+;squiggle worm sine wheel
+make a=25 make t=5
+to g 
+rpt t [ar 180/t a omark k al 270 a/4 goto k]
+
+rpt t [al 180/t a omark k ar 270 a/4 goto k] end
+to 2 
+omark j rpt t [ar 180/t a*8 omark m g goto m]
+goto j up 180
+rpt t [al 180/t a*8 omark m
+lt 180 
+g goto m] end
+
+omark h rpt 6 [2 goto h rt 30 
+omark h ]
+
+///////////
+;plus on grid 
+make a=150 omark m
+to 1 rpt 2 [ rpt 2 [
+rpt 4 [fd a*1.5 rt 90]
+pu fd -a*1.5 pd] pu fd a*1.5
+rt 90 fd a*1.5 lt 90 fd a*1.5 pd]
+
+pu lt 90 fd a*2 rt 90 
+fd a*.333 pd lt 15
+rpt 4 [fd a rt 90 fd a rt 90 
+fd a lt 90] end
+to 6 omark k rpt 6 [1 goto k pu lt 90 fd a*3
+rt 90 pd omark k] end
+to w rpt 12 [
+omark j rpt 6 [6
+goto j pu fd a*3 pd omark j]
+goto m lt 90 fd 1 rt 90 omark m] end
+w up 90 w
+;sly 500
+#timeout=250
+center
+
+////////////
+;simple sine waves at 90 deg
+make a=100 make b=2
+make c=4
+make d=6
+to 1 rpt 4 [ar 180 a
+al 180 a ] end
+omark m rpt 36 [sc pick [[0 88 99] [50 0 99]]
+omark j
+omark k rpt d*1.25 [1 goto k pu fd -a*b pd omark k]
+pd 
+goto j rt 90 omark j 
+rpt d [1 goto j pu fd a*c
+pd omark j] goto m up 90
+fd 9 dn 90 omark m]
+center
+#timeout=300
+////////////
+;angular fb shape overlaps up
+make a=50
+make n=165
+make m=25
+make o=70
+make b=a*1.2
+
+to 1 rpt 3 [fd a rt n fd a rt m fd b lt o ] end
+
+to 6 omark k rpt 6 [1 goto k pu fd a rt 60
+fd -a pd omark k ] end
+
+omark m rpt 112 [
+omark j rpt 6 [6 goto j pu fd a*3.16
+lt 60 omark j
+pd ] goto m up 90 fd 2
+dn 90 omark m ]
+
+;sly 100 
+center
+
+#timeout=300
+////////////
+;checkerboard 1st sq bigger
+make aa=75 make a=aa make x=25
+to w rpt 4 [fd a rt 90] end
+to s rpt 4 [fd a rt 90] end
+to b rpt 6 [s pu rt 90 fd a/10
+lt 90 fd a/10 pd
+make a=a*.8] end 
+to r omark k
+rpt 7 [make a=aa 
+b make a=aa goto k pu rt 90 fd a*2 lt 90 omark k] end
+omark m omark j rpt 7 [r make a=aa goto j pu fd -a rt 90 fd a lt 90 pd
+ r goto j make a=aa pu fd -a*2
+omark j pd ]
+goto m make a=a*1.1 make bb=a*1 rpt 8 [rt 90 pu pd lt 90
+w rt 90 pu fd a+x pd lt 90 rpt 4 [fd bb rt 90]  ]
+center
+sly 200
+////////////
+;offset 3 spirals colored
+make aa=130 make cc=1
+sc [68 81 25]
+omark j rpt 3 [
+omark k make a=aa
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto k make a=aa
+rt 180
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto j make aa=aa-60 omark j
+if cc=1 [sc [50 0 99]] else [sc [20 75 88]] make cc=2]
+
+#timeout=250
+center
+
+///////////
+;offset spirals one rogue
+make aa=130 
+omark j rpt 7 [
+omark k make a=aa
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto k make a=aa
+rt 180
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto j make aa=aa-30 omark j]
+
+#timeout=250
+center
+//////////
+;bulls eye of 24 pent rings
+make a=75 make f=7.5
+make g=3.4
+
+to 1 rpt 10 [
+rpt 5 [fd a lt 72] 
+rpt 5 [fd a rt 72 ] pu fd a
+rt 36 pd ] end
+rpt 12 [
+omark k 
+rpt 24 [1 goto k pu lt 90
+fd a*5.7
+rt 75
+fd -a*f omark k pd ] pu 
+fd -a*g rt 90 fd a*5 lt 90
+make a=a*.8 ]
+
+center
+///////////
+Sent Code as Email 7-9-25 -------------------------------
+/////////:
+;circle net weaker then 2 fb
+make a=1 make b=8
+to 1 
+make cc=1 make r=100
+make g=r
+omark k
+rpt 16 [sc [r r g] lt 90 pu make c=a+b 
+fd c rt 90 pd ar 360 a 
+goto k make a=a+b if cc lt 14 [make r=r-10] else [make r=100] make cc=cc+1] end
+
+omark j rpt 6 [1 goto j pu fd 160 pd make a=1 rt 60
+omark j] rt 60 pu fd 160 
+omark m 1 goto m rpt 12 [make a=1 
+pu fd 320 pd make a=1 1
+goto m rt 30 omark m]
+
+#timeout=200
+center
+//////////
+;spiral of solid boxes
+make aa=50 make a=aa
+to ss rpt 4 [fd a rt 90] end
+to s omark x ss up 90 ss fd a
+dn 90 ss fd a dn 90 ss
+goto x end 
+
+to x rpt 24 [s pause .01 pu fd a pd lt 65
+make a=a*1.17
+] end
+x
+center
+///////////
+;spiral of boxes as a tower
+make aa=50 make a=aa
+to s rpt 4 [fd a rt 90] end
+
+omark k rpt 42 [
+rpt 24 [s pause .01 pu fd a pd lt 65
+make a=a*1.17
+] goto k up 90 pu fd 150-aa dn 90 pd omark k make aa=aa-1 make a=aa]
+///////////
+;fan shell using panning sp
+make a=100
+rpt 50 [ar 3.6 a pu ar 1.8
+a pd]
+to 1 rpt 60
+ [omark k sp a*2 goto k rt 3
+] end
+
+1 up 180 pu fd a*600 pd 1
+
+//////////
+;circs of tris in and out
+make a=50
+make b=1.67
+to 1 fd a rt 72 fd a fd a*b
+pu fd -a*b
+rt 72 pd fd a rt 72 fd a
+pu fd -a pd fd -a*b
+pu fd a*b fd a pd fd a*b
+pu fd -a*b pd rt 72 fd a
+rt 72 fd -a*b end
+
+to n rpt 12 [1 lt 30] end
+to o rpt 12 [1 rt 30] end
+ 
+to m rpt 10 [1 pu fd -a*.3
+lt 90 fd a rt 54 pd ] end
+
+m pu fd -a*2 make a=80
+rt 90 fd a*4.7
+lt 90 fd a*.5 pd
+o
+make a=30 pu lt 90 fd a*10.85
+rt 90 fd a*.35 pd
+m
+center
+///////////
+;rainbow quilt as a pyramid
+make aa=50 make a=aa
+make n=60
+make b=60
+to 1 rpt 6 [fd a rt 120
+fd a lt b
+] end
+to 2 rpt 3 [1
+pu fd a rt 30
+make a=a*1.67
+pd ] end
+to 6 rpt 6
+[2 make a=aa pu fd a*1.8
+pd] end
+to many
+rpt 2 [6 pu fd a*17 rt 90 fd a*.5
+lt 90 pd make a=aa] end
+to row rpt 1 [many pu fd a*34
+rt 90 fd a lt 90 pd many] end
+make cc=1
+omark m rpt 8 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99]] make cc=cc+1
+omark j rpt 4 [row goto j lt 90 pu
+fd a*17.2
+rt 90 fd a*.5 pd omark j]
+goto m up 90 pu fd 200 dn 90
+make aa=aa-7 make a=aa fd a*4
+lt 90 fd a*5
+rt 90 omark m ]center #timeout=200
+//////////
+;quilt blanket 
+make a=50
+make n=60
+make b=60
+to 1 rpt 6 [fd a rt 120
+fd a lt b
+] end
+to 2 rpt 3 [1
+pu fd a rt 30
+make a=a*1.67
+pd ] end
+to 6 rpt 6
+[2 make a=50 pu fd a*1.8
+pd] end
+to many
+rpt 2 [6 pu fd a*17 rt 90 fd a*.5
+lt 90 pd make a=50] end
+
+to row rpt 3 [many pu fd a*34
+rt 90 fd a lt 90 pd many] end
+omark j rpt 8 [row goto j lt 90 pu
+fd a*17.2
+rt 90 fd a*.5 pd omark j]
+center #timeout=200
+
+///////////
+;leaf pattern spreads wings
+make a=30
+to 1 fd a rt 120 fd a rt 30
+fd a 
+rt 30 fd a rt 120 
+fd a rt 30 fd a
+end 
+
+to 3 1 rt 180 
+1 rt 180 pu fd a pd rt 60
+pu fd a lt 90 fd a*.58
+rt 90 pd 1 end
+rpt 16 [
+rpt 72
+ [3 pu fd a*2.9
+rt 25
+fd -130
+pd ] make a=a-2 up 6]
+
+//////////
+; mandala from the bent leg-
+make a=400
+make n=70
+make b=n*2 make b=110
+to 1 
+fd a lt n fd a lt b fd a
+lt n fd a
+rt 145
+fd a rt 65
+fd a end
+to g rpt 5 [
+1 make a=a*.5 pu fd -a*.1
+rt 145
+fd 5
+lt 40
+pd ] end
+
+to 2 omark m g goto m up 180 
+make a=400 g end
+omark yy rpt 12
+ [2
+goto yy rt 30 make a=400 
+omark yy ]
+
+center
+///////////
+;concent rings of tri equa
+make a=100 make x=140
+make y=80
+make m=.65
+to 1 
+fd a rt x fd a*m rt y
+fd a*m rt x fd a end
+to 2
+1 rt 360/12  rt 110
+fd a*m lt 120 fd a*m
+lt 120 fd a*m end
+
+to 9 rpt 9
+[ 2 rt 110
+rt 360/12 
+] end
+make aa=200 omark hh rpt 2 [
+make a=aa rpt 8 [
+9 rt 90 pu fd a*.55
+lt 90 
+make a=a*.6 fd a*.35
+pd ] goto hh up 90]
+
+center
+///////////
+;cube of cubes
+make a=50 make n=10
+make x=3
+
+to s rpt 4 [fd a rt 90] end
+
+to c s up 90 s fd a dn 90 s
+fd a dn 90 s end
+
+to r omark k rpt n [
+c goto k pu fd a*x pd 
+omark k ] end
+
+to pl omark j rpt n [lt 90 r 
+goto j pu fd a*x pd omark j] end
+
+omark m rpt n [pl goto m up 90
+pu fd a*x pd dn 90 omark m]
+
+///////////
+;3 segment color concen sphere
+make a=200 make cc=1
+rpt 8 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [50 0 99] make cc=0] make cc=cc+1
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+
+rt 60
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+
+rt 60
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+pu up 90 fd a*.1
+dn 90 pd 
+make a=a-15] #timeout=200
+
+///////////
+;explain poly from to fb
+make a=50 make b=a*2.5
+make j=60
+to jl lt j fd b end 
+
+to r rt j fd b end
+
+; makes the polygon named poly
+to poly fd a jl jl jl rt j r
+lt j fd a*1.5 
+rt j*2 fd a*4 rt j*2 fd a
+lt 90 fd a rt 90 fd a lt j*2
+fd a*4 rt 60 r rt j fd b
+lt j*2 fd b r r rt j fd a end 
+
+;makes gp the group of 6 poly
+ ; the flips 180 degrees 
+to gp omark g rpt 2 [rpt 6 
+[poly goto g rt 60 omark g ] goto g up 180 rt 90 omark g] end
+
+;displayes gp 6 times in 
+; layers 5 units above with
+;  the length reduced by 6
+omark h rpt 6 [gp up 90 pu
+fd 5 dn 90 pd make a=a-6]
+
+;goes back to the top and 
+; displays the single poly
+;  in red
+make a=50 sc red goto h rpt 4 [poly goto h rt 90 fd 1 lt 90 omark h]
+
+///////////
+;polygon 6 intertwine fd modi
+make a=50 make b=a*2.5
+make j=60
+to jl lt j fd b end 
+to r rt j fd b end
+
+to 1 fd a*4 rt j*2
+fd a lt 90 fd a rt 90 fd a
+lt j*2 fd a*4
+rt j r r lt j jl
+r r rt j fd a rt j*2 fd a
+jl jl jl rt j r
+lt j fd a*1.5 end
+
+to 7 fd a jl jl jl rt j r
+lt j fd a*1.5 
+rt j*2 fd a*4 rt j*2 fd a
+lt 90 fd a rt 90 fd a lt j*2
+fd a*4 rt 60 r rt j fd b
+lt j*2 fd b r r rt j fd a
+end 
+to s omark k rpt 6 [7 1 7 
+goto k rt 60 1 omark k] end
+to z s pu up 90 fd 400 rt 90 fd 400 up 90 pd s end 
+omark g rpt 2 [rpt 6 [7 goto g rt 60
+omark g ] goto g up 180 rt 90 omark g]
+
+////////////
+; chalk board art youtube
+make aa=200 omark mm rpt 6 [make a=aa 
+make c=a*.01
+make c2=c*2.5 make a2=a-c2
+make b=a*.6 omark k 
+rpt 4 [fd a*2 rt 90] 
+rt 45 fd a*1.11 lt 90 fd b/2 rt 90 rpt 3 [fd b rt 90]
+fd b/2 goto k rpt 4 [pu fd a 
+pd rt 90 fd b fd -b lt 90 pu fd a pd rt 135 fd a*1.11 fd -a*1.11 lt 45]
+goto k omark jj rpt 2 [rpt 4 [rt 45 pu fd c lt 45 
+fd c*1.3 rpt 18 [make a=a-c make a2=a-c2 rt 3 pd fd a2 rt 90 fd a2*.6
+rt 45 fd a2*.3 rt 90 
+fd a2*1.15
+rt 135 ] goto k make a=aa
+make a2=a-c2 fd a*2 rt 90
+omark k] goto jj lt 90 up 180 omark jj omark k] goto mm
+up 90 pu fd 50 dn 90 rt 90 fd 50 lt 90 fd 50 pd omark mm
+make aa=aa-40]
+center
+
+///////////
+;cut corner rotate sq rep fb
+make a=200 make z=.58
+make y=2 make n=2
+
+to was rpt 9 [fd a rt 90 fd a rt 90 fd a*z
+rt 45 fd a*z rt 45 
+make a=a-y fd a*z rt 90
+al n a make n=n+.8 make y=y+1]
+end
+to v make a=a-y end
+
+to g fd a rt 90 fd a rt 90 fd a*z rt 45 fd a*z rt 45 fd a*z 
+rt 90 end
+to k make a=200 make x=15
+rpt 18 [g make a=a-x rt 90 pu fd x/2 lt 90 fd x/2 
+pd rt 2 ] end
+
+to 4 omark j k goto j pu 
+rt 90 fd 400 lt 90 pd rt 180 
+up 180 k end
+omark m 4 goto m up 180 4
+goto m rt 90 pu 
+fd -a*.6 lt 90 fd -a*.6
+rt 45 pd omark k k
+
+center
+//////////:
+;hourglass wheel fb 
+make a=100
+make b=a*2.5
+to x fd a rt 45 fd b
+lt 45 fd a lt 90
+fd a*1.75
+lt 90 fd a lt 45
+fd b rt 45 fd a
+rt 90 fd a*1.75 end
+
+make c=300
+make n=6
+to 6 omark j 
+rpt n [x goto j pu ar 360/n c
+pd omark j] end
+
+to 4 rpt 8 [6
+pu lt 90 fd a*8.7
+rt 90 pd] end
+
+omark m rpt 8 [4 goto m pu 
+fd a*8.4 pd omark m ]
+
+center 
+///////////
+;tri in tri pyras fb partial 
+make a=50 make n=115
+to 1 fd a rt 130 fd a 
+rt n fd a*.85
+rt n make b=a/2
+fd b 
+rt 60 fd b*.85 rt n fd b 
+rt 130 fd b
+
+end
+to 3 omark k 1 goto k fd a 1
+goto k rt 65 fd a*.85  
+lt 65 1 end
+
+to 9 omark j 3 goto j fd a*2 3
+goto j rt 65 fd a*1.7
+lt 65 3 end
+
+to t omark m 9 goto m 
+rr 75 9 goto m rr 91 up 60
+fd a*3.4 dn 110 rr 30
+fd -a*.3 9 end
+
+to bt omark x t goto x fd a*4
+t goto x rt 65 fd a*3.4
+lt 65 t goto x end
+omark y bt goto y fd a*8 bt
+goto y rt 65 fd a*6.8
+lt 65 bt
+///////////
+;flure de fire matrix sq fb
+make a=80
+make n=10
+to 1
+ar n a ar n*2 a ar n*3 a
+ar n*4 a/2
+ar n*4 a/2 ar n*3 a
+ar n*2 a ar n a end
+
+to cr rpt 4 [1 lt 110] end
+
+to 7 rpt 7 [cr pu fd a*3.46 rt 90 fd a*.47 lt 90 pd] end
+
+to cuu omark k rpt 7[7 goto k lt 90 pu fd a*3.43 rt 90 fd a*.6 omark k pd ] end
+sly 140
+cuu rt 90 fd a*2 up 90 lt 10 rl 10 sly 200
+cuu
+///////////
+make a=80
+make n=10
+to 1
+ar n a ar n*2 a ar n*3 a
+ar n*4 a/2
+ar n*4 a/2 ar n*3 a
+ar n*2 a ar n a end
+
+to cr rpt 4 [1 lt 110] end
+
+to 7 rpt 7 [cr pu fd a*3.46 rt 90 fd a*.47 lt 90 pd] end
+
+omark k 7 goto k lt 90 pu
+fd a*3.46 rt 90 pd 7
+///////////
+;butterfly z string
+make a=250
+to l ar 70 
+a al 20 a ar 30 
+a*.7 rt 90
+ar 30
+a*.7
+al 20 a ar 70 a end
+to e
+omark k rpt 20 [l goto k rt 90 fd a*.05
+lt 90 make a=a*.88 omark k] end
+
+to 2 omark j e goto j up 180 make a=250 e end
+to ba 
+omark m rpt 12 [2 goto m up 15 
+make a=250 omark m] end
+to bu omark m rpt 4 [
+rpt 4 [e up 180 lt 90 pu fd a*5 rt 90 fd a*5
+pd make a=250 ] goto m up 180
+rt 120 omark m] end
+omark z rpt 5 [bu goto z up 90 pu
+fd a*2 dn 90 pd omark z]
+#timeout=250
+
+///////////
+;octagons and squares fb
+make a=100
+
+to o rpt 8 [fd a rt 45] end
+
+to 9 rpt 9 [
+o pu fd a rt 45 fd a lt 45 pd
+rpt 4 [fd a rt 90] fd a lt 45
+pu fd a rt 45 pd] end
+
+omark j rpt 9 [9 goto j lt 90 pu
+fd a*1.7
+rt 90 fd -a*1.7 pd omark j ]
+center
+///////////
+*******************************************************************
+Logo Apr 2025 black
+////////////
+;5 eight side stars of puzzle 
+make a=50 to 1
+fd a*3 lt 90 fd a rt 45
+fd a rt 90
+fd a rt 45 fd a lt 90 fd a rt 45 fd a
+rt 90 fd a rt 45 fd a*4
+lt 45 fd a rt 90 fd a
+lt 45 fd a rt 90 fd a*3
+rt 90 fd a rt 90 fd a*1.5 end
+to 2 
+1 lt 180 pu fd -a*2.9 lt 90
+fd -a*6.8 pd 1 end
+to 4 2 pu fd -a*7.7 lt 90 
+fd a*4.4 rt 90 pd 2 end
+to 16 4 pu fd a*3.9
+lt 90 fd a*5.2 rt 90 pd 4 end
+to 32 16 pu fd -a*7.79 lt 90
+fd a*4.5 rt 90 pd 16 end
+32 pu rt 90 fd a*5.8
+lt 90 fd a*16.5 pd 32
+center
+////////////
+;7 diamond cube circ
+make a=50
+make n=128
+make n2=180-n make n3=50
+make x=1.55
+to sam rpt 7 [fd a rt n2
+fd a rt n3 fd a omark k rt n3*x fd a
+fd -a lt n3*x fd -a lt n3
+rt n 
+fd a rt n2
+fd a rt n
+rt 360/7]
+goto k rt 40
+ar 360 a*2.3 end
+to 7 rpt 7 [sam goto k pu
+rt 360/6.9
+fd a*8.5
+pd] end
+7 pu rt 90 fd a*2.6
+lt 90 fd -a*1.95
+make a=20 pd 7
+make a=30 rt 90 fd a*3.0
+lt 90 fd -a*2
+sam
+
+center
+////////////
+;holo holder 1
+make a=200
+to 1 fd a*2.5 ar 180 a fd a*.5
+rt 90 fd a*2.5
+al 180 a fd a*2.5
+lt 90 fd a*2 end
+to 4 omark k
+rpt 4 [1 rt 90 fd a*.5]
+goto k pu fd a*.25 rt 90 fd a*.25
+lt 90 omark j make a=a*.75
+pd 1 goto j pu 
+up 180 fd a*1.33 omark j pd 1 pu rt 90 fd a*1.33 
+pd 1 pu rt 90 fd a*1.33 
+pd 1 end
+
+omark m rpt 114 [4 goto m pu 
+up 90 fd 1 dn 90 make a= 200 omark m pd]
+center
+
+#timeout=200
+////////////
+;half a pyramid need allign-
+to s make a=175
+make d=10 fd a
+rpt 9 [ pu rt 90 fd 11 rt 90 
+fd d/2 pd fd a-d lt 90
+pu fd 11 lt 90 make a=a-d
+fd d/2 pd fd a-d make a=a-d
+] end
+to 1 
+omark j s goto j pu fd a
+dn 90 rt 30 rl 30 pd s end
+omark m rpt 1 [1
+goto m pu fd 175 
+dn 90 pd omark m] fd 150
+dn 90 rt 0 sc red 
+rr 45
+lt 75 pu 
+fd 20
+rt 90
+pd sly 75 1
+
+center
+
+////////////
+;plate 1
+make t=24 make a=5
+omark k rpt t
+[fd a au 90 a-2 ad 90 a-2
+ al 120 a+2 fd a+3 ar 110 a+2
+rt 180 ar 100 a+2
+
+goto k rt 360/t omark k]
+up 90 fd 1 dn 90
+make t=24 make a=3
+omark k rpt t
+[fd a au 90 a-2 ad 90 a-2
+ al 120 a+2 fd a+3 ar 110 a+2
+rt 180 ar 100 a+2
+
+goto k rt 360/t omark k]
+///////////
+;holo hex
+make a=300
+rpt 300.
+[rpt 6 [fd a rt 60]
+dn 90 fd 1 up 90
+rt 90 fd .75
+lt 90 fd .5
+make a=a-1]
+center
+ 
+////////////
+;circ frame inter spiral-
+omark gh rpt 12 [
+make a=400 omark k
+make x=.85 make cc=1
+pu au 180 a omark j pd goto k
+rpt 12
+[omark k au 180 a goto k
+rt 360/12]
+dn 120
+rt 90
+
+omark m rpt 2 [rpt 325
+[dn 20 fd a/100 up 20
+if cc=1 [sc [45 00 99]] if cc=2 [sc [00 91 99]] if cc=3 [sc [99 88 00] make cc=0] make cc=cc+1 ar 10
+a*x make x=x-.005
+] goto j dn 220
+lt 90 make x=.85
+] goto gh up 90 fd 1 dn 90 lt 90 fd 1 rt 90 omark gh]
+
+center
+#timeout=250
+////////////
+
+;spokes pin wheel triple 
+make cc=1 omark dd rpt 2 [
+make t=40
+omark ff rpt 3 [make t=t+16
+if cc=1 [sc [45 00 99]] if cc=2 [sc [89 79 00]] 
+If cc=3 [sc [00 89 99]make cc=0] 
+make cc=cc+1 ar 360 2
+omark hh rpt 2 [
+make f=15
+make a=600
+make n=72
+rpt 16 [ar 360/t 360 omark k
+up n 
+rt 90 rpt 4 [fd a fd -a lt f
+] goto k rt 90 rpt 4 [fd a 
+fd -a rt f goto k] ] goto hh up 180]]
+goto dd rt 90]
+center
+
+///////////
+;spokes as montra pin wheel
+make t=16
+make f=15
+make a=600
+
+rpt 16 [ar 360/t 360 omark k
+rt 90 rpt 4 [fd a fd -a lt f
+] goto k rt 90 rpt 4 [fd a 
+fd -a rt f goto k]
+
+center
+
+////////////
+;genie bottle
+make b=20
+make n=51
+make t=690
+make j=15
+make i=1.25
+make n2=51
+make u=121
+make c=70
+rpt t [sc [c 00 99] ar 360/t b rt n up u omark k
+make a=b rpt j [ fd a rt n2 make a=a*i] goto k 
+make c=c-.1]
+
+////////////
+
+;tri tri quilt
+make a=50
+to 1 lt 120
+fd a*2
+lt 150
+fd a*1.75
+end
+
+to 2 rpt 3 [fd a 1 lt 90 fd a rt 120] end
+
+to r rpt 12 [2 lt 90 pu fd a*2.5 rt 90 fd -a*.5 pd ] end
+rpt 12 [omark k r goto k pu fd a*2
+lt 90 fd a*1.5
+rt 90 pd]
+center
+///////////
+;sea shell
+make a=400
+make s=5 
+make t=s-1
+
+rpt 220 [rpt s [fd a rpt s-1 [al 360/t
+a fd a rt 360/s ]] lt 90 fd 3.14 rt 90 fd -3.14 up 90 fd 7 dn 90 make a=a-1]
+
+center
+
+#timeout=2003
+///////////
+;moire cubes
+make a=10
+make n=90 make cc=10
+
+to 1 rpt 20 [if cc=1 [sc [45 00 99] make cc=2]  else [sc [0 88 99]make cc=1] fd a rt n make a=a+20 make n=n-.05] end
+
+to 2 rpt 20 [if cc=2 [sc [45 00 99] make cc=1] else [sc [00 88 99] make cc=2] fd a lt n make a=a-20 make n=n+.05] end
+
+omark k rpt 20 [1 2 goto k
+up 90 fd 15 dn 90 omark k
+make a=10 make n=90]
+
+////////////
+;circ spiral fd1-
+make a=190
+make n=-9
+make c=.95
+make x=199
+make x2=180
+to m make a=a*c end
+to 1 ar 360 a end
+
+to 2 al 360 a end
+
+to z pu ar x2
+a pd end
+to y pu al x
+a pd end 
+make zz=17
+omark h rpt 1 [rpt 100 [
+2 al x a m lt zz 1 ar x2 a m lt zz
+ make x=x-1 make c=c+.001]
+goto h lt 8 up 7 omark h make a=190 make c=.95 make x=199]
+
+#timeout=250
+
+center
+
+center
+////////////
+;4 sided jaggad puzzle pyra
+make a=50
+to r rt 90 fd a end
+to l lt 90 fd a end
+
+to 1 rpt 4 [r l r l r r l] end
+
+to db omark j rpt 8
+[1 rt 90 pu fd 20
+lt 90 fd -10
+pd make a=a-7 up 90 pu fd 25
+pd dn 90 ] goto j end
+
+to 4 rpt 4
+[db lt 90 pu fd a*3.80
+lt 90 fd a*1.2
+rt 90 pd make a=50] end
+
+4
+////////////////
+;pyra triple rows of tris fb
+make aa=75
+omark jj rpt 26 [goto jj make a=aa
+rpt 2 [rpt 3 [rpt 3 [fd a rt 120 rpt 3 [fd a lt 120
+] lt 120] fd a rt 120]
+fd a*.7 rt 90 pu fd a*.286
+lt 90
+pd make a=a*.67] goto jj up 90
+fd 5 dn 90 make aa=aa-1 omark jj ]
+
+center
+////////////
+;gossimer 6 star
+make a=10
+to c ar 180
+ a end
+to 1 rpt 60
+[c rt 90 pu fd 5 up 8
+pd lt 90
+make a=a+4
+c] end
+
+omark k rpt 6 [1 goto k rt 60
+omark k make a=10]
+
+center
+#timeout=250
+////////////
+;6 overlap spiral balls
+make a=10
+to c ar 180
+ a end
+to 1 rpt 60
+[c rt 90 pu fd 5 up 3
+pd lt 90
+make a=a+4
+c] end
+
+omark k rpt 6 [1 goto k rt 60
+omark k make a=10]
+
+center
+#timeout=250
+///////////:
+;offset 4 rings in sq to line
+
+make a=50
+make x=16
+
+to 1 omark j up 90 pu fd 60
+dn 90 pd sc [45 0 99] rpt 16 [al 360 a pu dn 90 fd 1 up 90 pd] goto j al 360/x a
+sc [88 67 0] ar 360 a ar 360*.83
+a sc [0 89 79] al 360 a al 360*.83
+a omark j dn 90 pu fd 60 up 90 pd sc [45 0 99] rpt 16 [ar 360 a pu up 90 fd 1 dn 90 pd] goto j ar 360*.3
+a lt 85
+fd a*.83
+sc red rpt 4 [lt 90 fd a*3.25] end
+
+to 4 rpt 4 [1 pu fd a*.86
+lt 90 fd a*1.83 pd] end
+
+to r rpt 4 [
+4 lt 90 pu fd a*6.5
+rt 90 pd ] end
+to george
+omark k rpt 4 [r goto k pu fd -a*6.6
+lt 90 fd a*.67
+rt 90
+pd omark k] end
+
+omark m george goto m up 90 george
+#timeout=200
+
+center
+/////////////
+;puzzle piece not quite
+make a=50
+make n=142
+make n2=72
+to 1 
+fd a rt n2 fd a
+rt n2 fd a rt n fd a lt n2
+fd a rt n end
+
+////////////
+;3 circs arc tri in lg circ
+make n=45
+make x=5
+make a=50
+to 1 omark k pu lt 90 fd a rt 90 pd
+ar 360 a goto k rt 150 pu 
+fd a*2 omark j lt 90 fd a
+rt 90 pd ar 360 a
+goto j rt 120 pu  fd a*2
+omark m lt 90 fd a rt 90 pd ar 360 a
+goto k rt 138
+ar n a*x
+goto j rt 109
+ar n a*x
+goto m rt 109
+ar n a*x rt 60
+ar 360 a*2.75 end
+
+rpt 111 [
+1 goto k up 90 pu fd 1 dn 90
+make a=a-.5 fd -.25]
+
+center
+////////////
+;cats cradle pyramid
+make a=200 
+
+rpt 4 [fd a rt 90]
+to 1 rpt 4 [
+omark k rt 30
+fd a*1.15
+goto k
+pu fd a/2
+omark k rt 63.8
+pd fd a*1.1
+goto k pu fd a/2 omark k
+rt 135
+pd fd a*1.4
+goto k rt 90] end
+rpt 9
+[omark j 1 goto j pu up 90
+fd a/6 dn 90 rt 45 fd a/8
+lt 45 fd -a/24 pd make a=a*.85
+]
+
+center
+////////////
+;good woven a 90 but diag suck
+make a=30
+to 1 rpt 2 [
+fd a*2 pu fd a*1.75 pd fd a*2 rt 60
+fd a rt 60 fd a rt 60] end
+
+to 4 rpt 4 [1 pu fd a*6 pd] end
+
+to 16 omark k rpt 4 [4 goto k pu lt 90 fd a*6 pd rt 90 omark k] end
+omark m 
+omark j 16 goto j pu fd a*20 rt 90 fd a*.75
+lt 90 pd lt 90 16
+
+goto m lt 40
+pu fd a*5.0
+rt 90 fd a*7.5
+lt 90
+pd 16
+center
+////////////
+;tipped x shaped dbl sq star
+make a=50
+
+to 1 lt 90 rpt 4 [fd a
+rt 45 fd a rt 90 fd a rt 45
+fd a lt 90] end
+
+to 6 omark k rpt 10 [1 goto k lt 45 pu fd a*6.75 rt 45 pd omark k] end
+
+omark j rpt 12 [6 goto j pu
+fd -a*4.75
+omark j pd]
+
+center
+////////////
+; failed to close
+make a=100 make n=60
+make x=120
+fd a rt x fd a*2
+rt x fd a/2 lt 85
+fd a/2 rt 90 fd a/2
+lt x fd a*2 rt x fd a
+rt n fd a lt x fd a rt n 
+fd a rt n fd a rt n fd a/2
+rt x fd a/2 lt n fd a
+lt n fd a lt n fd a rt x
+fd a 
+
+center
+///////////
+:tri floating pyras
+make a=300
+make n=60
+make n2=16.14
+make t=8
+make c=t*5
+to 1 make b=a*1.04 rpt 3 [fd a rt 120 fd a fd -a up n rt n2 fd b fd -b 
+lt n2 dn n ] end
+
+omark k rpt t
+
+ [1 goto k 
+pu up 45 fd c*.357
+dn 45 
+rt 90 fd c*.58
+lt 90  lt 45 fd c*.429 rt 45 pd
+make a=a-c pd omark k]
+
+center
+////////////
+;another funnel but puzzle sh
+make a=100
+make n=78
+make n2=66
+
+to a fd a end
+to n rt n end
+to l lt n end
+to 2 rt n2 end
+
+;rpt 3 [a l a 2 a n a 2 a l rt 30]
+to 1 a 2 a n a 2 a end 
+to 3 make z=90 1 lt z
+1 lt z 1 end
+
+omark m rpt 16
+[rpt 6 [3 pu fd a*3
+lt 30 pd ] goto m up 90 fd 
+a/2 dn 90 make a=a-5 fd -a/622
+omark m]
+
+center
+////////////
+;jew pyra
+make i=-5 make t=50
+omark k rpt 5 [rpt t [rpt 6 [ rpt 6 [fd i
+lt 60 ] lt 60 make i=i+10]
+goto k up 90 fd 1152
+dn 90 omark k make t=t-3]
+
+////////////
+;tri fractal
+to t :l :d
+if :d=0 [fd :l stop]
+rpt 3 [fd :l/3 t :l/3 :d-1
+fd :l/3
+rt 120 ] end
+
+t 200 5
+center
+
+//////////
+;self similar squares
+to s :l :d
+if :d=0 [stop]
+rpt 4 [ fd :l rt 90
+s :l*.4 :d-1
+] end
+
+s 200 4
+////////////
+;iteration wing
+make aa=20 make st=1
+to g sc pick [[45 0 99] [0 99 89]]make a=aa omark k rpt 10 [ fd a lt 15 fd a fd -a 
+rt 15 fd a/3 rt 15 fd a
+fd -a lt 15 make a=a-1] 
+if st gt 50 [stop] make st=st +1 goto k rt 5 make aa=aa*1.1 g end
+
+g
+///////////
+; iterations wirh stop spiral
+to spiral :n :s :a
+  if :n lt 1 [stop]
+  fd :s
+  rt :a
+ spiral :n-1 :s+2 :a
+end
+
+sc red
+spiral 100 5 9
+
+////////////
+;counter spoke mandala stack
+make a=500
+make t=23
+make n=30
+make n2=30
+make x=.58
+to 1 rpt 2 [sc yellow
+rpt t*2 [ar 360/t a pu 
+ar 360/t a pd]
+omark k
+rpt t [rt n ar 120 a*x
+omark j sc [0 99 89] rt n2 sp a goto j sc yellow
+al 120 a*x goto k pu ar 360/t
+a omark k pd]
+up 180] end
+omark m 
+rpt 10 [pu fd a*.2 rt 90 fd -a*.4 lt 90 pd 1 goto m up 90 pu
+fd 90 dn 90 omark m make a=a-60 make t=t-2]
+center
+#timeout=200
+////////////
+;4star ang fb quilt
+make a=100
+make b=a/4
+make c=a-b
+make d=a*1.5
+make e=a*1.6
+to 1 
+rpt 4 [fd b lt 90 fd d-b fd -d
+rt 135 fd e fd -e lt 135 
+fd b rt 90 fd c rt 135
+fd a lt 45] end
+
+to r rpt 6 [1 pu fd -a*2.3
+rt 90 fd a
+lt 90 pd] end
+to sh
+omark k rpt 6 [r goto k pu 
+fd a rt 90 fd a*2.3
+lt 90 omark k pd] end
+omark m rpt 3 [sh goto m up 60 omark m ]
+center
+////////////
+;ben white flares 2
+make nc=1 omark k rpt 7 [
+make a=50 make x=165
+rpt 170
+[make n=random 135 
+make n=n+10
+up n pu fd x+random 360 rt random 80 lt random 280 pd 
+make v=10+random 55 
+make w=random a if nc=17 [make tt=5 make nc=0] else [make tt=1] make nc=nc+1 omark vv rpt tt [ar v w goto vv up 90 fd 1 dn 90 omark vv] goto k
+] rt random 70 omark k]
+sc [70 70 70] rpt 60 [pu fd 150 pd ar 360 175 au 360 120 goto k rt 33 omark k] 
+////////////
+;tri sq color ring
+make a=30
+to s rpt 4 [fd a rt 90] end
+to t fd a lt 90 fd a lt 135
+fd a*1.4 end
+to a fd a end
+to b fd a*1.4 end
+to 9 rt 90 end
+to 9l lt 90 end
+to 3 rt 135 end
+to 3l lt 135 end
+to 4 rpt 4 [
+t a t a t b s b b s
+b a t a t a t b b ] end
+make cc=1 rpt 360 [if cc=1 [sc red] if cc=2 [sc orange] if cc=3 [sc yellow] if cc=4 [sc green] if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99] make cc=0] make cc=cc+1 omark m rpt 5 [s t s t goto m up 90 fd 1 dn 90 omark m] up 45 pu fd 10
+pd dn 44]
+center
+////////////
+;tri sq sequnse makes board
+make a=30
+
+to s rpt 4 [fd a rt 90] end
+
+to t fd a lt 90 fd a lt 135
+fd a*1.4 end
+
+to a fd a end
+to b fd a*1.4 end
+to 9 rt 90 end
+to 9l lt 90 end
+to 3 rt 135 end
+to 3l lt 135 end
+
+to 4 rpt 4 [
+t a t a t b s b b s
+b a t a t a t b b ] end
+
+rpt 8 [4 pu lt 270 b rt 270 
+up 90 fd a*3 dn 90 pd
+make a=a*.75 ]
+
+pd 
+center
+////////////
+;puzzle shapes tapestry
+make a=50
+make b=a*3
+make c=a*.5
+to 9 rt 90 end
+to 1
+fd a 9 fd b 9 fd a fd -c
+9 fd a+c lt 90 fd c
+omark k 9 fd c 9 fd c fd -c*2
+goto k fd c fd -c*.5 end
+to a 
+omark j 1 pu fd c lt 90 fd a+c
+rt 90 pd 1 end
+to hb fd c omark k 9 fd c lt 90 fd c lt 90 fd c goto k lt 90 fd a
+9 fd c 9 fd c fd -c lt 90
+fd a+c end
+to b
+hb rt 180 pu fd -a*.5
+lt 90 fd a rt 90 pd hb end
+to rw rpt 8 [a pu fd a*1.6
+pd b pu fd -a*4.5 lt 90 
+fd -a*2.4 rt 90 pd lt 180] end
+to sh omark jj rpt 12 [rw goto jj pu lt 90 fd a*3 rt 90 fd a*3 pd omark jj] end
+sh up 90 rt 90 sh
+center
+
+///////////
+;multiple halbert attempts-
+make a=50
+make b=a*2
+
+to f fd a end
+to l lt 90 fd a end
+to r rt 90 fd a end
+to b lt 90 fd b end
+to x rt 90 fd b end
+rpt 4 [f l r r l b l r r l x f r l
+l r b l r r l x
+r l l r x r l l r b f l r r
+l x r l l r f f
+l r r l x l r r l b f r l l
+r x l r r l f f lt 90 pu fd a*14 pd 
+f f l r r l x r
+l l r f b l r r l x l r r l
+f f r l l r x l
+r r l f b r l l r x r l l r
+x l r r l b r l]
+
+to xx r l l r b f l r r l x f r l l
+r b f l r r l end
+
+center
+
+/////////////
+;cube fract cell antenna
+make a=50
+make b=a*2
+to f fd a end
+to l lt 90 fd a end
+to r rt 90 fd a end
+to b lt 90 fd b end
+to x rt 90 fd b end
+to 1 rpt 4 [
+f l r r l b l r x f
+r r b l l r r l b l r r b
+l l x r r l l r x r l l r
+r l l x r r l l r x
+r l b l r r b lt 90] end
+to m omark k rpt 5 [1 goto k lt 90 pu fd a*7.0 rt 90 pd omark k] end
+omark j m goto k up 90 rt 90 m
+goto j up 90 pu fd a dn 90 pd
+m
+
+center
+////////////
+;90 deg cross capsel rows
+make a=55
+make b=100
+make c=65
+make n=60
+
+to 1 fd b rt 90 fd a rt 90 fd b rt n fd c lt n fd b
+lt 90 fd a lt 90 fd b
+lt n fd c end
+to 4 
+rpt 4 [1 rt n fd b rt 90 pu fd a*2.5 pd] end
+to r rpt 8 [4 pu lt 90 fd a*4.33 rt 90 pd ] end
+omark j rpt 8 [r goto j pu fd a*4.33 omark j
+pd ]
+;sly 150 
+
+center
+////////////
+;attempt cross chain groups
+make a=75
+make b=a*4
+
+to 1 rpt 2 [rpt 2 [fd b rt 45 fd a rt 90 fd a rt 45] fd a*2.75 rt 90 pu fd -a*1.25 pd]
+end
+to 2 1 pu fd -a*5.4 pd 1 end
+to xx 2 lt 90 pu fd a*2.75 rt 90 fd a*1.2 lt 90 end
+to h rpt 2 [fd b rt 45 fd a rt 90 fd a rt 45] end 
+to 6 rpt 6 [h pu fd a*5.5 pd ]
+end
+to 40 omark k rpt 8 [6 goto k lt 90 pu fd a*5 rt 90 pd omark k] end
+omark j 40 goto j pu 
+fd a*20
+lt 45 fd -a*12
+pd sly 200 40
+
+center
+////////////
+;bullseye bent trap rings cone
+make a=100 
+to 1
+make b=a*1.334
+make c=a*2.28
+make n=79.95
+fd a rt 90 fd b rt 20
+fd b rt 90 fd a rt n
+fd c end
+
+to r rpt 13
+[1  lt 360/13 pu fd c rt n
+pd] end
+
+rpt 39 [r pu lt n fd -c/1.9 
+rt 93.9 make a=a*.8 fd -a 
+up 90 fd a dn 90 pd]
+
+center
+
+////////////
+;bullseye bent trapazoid rings
+make a=100 
+to 1
+make b=a*1.334
+make c=a*2.28
+make n=79.95
+fd a rt 90 fd b rt 20
+fd b rt 90 fd a rt n
+fd c end
+
+to r rpt 13
+[1  lt 360/13 pu fd c rt n
+pd] end
+
+rpt 18 [r pu lt n fd -c/1.9 
+rt 93.9 make a=a*.8 fd -a pd]
+
+center
+///////////
+;zig zag at 45 degrees
+make a=25
+make b=a*10
+make c=a*4
+make n=125
+make n2=90
+make n3=105
+
+to 1 rpt 6 [fd a lt n3 fd a rt n2 fd b
+lt n fd b rt n3 fd a rt 75
+fd b lt n3 fd a lt 75 fd b
+rt n fd b lt n fd a rt n2 
+fd a lt n fd c rt 175] end
+
+to rw rpt 9 [omark k 1 goto k pu lt 90 fd b*3 rt 90 rt 120 fd b*2.8 lt 120 pd ] end
+make x=4.15
+omark j sly 100 rw goto j pu
+fd b*x 
+lt 90 fd b*x
+rt 90
+lt 45
+sly 200 pd sc yellow rw
+center
+////////////
+;10 pente in ring chain row
+make a=50
+to 1 rpt 10 [rpt 5 [fd a lt 72] fd a rt 36] end
+
+to 6 rpt 6 [1 pu lt 90 fd a*4.0 rt 90 fd -a*1.3 pd] end
+to b omark k 6 goto k pu fd a*6
+pd 6 end
+omark mm rpt 6 [b
+b b goto mm pu fd -a*11
+
+pd sly 200 omark mm pd]
+center
+////////////
+;starfish 
+make a=50
+make n=68
+make x=-5
+make y=40
+make n2=42
+make r1=40 make r3=99
+to a sc [0 r1 r3] pu fd x pd sc [r3 0 r1] ar 360 y sc [0 r1 r3] pu fd -x pd fd a end
+to rn rt n a end
+to ln lt n a end
+to r2 rt n2 a end
+to l2 lt n2 a end
+to xx a r2 rn rn l2 rn l2 l2 
+rn l2 rn rn r2 r2 ln r2
+r2 ln  end
+
+to yy rn rn l2 rn l2 l2 
+rn l2 rn rn r2 r2 ln r2
+r2 ln rn l2 rn  end
+
+to 3 omark jh rpt 3 [yy goto jh rt 120 fd -a/2 omark jh] end
+omark ff rpt 6 [3 rt 60 3 goto ff up 90 fd 35 dn 90 omark ff make a=a-8 make r1=r1+11 make r3=r3-16]
+#timeout=250
+center
+
+////////////
+;ring of springs
+make a=200 make n=.2
+make n2=n*1.2
+to 1 
+rpt 6 [fd a*n2 rpt 8 [rpt 5 [fd a*n lt 72] fd a*n rpt 5 [fd a*n 
+rt 72]]
+fd a rt 60] end
+
+to 4 1 up 90 1 fd a*3
+dn 90 1 fd a*3 dn 90 1 end
+
+to 16 rpt 16 [4 up 60] end
+
+16 
+
+#timeout=300
+center
+////////////
+;taeppe of sq dbl swast in hex
+make a=50
+to 1 rpt 4 [omark k fd a/2 rt 90 fd a rt 90 
+fd a*2
+rt 90 fd a*2.5
+goto k rt 90 ] end
+
+to 6 rpt 6 [omark j pu fd a*4.1
+pd 1 goto j rt 60 ] end
+
+to r rpt 12 [omark mh 6 lt 90 pu fd a*7.1
+rt 90 fd a*4 pd] end
+
+rpt 9 [omark gh r goto gh 
+pu fd a*8 pd]
+pd sly 150  
+
+center 
+////////////
+;4 jagged 256 taeppe 2 color
+make a=30
+make b=a*2
+to a fd a end to b fd b end
+to r rt 90 end to l lt 90 end
+
+to 1 rpt 2 [a r b 
+rpt 3 [l a l a r a r a ]
+
+l a l b r a r a l b r 
+rpt 3 [a
+r a l a l a r] a r b l r] end
+
+to 2 sc [99 88 0] 1 lt 90 pu fd a*.1
+rt 90 fd a lt 90 pd sc [0 88 99] 1 end
+to rw rpt 8 [omark m 2 goto m 
+pu rt 90 fd a*17
+lt 90 fd -a*1 pd] end
+to r2 omark hh rw goto hh
+pu fd -a*8.0
+lt 90 fd a*9.1
+rt 90 pd rw end
+rpt 8 [omark kk r2 pu goto kk 
+fd -a*17
+lt 90 fd a
+rt 90 pd]
+pd sly 150
+
+center
+///////////
+;deca penta g=5 tapistry
+make a=50
+
+to 1 rpt 10 [ fd a rpt 5 [
+lt 72 fd a] rt 36] end
+
+to r rpt 8 [1 pu fd a*6 pd] end
+
+make g=5
+rpt 8 [omark k r goto k lt 90 pu
+fd a*g
+rt 90 pd]
+
+pd sly 100 r
+
+center
+///////////
+;attempt diag chain links
+make a=200
+make n=90
+make n2=n*.5
+
+to 1 fd a rt n2 fd a rt n
+fd a rt n2 fd a rt n2
+fd a rt n fd a rt n2 end
+
+to row rpt 12 [1 pu fd -a*1.5 pd ] end
+
+to 9 omark k rpt 8[row goto k
+lt 90 pu fd a*2.75
+rt 90 pd omark k ] end
+
+to 11 omark j 9 goto j rt 60
+lt 90 pu fd -a*6.5
+rt 90 fd -a*7.5
+pd sly 150 9 end
+to color rpt 7 [sc rc omark m 11 goto m up 90 omark m 11 fd a*3 dn 90 ] end
+11
+///////////
+;taeppe of keyholes
+make a=200
+make b=a*.11
+make c=a-b make c=c/2
+to 1
+rpt 3 [fd a rt 60] 
+fd b*2 lt 90 fd c lt 30
+rpt 5 [fd a*.5 rt 60]
+lt 90 fd c lt 90 fd b*2
+rt 60 
+fd c rt 90
+fd c rt 60
+rpt 5 [fd a*.5 lt 60]
+rt 120 
+fd c rt 90 fd c end
+
+to 2 sc green rpt 2 [1
+pu rt 60 fd -a*2
+lt 90 fd -a*1.4 pd sc magenta] end
+to 16 rpt 8 [2 up 180
+fd -a*1.1 pd ] end
+to all omark k rpt 6 [16
+goto k lt 90 pu fd a*3.05
+rt 90 omark k pd] end
+omark j rpt 6 [all goto j rt 90 fd 1 lt 90 fd 1 omark j]
+center
+////////////
+;wheels as gears
+make a=500
+make b=a*.1
+make t=33
+
+to 1 rpt 16 [rpt t
+[al 360 b ar 360/t a
+] al 180 b al 360 a*1.2
+al 180 a*1.2 rt 60 pu fd a*.7
+pd make a=a*.87 up 90 fd 9100/a
+dn 90
+] end
+
+omark k 1 goto k make a=500
+dn 180 lt 180 1
+
+#timeout=200
+center
+///////////
+; 10 concent spheres color
+make a=50
+
+to 1 :x rpt :x
+ [ omark k au 360 a goto k pu ar 2 a/16 pd] end
+
+make cc=1 make x=87
+rpt 10 [if cc=1 [sc [99 77 0]] if cc=2 [sc [0 89 99]] if cc=3 [sc [50 0 99]] if cc=3 [make cc=0] make cc=cc+1
+1 x up 90 fd 5
+dn 90 make a=a-5 make x=x-5]
+
+center
+#timeout=200
+////////////
+; 4 by 6 sq pyra 370 times 6 
+make a=400
+
+to s rpt 4 [fd a rt 90] end
+
+to 4 rpt 2 [s pu fd a pd s]
+pu fd a rt 90 
+rpt 4 [omark k rpt 4 [ s pu
+fd a pd s] goto k lt 90 pu
+fd -a rt 90]
+end
+to 16 omark j 
+rpt 4 [4 goto j rt 45 omark j make a=a*1.42 pd 4 goto j rt 45 omark j make a=100 ] end
+to wing
+rpt 9 [16 up 10] end
+to xx omark mm sc [0 99 91] wing goto mm
+make a=425 up 90 lt 45 sc [99 78 0] wing end
+omark gg rpt 370 [4 goto gg pd lt 90 s fd 1 rt 90 fd 1
+lt 90 make a=a-1 up 90 fd 6 dn 90 omark gg]
+sly 200 #timeout=120
+
+center
+////////////
+; 4 by 6 squares x 1.42 18 5
+make a=100
+
+to s rpt 4 [fd a rt 90] end
+
+to 4 rpt 3 [s pu fd a pd s]
+pu fd a rt 90 
+rpt 4 [omark k rpt 5 [ s pu
+fd a pd s] goto k lt 90 pu
+fd -a rt 90]
+end
+to 16 omark j 
+rpt 4 [4 goto j rt 45 omark j make a=a*1.42 pd 4 goto j rt 45 omark j make a=100 ] end
+
+rpt 18 [16 up 5]
+center
+
+////////////
+;large tapistry puzzle shapes
+import libshapes
+make a=50
+make b=a*3
+make n=120
+make n2=60
+
+ to a1 sm  pu fd -a*11
+pd sm end
+
+to a2 a1 rt 90 pu fd a*2.6
+lt 90 fd a*7.5 pd a1 end
+
+to a3 rpt 8 [a2 rt 90 pu fd a*12.28 lt 90 fd -a*30.98 pd ]
+end
+
+to a4 a3 pu fd -a*25.2
+lt 90 fd a*120.75
+rt 90 pd a3 end
+
+a4 up 90 a4
+
+center
+////////////
+;hpv
+make a=50 make n=1
+omark j rpt 9 [
+rpt 925 [pu fd 1 pd fd 1 rt n
+fd a fd -a lt n make n=n+2 rt 
+.5] goto j up 90 pu fd 50 dn 90 omark j make a=a+6]
+
+center
+///////////
+;box tri intersect in square
+make a=100 make b=a*.1
+make c=a*.05
+
+to t rpt 3 [fd a rt 120] end
+to 4
+rpt 4 [t lt 90 pu fd c rt 90 
+fd c pd fd a fd b rt 90 rt 90 pu fd c lt 90 pd] end
+
+4 up 90 4 pu fd a+b+c pd dn 
+90 4 pu fd a+b+c pd dn 90 4
+lt 90 dn 90 4
+
+center
+////////////
+;filament in triangled
+make a=50 make n=3011
+
+to l rpt a [fd 1 pu fd 1 pd] end
+
+omark k rpt 6 [ rt n rpt 3 [
+l rt 120 ] lt n up 60]
+pu rt 90 fd 40 pd
+
+rpt 2 [omark k rpt 100 [up random 360 lt random 360 sp 200 goto k]
+fd -20 up 180]
+
+///////////
+;uneven trapazoid around hex
+make a=50
+make b=a*.6
+make c=a*2
+make d=a*1.2
+make n=105
+make n2=45
+make n3=60
+make n4=75
+
+rpt 6 [fd a fd b omark k lt 90
+fd a*.5
+lt n4 fd d lt n4
+fd b goto k fd -b rt 60]
+
+center
+
+////////////
+;simple sphere
+make a=50
+
+rpt 180 [ omark k au 360 a goto k pu ar 2 a/16 pd]
+center
+///////////
+;pent with tri part done fb
+make a=80
+make b=a*.45
+make c=a*.27
+make n=145
+make n2=n
+make n3=110
+to 1 rpt 5 [
+fd c lt n3
+rpt 5 [fd b rt 72]
+rt n3 fd b fd c
+rt n fd b 
+rt n2 fd c lt n3 fd b
+lt n3 fd c rt n2 fd b
+rt n fd a rt 72 
+] omark k 
+rpt 5 [fd c lt n3 rpt 3 [fd b fd c lt n fd b lt n fd c] goto k fd a rt 72 omark k] end
+1
+pu fd a*4
+lt 90 fd a*2
+rt 90
+pd sly 100 1
+////////////
+;moure dots one above the oth
+make a=15
+make b=2
+make c=2
+make d=5
+make e=5
+to 1 rpt a [ar 360 .3 pu fd b pd] end
+
+to 2 rpt a [
+omark k 1 goto k rt 90 pu fd c
+lt 90 pd] end
+
+omark j 2 goto j
+up 90 pu fd d dn 90 rt 90
+fd e lt 90 fd e rt 45
+pd 2
+
+/////////////
+;draw 3 points 2 sph 1 spi cl
+omark 1
+pu fd 85 omark 2
+goto 1 lt 135 fd 120 pd omark 3
+make a=325
+make b=400
+make c=150
+goto 1
+rpt 1120 [sc orange ar 360/20 a omark 1 goto 2 pause .01
+
+sc purple al 360/15 b dn random 360 omark 2 goto 3
+
+sc magenta au 360/125 c*5 up 7 lt 3 omark 3 goto 1
+up random 360]
+
+#timeout=60
+////////////
+;multi arcs from ctr coneed
+make la=400
+make b=263
+make n=100
+make t=90
+make n2=70 rpt 2 [
+omark k lt 90 pu fd a
+pd rt 90 ar 360 a
+rpt 13 [
+sc pick [magenta orange [0 88 99] purple ] goto k rpt t [dn n2 ar n  b
+goto k rt 360/t omark k]
+up 90 fd 10 dn 90 omark k
+goto k rpt t [dn n2 al n  b
+goto k rt 360/t omark k]
+make t=t-20 make n2=n2-10]
+goto k up 180
+make a=400
+make b=263
+make n=100
+make t=90
+make n2=70]
+///////////
+;sp based on sq ar up
+make a=1
+make j=10
+make g=10
+to s rpt 4 [rpt 50 [ fd a pu 
+fd a pd] rt 90] end
+
+to 1 s omark k rpt 112 [
+pu fd a*50 ar 90 a*j
+rt g pd sp 200 goto k
+pu fd a*1 pd omark k make j=j+2 make g=g+3] end
+omark ff rpt 13 [sc pick [red orange magenta purple [0 88 99]]
+omark hh rpt 4 [goto hh 
+1 up 180 rt 90 make a=1 make j=10
+make g=10 omark hh] goto ff
+up 90 fd 50 dn 90 rt 31 omark ff]
+#timeout=200
+
+center
+////////////
+;megshift match petal shape
+make a=100
+make d=35
+to 1
+fd a lt 30
+fd a rt d fd a rt d fd a
+rt d fd a rt 105
+fd a lt 30 
+omark m 
+fd a rt d fd a rt d fd a
+rt d fd a end
+to 2
+rpt 11
+ [1 rt 72]
+goto m fd a*.25 rt 207 rpt 5
+[1 rt 182 fd a
+lt 38 
+1 fd -a 
+rt 98
+fd -a up 180 lt 265
+1 lt 90 up 180 fd a*1.8
+lt 62 fd -a*1.3] end
+make cc=1
+omark k rpt 120 [if cc=1 [sc [99 77 0]] if cc=14 [sc [0 89 99]] if cc=21  [sc [50 0 99]] if cc=28 [make cc=0] make cc=cc+1 2 goto k up 90 fd 4 dn 90 omark k 
+make a=a-1 ]
+center
+////////////
+;snap from center cube
+make a=1
+
+to s rpt 4 [rpt 50 [ fd a pu 
+fd a pd] rt 90] end
+
+omark k pu fd 50 up 90 fd 50
+lt 90 fd 50 rt 180 pd s
+up 90 s pu fd 100 dn 90 pd s
+pu fd 100 dn 90 pd s
+
+goto k rpt 6000 [rt random 390
+up random 390 sp 200 goto k]
+////////////
+;from 3 to 50 and back 
+make a=100
+make b=a
+make c=a*.5
+make n=79.8
+make n2=180-n
+
+to 1 fd a rt n fd b rt n2 fd b
+rt n fd a rt n2 fd a rt 120
+fd c rt 90 fd a*.8 lt 160
+fd a*.8 rt 90 fd c end
+
+make ct=1 omark m make t=2 rpt 100 [
+omark k rpt t [1 goto k
+rt 360/t omark k]
+pause .1 if ct lt 100 
+[clear] goto m 
+if ct lt 51 [make t=t+1 au 5 a] else
+ [make t=t-1 ad 5 a] make ct=ct+1 omark m]
+
+///////////
+;7 sided with star spiral
+make a=100
+make b=a*2.25
+make n=103
+make x=0
+to 1 rpt 7
+[ fd a rt n fd b
+fd -b lt n rt 360/7] end
+
+;rpt 7 [1 rt 360/7]
+
+rpt 10 [rpt 7 [1 ar 360/7 x
+up 90 pu fd 35 pd dn 90 
+make x=x+10]
+center
+
+///////////
+;square rings cocentric down
+make n=60
+make a=150
+
+to s rpt 4 [fd a rt 90] end
+
+to t lt n rpt 12 [s rt 90 pu fd a lt n fd -a pd pause .1 ] end
+
+rpt 8 [t make a=a*.7 pu lt 90 
+fd a*1.45 lt 90 fd a*3.83 pd]
+
+center
+
+; to _ give the name to the
+;   procedure until  end
+
+; rpt= repeat  lt= left turn
+; fd = forward 
+; pd= pen up   pd= pen down
+////////////
+;tappe sq tilt sq triangles
+make a=100
+make b=110
+
+to 1 rpt 3 [fd a lt 90 fd b 
+lt 90 fd a lt 90 fd b lt 90
+pu fd a rt 120 pd] end
+
+rt 32 
+to 2 omark k rpt 12 [1 pu fd a lt 90 fd b/2
+rt 60 fd a*1.1
+rt 30 pd ] goto k end
+rpt 12 [
+2 pu rt 60 fd a*2.7
+lt 60 fd -a*1.3
+pd ]
+sly 200 
+center
+//////////:/
+;moire brick of dos
+make b=2
+make a=1
+make m=50
+
+to 1 rpt m [fd a pu fd b pd] end
+to pl
+omark k rpt 20 [1 goto k rt 90 fd 1
+lt 90 pu fd a omark k pd 1
+goto k rt 90 pu fd b lt 90
+fd -b pd omark k] end
+omark j rpt 12 [pl goto j up 90 fd b
+dn 90 omark j]
+
+center
+#timeout=200
+
+////////////
+
+;60 120 a a/2 ang fit tarp clr
+make a=100 make n=60
+make b=a/2
+to 1
+fd a rt 120 fd a/2 lt n
+fd a rt n fd a rt n fd a/2
+rt 120 fd a lt n fd a lt n
+fd a/2 rt 120 fd a/2 rt n end
+
+to 6 rpt 6 [1 pu rt n fd b pd]
+end
+to 24 rpt 6 [6 pu fd a*3 pd ]
+end
+to many omark k rpt 5 [24 goto k pu rt 90
+fd a*2.6
+lt 90 fd a*1.5
+pd omark k 24 goto k pu rt 90 
+fd a*2.6 lt 90 fd -a*1.5
+omark k pd] end
+to bend omark j many goto j up 90 many end make cc=1
+omark m rpt 4 [if cc=1 [sc [99 77 0]] if cc=2 [sc [0 89 99]] if cc=3 [sc [50 0 99]] make cc=cc+1 make a=a*.83 bend goto m up 90 pu
+fd a*5 dn 90 fd a*5 pd omark m]
+#timeout=200
+center
+////////////
+;60 120 a a/2 angle fit tarp
+make a=100 make n=60
+make b=a/2
+to 1
+fd a rt 120 fd a/2 lt n
+fd a rt n fd a rt n fd a/2
+rt 120 fd a lt n fd a lt n
+fd a/2 rt 120 fd a/2 rt n end
+
+to 6 rpt 6 [1 pu rt n fd b pd]
+end
+to 24 rpt 6 [6 pu fd a*3 pd ]
+end
+omark k rpt 5 [24 goto k pu rt 90
+fd a*2.6
+lt 90 fd a*1.5
+pd omark k 24 goto k pu rt 90 
+fd a*2.6 lt 90 fd -a*1.5
+omark k pd]
+
+center
+////////////
+;boxes of curls as checkerbord
+to 1
+make a=50
+fd a ar 97 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.7
+make a=110
+ar 100 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.5
+make a=50
+ar 97 a/10 al 40
+a al 170 a*.3 al 30 a*1.2
+rt 139 fd a*.7 fd a*.6 end
+
+to 2 rpt 4 [1 rt 99 ] end
+to c
+omark k 2 goto k up 90 2 
+goto k fd a*5.8
+up 90 2 fd a*5.8 up 90 2
+rl 90 2 fd a*5.8 dn 90 
+fd a*5.4 dn 90 2 end make t=6
+to 6 omark j rpt t [c goto j pu fd a*11.6 omark j pd ] end
+sly 200 omark m 6 goto m up 90
+pu fd 11.6 pd dn 90 omark m 
+omark j omark k make t=5
+6
+
+center #timeout=200
+
+////////////
+;thick segment lined triangle
+to l rpt 150 [ fd 1 pu
+fd 1 pd] end
+to 1 
+rpt 3 [l rt 120]
+
+rpt 3 [omark k rt 23
+sp 400 goto k rt 16
+sp 400 goto k rt 37
+sp 400 goto k rt 30
+sc red sp 400 sc white
+goto k pu fd 300 rt 120 pd]
+end
+
+to t omark j rpt 150 [1 goto j up 90 fd 1 dn 90 omark j] end
+
+t
+
+center
+#timeout=300
+////////////
+;confused fragmented david st
+to l rpt 150 [ fd 1 pu
+fd 1 pd] end
+to 1 
+rpt 3 [l rt 120]
+
+rpt 3 [omark k rt 23
+sp 400 goto k rt 16
+sp 400 goto k rt 37
+sp 400 goto k rt 30
+sc red sp 400 sc white
+goto k pu fd 300 rt 120 pd]
+end
+
+to t omark j rpt 50 [1 goto j up 90 fd 1 dn 90 omark j] end
+omark m t goto m lt 180 
+pu fd -300 lt 90 fd 148 rt 90
+pd t
+
+#timeout=300
+///////////
+;curves then 3d rings
+to a :b :c arcright :b :c end
+
+to 1 rpt 10 [a 40 150 au 140 150] end 
+to 2 rpt 10 [a 120 150 ad 120 150 ] end 
+to 3 a 65 400 end
+rpt 2 [rpt 4 [rpt 8
+[1 ] pu fd 350 pd
+] rt 90 ]
+
+center
+////////////
+;curves in wheels
+to a :b :c arcright :b :c end
+
+to 1 a 40 150 end 
+to 2 a 120 150 end 
+to 3 a 65 400 end
+
+rpt 8
+[1 2 3 lt 90 fd 110 rt 90]
+
+center
+////////////
+;6 star formed by sp fluff
+make n=86 make t=20
+to 1 rpt t [fd 1 omark k rt n
+sp 1000 goto k pu fd 2 pd] end
+ 
+to s rpt 8 [1 rt 30 1 al 180 20 1
+rt 210 ] end
+
+omark j rpt 12 [s goto j up 90 pu
+fd 15
+pd dn 90 make t=t-1 omark j]
+
+center
+////////////
+;color determined by sp length
+to 1 make cc=1 omark k rpt 12 [if cc=1 [sc red]
+if cc=2 [sc green] if cc=3 [
+sc yellow make cc=0] make cc=cc+1 sp 200*cc goto k rt 30 omark k] end
+
+make t=32
+
+rpt 7 [rpt 360/t [1 rt t fd 200] up 360/7]
+
+center
+////////////
+;sp up and rt start sq
+to 1 omark k fd 1 rpt 6 [sp 1000 goto k rt 60 omark k] end
+to m
+omark j rpt 6 [rpt 4 [ rpt 20 [1 pu fd 22 pd] 
+rt 90] goto j up 60 omark j]
+fd 700 up 120 rpt 48 [1 au 360/48 
+700] end
+
+omark z m goto z lt 180 m
+
+center
+#timeout=200
+////////////
+;color gosimer builing blocks
+make t=25
+make n=135
+make v=65
+make cc=1
+to 1 rpt t [fd 1 omark k
+dn n sp 200 goto k rt v 
+sp 200 goto k pu fd 2 pd] end
+
+to s rpt 4 [1 rt 90] end
+
+to c sc [50 0 99] s up 90 sc [88 35 71]  s rpt 5
+[if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99] make cc=0] make cc=cc+1 fd t*3 dn 90 s] end
+
+c c rt 90 c
+center
+///////////
+;gosemer color flip waves
+make t=50
+make n=40
+make cc=1
+to 1 rpt t/3 [fd 1 omark k rt n sp 300 goto k pu fd 2 pd] end
+
+to 2 rpt t [ar 2 20 omark k rt n sp 300 goto k pu ar 1 20 pd] end
+rpt 6 [if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99]] make cc=cc+1
+2 rt 70
+1 dn 150 rr 77 make t=t+15
+]
+
+center
+///////////
+;ball with sp wings
+rt 90 
+to 1 omark m omark k pu
+rpt 200
+ [fd 1 pu fd 2 pd rt 1] pu
+goto k pu fd 150 rt 90
+fd 300 rt 100 fd 100 omark j 
+rpt 30 [lt 3 omark j pd sp 100
+goto j pu ] end
+to 24 
+omark z rpt 24 [1 goto z
+rt 360/24 omark z] end
+
+omark y rpt 18 [24 up 360/18
+omark y]
+#timeout=400
+
+center
+///////////
+;sun ball sp
+to 1 
+rt 90 
+omark m rpt 6 [omark k
+rpt 200
+ [fd 1 pu fd 2 pd]
+goto k pu fd 150 pd rt 90
+fd 75 rt 180 omark j 
+rpt 50 [lt 3 ar 360/75
+15
+omark j sp 100
+goto j] goto m pu ar 360/6
+25
+omark m] end
+
+omark hh rpt 12 [omark z 1 goto z ar 360/12
+45
+1 goto hh up 30 omark hh]
+center
+#timeout=300
+///////////
+;sun using sp
+to 1 
+rt 90 
+omark m rpt 6 [omark k
+rpt 200
+ [fd 1 pu fd 2 pd]
+goto k pu fd 150 pd rt 90
+fd 75 rt 180 omark j 
+rpt 50 [lt 3 ar 360/75
+15
+omark j sp 100
+goto j] goto m pu ar 360/6
+25
+omark m] end
+
+omark z 1 goto z ar 360/12
+45
+1
+center
+///////////
+
+;doedeca with shafts layers
+make a=50
+make b=1.5 make cl=1
+make v=0  make dd=12
+make ff=4.3 make ll=3.9
+rpt 6 [if cl=1 [make dd=12 make ff=4.3 make ll=3.9] if cl=2 [make dd=6 make ff=3.8 make ll=3.1] if cl=3 [make df=5 make ff=2.9 make ll=2.9 make cl=0] to 1 make n=360/dd lt 1.5
+pu fd a rt n pd 
+rpt 6 [fd a rt n fd a lt v
+fd a*b fd -a*b rt v rt n] end
+to 4 
+omark k rpt 8 [1 goto k
+pu fd a*ff
+pd omark k ] end
+to pl
+omark j rpt 8 [4 goto j
+pu lt 90 fd a*ll
+rt 90 fd a*2
+pd omark j] end
+omark m pl goto m
+up 90 pu fd 300 dn 90 lt 90 fd 500 rt 90 pd omark m make cl=cl+1]
+center
+
+;360/6 fd a*3.8  fd a*3.1
+;360/5  2.9  2.9 
+;360/12 4.3  3.9
+
+////////////
+;doedeca with shafts every 2
+make a=50
+make b=1.5
+make n=360/12
+make v=0
+
+to 1 lt 1.5
+pu fd a rt n pd 
+rpt 6 [fd a rt n fd a lt v
+fd a*b fd -a*b rt v rt n] end
+to 4 
+omark k rpt 8 [1 goto k
+pu fd a*4.3
+pd omark k ] end
+
+omark j rpt 8 [4 goto j
+pu lt 90 fd a*3.9
+rt 90 fd a*2
+pd omark j]
+center
+;360/6 fd a*3.8  fd a*3.1
+;360/5  2.9  2.9 
+;360/12 4.3  3.9
+////////////
+;4 semi diam as concent bx cl
+make cc=1 make a=50 omark gf rpt 4 [if cc=1 [sc [45 88 99]] if cc=2 [sc [50 0 99]] if cc=3 [sc yellow] if cc=4 [sc red make cc=0] make cc=cc+1 make b=a*1.4
+make n=51
+make o=120
+to 1 fd b rt n fd a rt o fd a
+rt n fd b end
+lt 20
+to 4 omark k rpt 4 [1 goto k lt 90 omark k] end
+to 16  make y=69
+omark j rpt 4 [4 goto j
+lt y pu fd a*4.37
+rt y omark j pd] end
+to 64 omark m rpt 4 [16 goto m
+rt 20
+pu fd a*4.35 lt 20 rt 90 fd a*.08 lt 90  pd omark m ] end 
+to pl omark bb 64 goto bb 
+rt 20 fd a*2.1
+lt 20 lt 69 fd a*2.1
+rt 69  pd 64 end
+to plc omark zy rpt 1 [pl goto zy up 90 fd a*.3 dn 90 omark zy make a=a-2] end 
+omark tt rpt 4 [plc goto tt rt 30
+pu fd a*15 up 90 lt 30
+pd omark tt] goto gf dn 45 fd -a*3 up 45 fd a*5 omark gf make a=a-3] goto gf sly 300 #timeout=200
+center
+///////////
+;4 semi diam in offset rows
+make a=50 make b=a*1.4
+make n=51
+make o=120
+to 1 fd b rt n fd a rt o fd a
+rt n fd b end
+lt 20
+to 4 omark k rpt 4 [1 goto k lt 90 omark k] end
+to 16  make y=69
+omark j rpt 4 [4 goto j
+lt y pu fd a*4.37
+rt y
+omark j pd] end
+to 64 omark m rpt 4 [16 goto m
+rt 20
+pu fd a*4.35 lt 20 rt 90 fd a*.08 lt 90 
+pd omark m ] end 
+omark bb 64 goto bb 
+rt 20 fd a*2.1
+lt 20 lt 69 fd a*2.1
+rt 69 
+pd sly 100 64
+
+center
+
+///////////
+;flower of 6
+make a=50 omark m 
+rpt 5 [rpt 6 [
+rpt 12 [
+rpt 2 [fd a rt 120 fd a rt 60]
+lt 60 pu fd -a rt 60 fd a 
+rt 30 pd]
+
+rpt 4 [fd a lt 90] pu fd a
+rt 30 pd rpt 11 [fd a rt 90 fd a
+lt 60] 
+pu fd a pd lt 120 rpt 11 [fd a lt 60 
+fd a*2.667 pd ] pu fd -a*4.2
+pd ] goto m up 90 pu fd 150 
+pd dn 90
+omark m make a=a-5]
+
+center
+////////////
+;semi circ hurricane colors
+make a=40 make b=a*12
+to 1 omark k rpt 10 [
+ar 180 a rt 166
+] goto k rt 0 fd a up 180
+rt 200
+rpt 8 [al 180 a lt 167] end
+
+make t=26 omark j rpt 5 [
+sc pick [[99 74 0] [50 0 99] [0 88 99]]
+omark h rpt 26 [1 goto h pu lt 22
+fd a*1.5 au 31 a omark h pd ]
+goto j lt 90 pu fd a*3
+rt 90 up 90 fd -a*4
+dn 90 omark j pd make a=a-3
+make t=t-2]
+
+center
+
+#timeout=200
+////////////
+;triangles offset 60 up dn 
+to cn
+make a=300 make j=.5
+make ct=1
+omark mm rpt 40 [rpt 3 [rpt 3 [fd a rt 120] pu fd a pd
+fd a rt 120 fd a*j
+rt 60
+fd a pu rt 120 fd a rt 60 fd a
+pd rpt 3 [fd a rt 120]
+pu fd a rt 120 pd ]
+goto mm up 90 fd 25
+dn 90 omark mm if ct lt 36 [make j=j+.1 make a=a-10]
+make ct=ct+1] end
+
+omark zz rpt 6 [cn goto zz rt 60 up 60 
+omark zz]
+;sly 200
+center
+////////////
+;nippon corner
+make a=150 make b=a*1.75
+rt 30 to 1 
+rpt 6 [fd a rt 60]
+rt 90 rpt 2 [fd b
+lt 120 fd b
+lt 120 fd b
+pu lt 90 fd a pd lt 90]
+pu fd a/1.75 lt 60 fd a*.58
+omark k pd rpt 6 [fd a*.58 goto k rt 60 omark k] end
+
+to 6 omark m rpt 10 [1 goto m
+pu fd a*1.015
+pd omark m ] end
+
+omark ff rpt 2 [omark gg rpt 6 [omark hh rpt 6 [6 goto hh
+pu lt 90 fd a*1.735
+rt 90 pd omark hh] goto gg
+up 90 fd 4 dn 90 omark gg]
+goto ff up 90]
+#timeout=120
+center
+///////////
+;squiggle worm sine wheel
+make a=25 make t=7
+to g 
+rpt t [ar 180/t a omark k al 270 a/4 goto k]
+rpt t [al 180/t a omark k ar 270 a/4 goto k] end
+to 2 
+omark j rpt t [ar 180/t a*8 omark m g goto m]
+goto j up 180
+rpt t [al 180/t a*8 omark m
+lt 180 
+g goto m] end
+
+omark bb rpt 5 [
+omark h rpt 6 [2 goto h rt 30 
+omark h ] goto bb up 90 fd 50
+dn 90 omark bb make t=t-1
+make a=a-1
+] #timeout=300
+////////////
+;squiggle worm sine wheel
+make a=25 make t=5
+to g 
+rpt t [ar 180/t a omark k al 270 a/4 goto k]
+
+rpt t [al 180/t a omark k ar 270 a/4 goto k] end
+to 2 
+omark j rpt t [ar 180/t a*8 omark m g goto m]
+goto j up 180
+rpt t [al 180/t a*8 omark m
+lt 180 
+g goto m] end
+
+omark h rpt 6 [2 goto h rt 30 
+omark h ]
+
+///////////
+;plus on grid 
+make a=150 omark m
+to 1 rpt 2 [ rpt 2 [
+rpt 4 [fd a*1.5 rt 90]
+pu fd -a*1.5 pd] pu fd a*1.5
+rt 90 fd a*1.5 lt 90 fd a*1.5 pd]
+
+pu lt 90 fd a*2 rt 90 
+fd a*.333 pd lt 15
+rpt 4 [fd a rt 90 fd a rt 90 
+fd a lt 90] end
+to 6 omark k rpt 6 [1 goto k pu lt 90 fd a*3
+rt 90 pd omark k] end
+to w rpt 12 [
+omark j rpt 6 [6
+goto j pu fd a*3 pd omark j]
+goto m lt 90 fd 1 rt 90 omark m] end
+w up 90 w
+;sly 500
+#timeout=250
+center
+
+////////////
+;simple sine waves at 90 deg
+make a=100 make b=2
+make c=4
+make d=6
+to 1 rpt 4 [ar 180 a
+al 180 a ] end
+omark m rpt 36 [sc pick [[0 88 99] [50 0 99]]
+omark j
+omark k rpt d*1.25 [1 goto k pu fd -a*b pd omark k]
+pd 
+goto j rt 90 omark j 
+rpt d [1 goto j pu fd a*c
+pd omark j] goto m up 90
+fd 9 dn 90 omark m]
+center
+#timeout=300
+////////////
+;angular fb shape overlaps up
+make a=50
+make n=165
+make m=25
+make o=70
+make b=a*1.2
+
+to 1 rpt 3 [fd a rt n fd a rt m fd b lt o ] end
+
+to 6 omark k rpt 6 [1 goto k pu fd a rt 60
+fd -a pd omark k ] end
+
+omark m rpt 112 [
+omark j rpt 6 [6 goto j pu fd a*3.16
+lt 60 omark j
+pd ] goto m up 90 fd 2
+dn 90 omark m ]
+
+;sly 100 
+center
+
+#timeout=300
+////////////
+;checkerboard 1st sq bigger
+make aa=75 make a=aa make x=25
+to w rpt 4 [fd a rt 90] end
+to s rpt 4 [fd a rt 90] end
+to b rpt 6 [s pu rt 90 fd a/10
+lt 90 fd a/10 pd
+make a=a*.8] end 
+to r omark k
+rpt 7 [make a=aa 
+b make a=aa goto k pu rt 90 fd a*2 lt 90 omark k] end
+omark m omark j rpt 7 [r make a=aa goto j pu fd -a rt 90 fd a lt 90 pd
+ r goto j make a=aa pu fd -a*2
+omark j pd ]
+goto m make a=a*1.1 make bb=a*1 rpt 8 [rt 90 pu pd lt 90
+w rt 90 pu fd a+x pd lt 90 rpt 4 [fd bb rt 90]  ]
+center
+sly 200
+////////////
+;offset 3 spirals colored
+make aa=130 make cc=1
+sc [68 81 25]
+omark j rpt 3 [
+omark k make a=aa
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto k make a=aa
+rt 180
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto j make aa=aa-60 omark j
+if cc=1 [sc [50 0 99]] else [sc [20 75 88]] make cc=2]
+
+#timeout=250
+center
+
+///////////
+;offset spirals one rogue
+make aa=130 
+omark j rpt 7 [
+omark k make a=aa
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto k make a=aa
+rt 180
+rpt 20 [rpt 120 [au 3 a rt 1
+fd 5 lt 1] make a=a-10]
+goto j make aa=aa-30 omark j]
+
+#timeout=250
+center
+//////////
+;bulls eye of 24 pent rings
+make a=75 make f=7.5
+make g=3.4
+
+to 1 rpt 10 [
+rpt 5 [fd a lt 72] 
+rpt 5 [fd a rt 72 ] pu fd a
+rt 36 pd ] end
+rpt 12 [
+omark k 
+rpt 24 [1 goto k pu lt 90
+fd a*5.7
+rt 75
+fd -a*f omark k pd ] pu 
+fd -a*g rt 90 fd a*5 lt 90
+make a=a*.8 ]
+
+center
+///////////
+Sent Code as Email 7-9-25 -------------------------------
+/////////:
+;circle net weaker then 2 fb
+make a=1 make b=8
+to 1 
+make cc=1 make r=100
+make g=r
+omark k
+rpt 16 [sc [r r g] lt 90 pu make c=a+b 
+fd c rt 90 pd ar 360 a 
+goto k make a=a+b if cc lt 14 [make r=r-10] else [make r=100] make cc=cc+1] end
+
+omark j rpt 6 [1 goto j pu fd 160 pd make a=1 rt 60
+omark j] rt 60 pu fd 160 
+omark m 1 goto m rpt 12 [make a=1 
+pu fd 320 pd make a=1 1
+goto m rt 30 omark m]
+
+#timeout=200
+center
+//////////
+;spiral of solid boxes
+make aa=50 make a=aa
+to ss rpt 4 [fd a rt 90] end
+to s omark x ss up 90 ss fd a
+dn 90 ss fd a dn 90 ss
+goto x end 
+
+to x rpt 24 [s pause .01 pu fd a pd lt 65
+make a=a*1.17
+] end
+x
+center
+///////////
+;spiral of boxes as a tower
+make aa=50 make a=aa
+to s rpt 4 [fd a rt 90] end
+
+omark k rpt 42 [
+rpt 24 [s pause .01 pu fd a pd lt 65
+make a=a*1.17
+] goto k up 90 pu fd 150-aa dn 90 pd omark k make aa=aa-1 make a=aa]
+///////////
+;fan shell using panning sp
+make a=100
+rpt 50 [ar 3.6 a pu ar 1.8
+a pd]
+to 1 rpt 60
+ [omark k sp a*2 goto k rt 3
+] end
+
+1 up 180 pu fd a*600 pd 1
+
+//////////
+;circs of tris in and out
+make a=50
+make b=1.67
+to 1 fd a rt 72 fd a fd a*b
+pu fd -a*b
+rt 72 pd fd a rt 72 fd a
+pu fd -a pd fd -a*b
+pu fd a*b fd a pd fd a*b
+pu fd -a*b pd rt 72 fd a
+rt 72 fd -a*b end
+
+to n rpt 12 [1 lt 30] end
+to o rpt 12 [1 rt 30] end
+ 
+to m rpt 10 [1 pu fd -a*.3
+lt 90 fd a rt 54 pd ] end
+
+m pu fd -a*2 make a=80
+rt 90 fd a*4.7
+lt 90 fd a*.5 pd
+o
+make a=30 pu lt 90 fd a*10.85
+rt 90 fd a*.35 pd
+m
+center
+///////////
+;rainbow quilt as a pyramid
+make aa=50 make a=aa
+make n=60
+make b=60
+to 1 rpt 6 [fd a rt 120
+fd a lt b
+] end
+to 2 rpt 3 [1
+pu fd a rt 30
+make a=a*1.67
+pd ] end
+to 6 rpt 6
+[2 make a=aa pu fd a*1.8
+pd] end
+to many
+rpt 2 [6 pu fd a*17 rt 90 fd a*.5
+lt 90 pd make a=aa] end
+to row rpt 1 [many pu fd a*34
+rt 90 fd a lt 90 pd many] end
+make cc=1
+omark m rpt 8 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc gt 5 [sc [50 0 99]] make cc=cc+1
+omark j rpt 4 [row goto j lt 90 pu
+fd a*17.2
+rt 90 fd a*.5 pd omark j]
+goto m up 90 pu fd 200 dn 90
+make aa=aa-7 make a=aa fd a*4
+lt 90 fd a*5
+rt 90 omark m ]center #timeout=200
+//////////
+;quilt blanket 
+make a=50
+make n=60
+make b=60
+to 1 rpt 6 [fd a rt 120
+fd a lt b
+] end
+to 2 rpt 3 [1
+pu fd a rt 30
+make a=a*1.67
+pd ] end
+to 6 rpt 6
+[2 make a=50 pu fd a*1.8
+pd] end
+to many
+rpt 2 [6 pu fd a*17 rt 90 fd a*.5
+lt 90 pd make a=50] end
+
+to row rpt 3 [many pu fd a*34
+rt 90 fd a lt 90 pd many] end
+omark j rpt 8 [row goto j lt 90 pu
+fd a*17.2
+rt 90 fd a*.5 pd omark j]
+center #timeout=200
+
+///////////
+;leaf pattern spreads wings
+make a=30
+to 1 fd a rt 120 fd a rt 30
+fd a 
+rt 30 fd a rt 120 
+fd a rt 30 fd a
+end 
+
+to 3 1 rt 180 
+1 rt 180 pu fd a pd rt 60
+pu fd a lt 90 fd a*.58
+rt 90 pd 1 end
+rpt 16 [
+rpt 72
+ [3 pu fd a*2.9
+rt 25
+fd -130
+pd ] make a=a-2 up 6]
+
+//////////
+; mandala from the bent leg-
+make a=400
+make n=70
+make b=n*2 make b=110
+to 1 
+fd a lt n fd a lt b fd a
+lt n fd a
+rt 145
+fd a rt 65
+fd a end
+to g rpt 5 [
+1 make a=a*.5 pu fd -a*.1
+rt 145
+fd 5
+lt 40
+pd ] end
+
+to 2 omark m g goto m up 180 
+make a=400 g end
+omark yy rpt 12
+ [2
+goto yy rt 30 make a=400 
+omark yy ]
+
+center
+///////////
+;concent rings of tri equa
+make a=100 make x=140
+make y=80
+make m=.65
+to 1 
+fd a rt x fd a*m rt y
+fd a*m rt x fd a end
+to 2
+1 rt 360/12  rt 110
+fd a*m lt 120 fd a*m
+lt 120 fd a*m end
+
+to 9 rpt 9
+[ 2 rt 110
+rt 360/12 
+] end
+make aa=200 omark hh rpt 2 [
+make a=aa rpt 8 [
+9 rt 90 pu fd a*.55
+lt 90 
+make a=a*.6 fd a*.35
+pd ] goto hh up 90]
+
+center
+///////////
+;cube of cubes
+make a=50 make n=10
+make x=3
+
+to s rpt 4 [fd a rt 90] end
+
+to c s up 90 s fd a dn 90 s
+fd a dn 90 s end
+
+to r omark k rpt n [
+c goto k pu fd a*x pd 
+omark k ] end
+
+to pl omark j rpt n [lt 90 r 
+goto j pu fd a*x pd omark j] end
+
+omark m rpt n [pl goto m up 90
+pu fd a*x pd dn 90 omark m]
+
+///////////
+;3 segment color concen sphere
+make a=200 make cc=1
+rpt 8 [
+if cc=1 [sc red]
+if cc=2 [sc orange]
+if cc=3 [sc yellow]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [50 0 99] make cc=0] make cc=cc+1
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+
+rt 60
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+
+rt 60
+omark k
+rpt 60  [au 180 a 
+goto k rt 1 omark k]
+pu up 90 fd a*.1
+dn 90 pd 
+make a=a-15] #timeout=200
+
+///////////
+;explain poly from to fb
+make a=50 make b=a*2.5
+make j=60
+to jl lt j fd b end 
+
+to r rt j fd b end
+
+; makes the polygon named poly
+to poly fd a jl jl jl rt j r
+lt j fd a*1.5 
+rt j*2 fd a*4 rt j*2 fd a
+lt 90 fd a rt 90 fd a lt j*2
+fd a*4 rt 60 r rt j fd b
+lt j*2 fd b r r rt j fd a end 
+
+;makes gp the group of 6 poly
+ ; the flips 180 degrees 
+to gp omark g rpt 2 [rpt 6 
+[poly goto g rt 60 omark g ] goto g up 180 rt 90 omark g] end
+
+;displayes gp 6 times in 
+; layers 5 units above with
+;  the length reduced by 6
+omark h rpt 6 [gp up 90 pu
+fd 5 dn 90 pd make a=a-6]
+
+;goes back to the top and 
+; displays the single poly
+;  in red
+make a=50 sc red goto h rpt 4 [poly goto h rt 90 fd 1 lt 90 omark h]
+
+///////////
+;polygon 6 intertwine fd modi
+make a=50 make b=a*2.5
+make j=60
+to jl lt j fd b end 
+to r rt j fd b end
+
+to 1 fd a*4 rt j*2
+fd a lt 90 fd a rt 90 fd a
+lt j*2 fd a*4
+rt j r r lt j jl
+r r rt j fd a rt j*2 fd a
+jl jl jl rt j r
+lt j fd a*1.5 end
+
+to 7 fd a jl jl jl rt j r
+lt j fd a*1.5 
+rt j*2 fd a*4 rt j*2 fd a
+lt 90 fd a rt 90 fd a lt j*2
+fd a*4 rt 60 r rt j fd b
+lt j*2 fd b r r rt j fd a
+end 
+to s omark k rpt 6 [7 1 7 
+goto k rt 60 1 omark k] end
+to z s pu up 90 fd 400 rt 90 fd 400 up 90 pd s end 
+omark g rpt 2 [rpt 6 [7 goto g rt 60
+omark g ] goto g up 180 rt 90 omark g]
+
+////////////
+; chalk board art youtube
+make aa=200 omark mm rpt 6 [make a=aa 
+make c=a*.01
+make c2=c*2.5 make a2=a-c2
+make b=a*.6 omark k 
+rpt 4 [fd a*2 rt 90] 
+rt 45 fd a*1.11 lt 90 fd b/2 rt 90 rpt 3 [fd b rt 90]
+fd b/2 goto k rpt 4 [pu fd a 
+pd rt 90 fd b fd -b lt 90 pu fd a pd rt 135 fd a*1.11 fd -a*1.11 lt 45]
+goto k omark jj rpt 2 [rpt 4 [rt 45 pu fd c lt 45 
+fd c*1.3 rpt 18 [make a=a-c make a2=a-c2 rt 3 pd fd a2 rt 90 fd a2*.6
+rt 45 fd a2*.3 rt 90 
+fd a2*1.15
+rt 135 ] goto k make a=aa
+make a2=a-c2 fd a*2 rt 90
+omark k] goto jj lt 90 up 180 omark jj omark k] goto mm
+up 90 pu fd 50 dn 90 rt 90 fd 50 lt 90 fd 50 pd omark mm
+make aa=aa-40]
+center
+
+///////////
+;cut corner rotate sq rep fb
+make a=200 make z=.58
+make y=2 make n=2
+
+to was rpt 9 [fd a rt 90 fd a rt 90 fd a*z
+rt 45 fd a*z rt 45 
+make a=a-y fd a*z rt 90
+al n a make n=n+.8 make y=y+1]
+end
+to v make a=a-y end
+
+to g fd a rt 90 fd a rt 90 fd a*z rt 45 fd a*z rt 45 fd a*z 
+rt 90 end
+to k make a=200 make x=15
+rpt 18 [g make a=a-x rt 90 pu fd x/2 lt 90 fd x/2 
+pd rt 2 ] end
+
+to 4 omark j k goto j pu 
+rt 90 fd 400 lt 90 pd rt 180 
+up 180 k end
+omark m 4 goto m up 180 4
+goto m rt 90 pu 
+fd -a*.6 lt 90 fd -a*.6
+rt 45 pd omark k k
+
+center
+//////////:
+;hourglass wheel fb 
+make a=100
+make b=a*2.5
+to x fd a rt 45 fd b
+lt 45 fd a lt 90
+fd a*1.75
+lt 90 fd a lt 45
+fd b rt 45 fd a
+rt 90 fd a*1.75 end
+
+make c=300
+make n=6
+to 6 omark j 
+rpt n [x goto j pu ar 360/n c
+pd omark j] end
+
+to 4 rpt 8 [6
+pu lt 90 fd a*8.7
+rt 90 pd] end
+
+omark m rpt 8 [4 goto m pu 
+fd a*8.4 pd omark m ]
+
+center 
+///////////
+;tri in tri pyras fb partial 
+make a=50 make n=115
+to 1 fd a rt 130 fd a 
+rt n fd a*.85
+rt n make b=a/2
+fd b 
+rt 60 fd b*.85 rt n fd b 
+rt 130 fd b
+
+end
+to 3 omark k 1 goto k fd a 1
+goto k rt 65 fd a*.85  
+lt 65 1 end
+
+to 9 omark j 3 goto j fd a*2 3
+goto j rt 65 fd a*1.7
+lt 65 3 end
+
+to t omark m 9 goto m 
+rr 75 9 goto m rr 91 up 60
+fd a*3.4 dn 110 rr 30
+fd -a*.3 9 end
+
+to bt omark x t goto x fd a*4
+t goto x rt 65 fd a*3.4
+lt 65 t goto x end
+omark y bt goto y fd a*8 bt
+goto y rt 65 fd a*6.8
+lt 65 bt
+///////////
+;flure de fire matrix sq fb
+make a=80
+make n=10
+to 1
+ar n a ar n*2 a ar n*3 a
+ar n*4 a/2
+ar n*4 a/2 ar n*3 a
+ar n*2 a ar n a end
+
+to cr rpt 4 [1 lt 110] end
+
+to 7 rpt 7 [cr pu fd a*3.46 rt 90 fd a*.47 lt 90 pd] end
+
+to cuu omark k rpt 7[7 goto k lt 90 pu fd a*3.43 rt 90 fd a*.6 omark k pd ] end
+sly 140
+cuu rt 90 fd a*2 up 90 lt 10 rl 10 sly 200
+cuu
+///////////
+make a=80
+make n=10
+to 1
+ar n a ar n*2 a ar n*3 a
+ar n*4 a/2
+ar n*4 a/2 ar n*3 a
+ar n*2 a ar n a end
+
+to cr rpt 4 [1 lt 110] end
+
+to 7 rpt 7 [cr pu fd a*3.46 rt 90 fd a*.47 lt 90 pd] end
+
+omark k 7 goto k lt 90 pu
+fd a*3.46 rt 90 pd 7
+///////////
+;butterfly z string
+make a=250
+to l ar 70 
+a al 20 a ar 30 
+a*.7 rt 90
+ar 30
+a*.7
+al 20 a ar 70 a end
+to e
+omark k rpt 20 [l goto k rt 90 fd a*.05
+lt 90 make a=a*.88 omark k] end
+
+to 2 omark j e goto j up 180 make a=250 e end
+to ba 
+omark m rpt 12 [2 goto m up 15 
+make a=250 omark m] end
+to bu omark m rpt 4 [
+rpt 4 [e up 180 lt 90 pu fd a*5 rt 90 fd a*5
+pd make a=250 ] goto m up 180
+rt 120 omark m] end
+omark z rpt 5 [bu goto z up 90 pu
+fd a*2 dn 90 pd omark z]
+#timeout=250
+
+///////////
+;octagons and squares fb
+make a=100
+
+to o rpt 8 [fd a rt 45] end
+
+to 9 rpt 9 [
+o pu fd a rt 45 fd a lt 45 pd
+rpt 4 [fd a rt 90] fd a lt 45
+pu fd a rt 45 pd] end
+
+omark j rpt 9 [9 goto j lt 90 pu
+fd a*1.7
+rt 90 fd -a*1.7 pd omark j ]
+center
+*************************************************************************
+LOGO CODE main
+//////////
+
+
+;99 4 circs with half r square pyra tip obj
+Make a=100
+To 4 Ar 360 a pu ar 180 a pd 
+Al 360 a pu 
+Fd 200 pd ar 360 a al 360 a
+Sc red rt 180 pu fd a*.5 pd
+lt 45 make b=a*.75
+rpt 4 [Fd b rt 90 ] end
+Omark k rpt 99 [4 goto k make a=a-1
+Up 90 fd 1 dn 90 lt 90 fd -2
+Rt 90  fd 0
+omark k] 
+;sc green fd 200
+Center
+ 
+//////////
+
+
+;4 circs with half r square in between
+Make a=100
+Ar 360 a pu ar 180 a pd 
+Al 360 a pu 
+Fd 200 pd ar 360 a al 360 a
+Sc red rt 180 pu fd a*.5 pd
+lt 45 make b=a*.75
+rpt 4 [Fd b rt 90 ]
+Center
+
+
+/////////
+;5 star ar al double ring
+Make a=50
+Make n=270
+Make n2=198
+To 1
+Rpt 5 [ ar n a al n2 a] end
+rpt 9
+[1 pu fd a*5.98
+Lt 40 fd -a*1.1 pd ]
+
+
+Center. 
+
+
+//////////
+
+
+;5 star ar al
+Make a=50
+Make n=270
+Make n2=198
+Rpt 115 [
+Rpt 5 [ ar n a al n2 a]
+Up 90 fd 1 dn 90 make a=a-1 lt 4
+fd -1
+]
+Center
+M
+//////////
+; HUELO VR CONDENSED
+
+
+make a=50 make n=360/12
+to s rpt 4 [fd a rt 90] pu
+fd a pd end
+to 1 rpt 12 [s rt n fd a rt n] end
+To gg  rpt 24 [ 1 pu fd a rt n ar n*3
+a*4 lt n*.95 fd -a pd ] end
+To sam Make cc=1 Omark kk Rpt 10 [ 
+if cc=1 [sc red] if cc=2 [sc yellow] 
+if cc=3 [sc orange] if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0]
+Make cc=cc+1 gg goto kk dn 90
+Fd 12 up 90 make a=a-3 omark kk] end
+rpt 7 [Sam up 15 make a=50] 
+center 
+
+
+///////////
+
+
+;somewhat concentric
+Width 6
+Rpt 6 [sc rc  Make a=50
+repeat 20 [Ar 360 a make a=a-2 up 3]
+
+
+Make a=50
+repeat 20 [sc rc au 360 a make a=a-2 up 3]
+Rt 60 ]
+Center
+
+
+//////////
+
+
+;color circ in circ sq sheets
+make cc=1
+make r=300
+make r2=r*.75
+make r3=r*1.334
+make d=31
+make n=60
+rpt 16 [rpt d [if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0] make cc=cc+.25
+ar 360/d r rt n ar 360 r2 lt n
+rpt 4 [fd r3 rt 90]]
+up 90 fd 20 dn 90 make r=r-75]
+center
+
+
+//////////
+; 7 color pyra times 15 degrees
+make a=50
+make n=360/12
+to s rpt 4 [fd a rt 90] pu
+fd a pd end
+
+
+to 1 rpt 12 [s rt n
+fd a rt n] end
+To gg  rpt 24 [
+
+
+1 pu fd a rt n ar n*3
+a*4
+lt n*.95 fd -a pd ] end
+To sam Make cc=1
+Omark kk Rpt 10 [ 
+if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0]
+Make cc=cc+1
+gg goto kk dn 90
+Fd 12 up 90 make a=a-3 omark kk] end
+rpt 7 [Sam up 15 make a=50] 
+
+
+center 
+
+
+//////////
+
+
+;thick star color boxes
+To t Omark jj make aa=1400
+Rpt 10 [goto jj 
+make cc=1
+rpt 140 [if cc=1 [sc red]
+if cc=2 [sc yellow] 
+if cc=3 [sc orange]
+if cc=4 [sc green]
+if cc=5 [sc blue]
+if cc=6 [sc [45 0 99] make cc=0] 
+make cc=cc+1
+rpt 4 [fd aa rt 90] up 90 fd 1 dn 90 rr 1]
+Goto jj make aa=aa-2 dn 90 fd 121 up 90
+Omark jj]] end
+Omark mm rpt 6 [t goto mm RT 60 omark mm]
+center
+
+
+//////////
+;spheres of teal
+Make a=300
+Make t=22
+Rpt 6 [sc pick [teal [45 00 99] purple gold] Rpt t [au 360 a rt 360/t] dn 60
+Fd -a*.9 make a=a*.96]
+Center
+
+
+//////////
+;begin sq tri pattern
+2705507  see click fix cornal kainoa
+Make a=50 to y sc red fd 70 fd -70 sc white end
+To s rpt 4 [Fd a lt 90 fd a lt 135 fd a*1.4 
+Lt 135 fd a RT 90] end
+To tri fd a*1.4 rt 135 fd a rt 90 fd a
+Fd -a lt 45 Fd a*1.4 rt 135 fd a End
+rpt 6 [ s pu rt 18 fd a*3.0 Rt 25 pd
+tri pu fd a*2 rt 90 fd a*1 Lt 90 pd ]
+Center
+
+
+  
+//////////
+;square to cube to ring to cone
+
+
+Make a=50
+To s rpt 4 [fd a rt 90] end
+
+
+To c s up 90 s fd a dn 90 s fd a dn 90 s end
+
+
+To p rpt 20 [ omark k c goto k ar 360/20 a*8 omark k end
+
+
+To m rpt 12 [sc rc p up 90 fd a dn 90 make a=a-2] end
+
+
+M
+
+
+ /////////
+;test of if using x3b
+Make c=1 make a=30
+Rpt 20 [if c lt 10 [rpt 6 [fd a rt 60]]
+If c got 9 [rpt 4 [fd a rt 90] ] 
+If c=9 [sc [45 00 99] width 6 ar 360 a
+width 1 sc white] make c=c+1
+Make a=a-1 up 90 fd 1 dn 90]
+
+
+////////////
+;double pedestal sphere neck + 4 purple
+Make a=50 make n=67
+To u au n a end to d ad n a end to l al n a end
+To r ar n a end
+To 7 u u u r r r d d d d d l l l l l l r r d 
+Sc [45 00 99] fd a*5 sc rc end
+To db Make t=201 omark j Rpt 2 [
+Rpt t [sc rc omark k 7 goto k RT 360/t]
+Goto j up 180 lt 180] end
+Omark mm Db goto mm up 90 db
+Center
+
+
+===========
+
+
+;double pedestal sphere neck sc
+Make a=50 make n=67
+To u au n a end to d ad n a end to l al n a end
+To r ar n a end
+To 7 u u u r r l r r d end
+Make t=201 omark j Rpt 2 [
+Rpt t [sc rc omark k 7 goto k RT 360/t]
+Goto j up 180 lt 180]
+Center
+===========
+
+
+;holo holder 2b
+Width 10 rpt 4 [
+Fd 50 rt 90 Fd 75 rt 90 Fd 50 rt 90 Fd 75
+Rt 90  Up 90 fd .75 dn 90 ]
+To xx
+Pu fd 8 up 90 pd width 3 fd 40 fd -40
+Pu dn 90 fd 34 up 90 pd fd 40 fd -40
+Pu dn 90 fd 8 rt 90 fd 75 rt 90 fd 25
+Up 90 pd fd 40 fd -40 pu dn 90 fd 25 
+Up 90 pd fd 30 fd -30 dn 90 rt 90
+Fd 37.5  omark j lt 90 width 10 fd 15 up 90
+Fd 30 Fd -30 goto j width 3 
+Fd 37.5 rt 90 up 90 pd fd 30 fd -30
+End
+xx
+
+
+==========
+;holo holder 2
+Width 10 rpt 4 [
+Fd 50 rt 90 Fd 75 rt 90 Fd 50 rt 90 Fd 75
+Rt 90  Up 90 fd .75 dn 90 ]
+Pu fd 8 up 90 pd width 3 fd 40 fd -40
+Pu dn 90 fd 34 up 90 pd fd 40 fd -40
+Pu dn 90 fd 8 rt 90 fd 75 rt 90 fd 25
+Up 90 pd fd 40
+============
+; double concentric circs, moire
+Make aa=100
+Make x=5 make cc=1
+Omark k Rpt 12 [ 
+If cc=1 [sc green]
+If cc=2 [sc orange]
+If cc=3 [sc [45 00 99]]
+If cc=4 [sc magenta make cc=0]
+Make cc=cc+1
+make a=aa
+Rpt 60 [ lt 90 fd x 
+Rt 90 ar 360 a make a=a+5
+] goto k up 90 fd 70
+Dn 90 make aa=aa-5 omark k]
+B
+==========
+;crooked spring 
+
+
+Make a=450 make x=300 make c=1
+Lt 15
+Make w=16 omark k
+Rpt 12 [sc [c 00 90] make c=c+5 width w omark j Rpt 10 [fd a ad 180 a/10 au 180 a/10  dn 70 ]
+goto j pu rt 90 fd x lt 90 pd make w=w-2]
+;Goto k Rt 40
+;Rpt 12 [fd a fd -a pu rt 90 fd x lt 90 pd]
+
+
+Center
+============
+
+
+make aa=100
+make t=3
+make d=27
+make x=5
+omark k rpt 14 [make a=aa
+rpt 40 [lt 90 fd x 
+rt 90 ar 360 a make a=a+5]
+goto k up 90 fd 7
+dn 90 make aa=aa-15 omark k]
+center
+
+
+=========
+;pyra one flat bars
+Width 8 omark j make c=.9
+Make a=400 make n=60
+Rpt 4 [ omark k Dn 55
+Rt 30 Fd 400 goto k Fd a rt 90]
+Omark h Rpt 4 [
+Goto j dn 55 rt 30 Rpt 8
+[make b=a*c fd 40 omark x rt n 
+Width 1 Rpt 10 [fd b rt 90 fd 1 rt 90 fd b lt 90 
+Fd 1 lt 90] width 8 goto x
+Make c=c*.85
+] goto h fd a rt 90 omark h omark j
+Make c=.9]
+center
+
+
+============
+
+
+;pyra one all 4 side bars some out
+Width 8 omark j make c=.9
+Make a=400 make n=60
+Rpt 4 [ omark k Dn 55
+Rt 30 Fd 400 goto k Fd a rt 90]
+Omark h Rpt 4 [
+Goto j dn 55 rt 30 Rpt 8
+[make b=a*c fd 40 rt n fd b fd -b lt n
+Make c=c*.85
+] goto h fd a rt 90 omark h omark j
+Make c=.9]
+center
+  
+===========
+;8 wide pyra frame
+Width 8
+Make a=400
+Rpt 4 [ omark k
+Dn 55
+Rt 30
+Fd 400
+goto k Fd a rt 90]
+
+
+center
+=======
+;pyra one side bars-
+Width 8 omark j make c=.9
+Make a=400 make n=60
+Rpt 4 [ omark k Dn 55
+Rt 30 Fd 400 goto k Fd a rt 90]
+Goto j dn 55 rt 30 Rpt 8
+[make b=a*c fd 40 rt n fd b fd -b lt n
+Make c=c*.85
+]
+center
+
+
+========
+
+
+; pyra frame —
+
+
+make a=300 make y=90
+Make x=60
+rpt 4 [
+Fd a Omark k up y rt x fd a
+Goto k up 90 ]
+
+
+Center
+=====
+; holo slat pyramid
+make a=300
+make s=4 make d=60
+make o=1 make n=30
+Dn d fd 400 fd -400
+Up d
+rpt 300 
+[rpt 4 [fd a rt 360/s]
+ dn 90 fd 1 up 90
+rt 90 fd .75 lt 90 fd .5
+make a=a-1
+If o=14
+[pd make o=0 make n=30]
+If n=14
+[pu make o=0]
+make n=n-1 make n=n-1 make o=o+1]
+center
+
+
+////////;
+make a=190
+make n=-9
+make c=. 95
+make x=199
+make x2=180
+to m make a=a*c end 
+to 1 ar 360 a end
+
+
+to 2 al 360 a end
+
+
+to z pu ar x2 a pd end
+to u pu al x a pd end
+
+
+omark h rpt 12 [rpt 70 [ 2 al x a m  l ar x2 a m make x=x-1 make c=ct+.001] goto h lt 8 up 7 omark h make a=190 make c=.95 make x=199]
+center

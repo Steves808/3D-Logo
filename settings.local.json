@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($content = Get-Content \"D:\\\\Webpages\\\\LogoX3\\\\batch-export.js\" -Raw; $lines = $content -split \"`n\"; $line = $lines[149]; [System.Text.Encoding]::UTF8.GetBytes\\($line\\) | ForEach-Object { \"{0:X2}\" -f $_ } | Select-Object -First 30)",
+      "PowerShell(node --version 2>&1)",
+      "Bash(python3 *)",
+      "PowerShell(python \"D:\\\\Webpages\\\\LogoX3\\\\analyze_corpus.py\" 2>&1)"
+    ]
+  }
+}

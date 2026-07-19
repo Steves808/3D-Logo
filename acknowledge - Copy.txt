@@ -1,0 +1,65 @@
+LOGO 3D -- ACKNOWLEDGEMENTS
+============================
+
+
+Original Logo3D Java Library
+------------------------------
+Noel Evans
+
+Logo3D was originally created by Noel Evans as a Java-based 3D turtle
+graphics interpreter. This JavaScript browser port is derived from that
+original work and is released under the same MIT Licence.
+
+  Original project: Noel Evans' logo3d (Java)
+  Licence: MIT
+
+
+JavaScript Port and Development Assistance
+-------------------------------------------
+Claude / Claude Code (Anthropic)
+
+The JavaScript browser port, 3D rendering pipeline (canvas perspective
+projection, orbit camera, touch/pointer input), export functionality
+(OBJ+MTL tube and dot exporters, ASCII STL), interpreter enhancements
+(colon-variable parameters, STOP, ARCRIGHT/ARCLEFT/ARCUP/ARCDOWN aliases,
+IF condition evaluation, SP snap command), and batch export CLI
+(batch-export.js) were developed with assistance from Claude Code,
+Anthropic's AI coding assistant.
+
+  https://claude.ai/code
+
+
+------------------------------------------------
+===============================================
+All of my inspiration comes from years of using the older iPad App, Logo_3D! authored by: Noel Evans and Dan Mellinger. 
+https://github.com/noelevans555/logo3d
+The iPad App has not been on the App Store for years since they required and update to 64bit.
+I just fed ChatGPT a lot of the logo code I had played with over the years and asked it to create a logo compiler which could run the code.  I pointed it to the above GitHub address, but it said it could not log in to GitHub. However it could read the read.me file and that was a huge help, thus a lot of the commands are taken verbatim. The OBJ & STL buttons were my idea. I fed the first draft from ChatGPT to Claude.AI and asked for a VR WebXR version, which it did, but pretty privative so far.  CluadeCode made it easier to update to my third version.
+
+///////////////////////////////////////
+;Simple Stacked Hexagons
+Repeat 20 [
+           Repeat 6 [fd 100 rt 60]
+                 up 90 fd 10 dn 90 ]
+/////////////////////////////////////////
+;Cube colors
+make x=100
+To s repeat 4 [fd x rt 90] end
+
+sc red s 
+up 90 sc gold s
+fd x dn 90 sc green s
+fd x dn 90 sc purple s
+///////////////////////////////////////////
+;Sphere in Sphere
+make x=100
+make t=16
+to sphere rpt t [au 360 x rt 360/t/2] 
+end
+
+sc orange sphere sc magenta make x=50 sphere
+//////////////////////////////////////////////
+
+
+
+
