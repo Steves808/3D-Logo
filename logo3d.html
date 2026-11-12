@@ -10,13 +10,40 @@
   #app { display:grid; grid-template-columns: 360px 1fr; height:100vh; }
   #panel { padding:12px; border-right:1px solid rgba(127,127,127,.35); background:rgba(127,127,127,.06); overflow:auto; }
   h1 { font-size:16px; margin:0 0 8px; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
-  button, select {
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+  button, select, summary {
     border-radius:8px; border:1px solid rgba(127,127,127,.35); background:rgba(127,127,127,.10);
   }
-  .toolbar-btn { font-size:11px; padding:5px 8px; }
+  .toolbar-btn { font-size:11px; padding:5px 8px; cursor:pointer; }
+
+  /* ----- pull-down menus (native <details>, no inline script) ----- */
+  details.menu { position:relative; }
+  details.menu > summary { list-style:none; display:inline-block; user-select:none; }
+  details.menu > summary::-webkit-details-marker { display:none; }
+  details.menu > summary::after { content:" ▾"; }
+  details.menu[open] > summary { background:rgba(127,127,127,.28); }
+  .menu-pop {
+    position:absolute; top:calc(100% + 4px); left:0; z-index:20; width:320px;
+    padding:8px; border-radius:10px; border:1px solid rgba(127,127,127,.45);
+    background:Canvas; box-shadow:0 6px 20px rgba(0,0,0,.25);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .menu-pop > .toolbar-btn, .menu-pop > details.menu > summary { width:100%; text-align:left; box-sizing:border-box; }
+  /* nested sub-menus (Unity, 3D) open inline inside the Export panel */
+  .menu-pop details.menu > summary::after { content:" ▸"; }
+  .menu-pop details.menu[open] > summary::after { content:" ▾"; }
+  .sub-pop {
+    display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:6px;
+    padding:8px; border-radius:8px; background:rgba(127,127,127,.10);
+  }
+  .field { font-size:11px; display:flex; align-items:center; gap:4px; }
+  .field input {
+    width:46px; font-size:11px; padding:4px 5px; border-radius:6px;
+    border:1px solid rgba(127,127,127,.35); background:rgba(127,127,127,.10);
+  }
+
   textarea {
-    width:100%; height:46vh; font-size:15px; line-height:1.35;
+    width:100%; height:58vh; font-size:15px; line-height:1.35;
     padding:10px; border-radius:12px; border:1px solid rgba(127,127,127,.35);
     background:rgba(127,127,127,.08); resize:vertical; box-sizing:border-box;
   }
@@ -25,67 +52,85 @@
   #view { position:relative; overflow:hidden; }
   @media (max-width: 900px) {
     #app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    #panel { border-right:none; border-bottom:1px solid rgba(127,127,127,.35); }
-    textarea { height:30vh; }
+    #panel { border-right:none; border-bottom:1px solid rgba(127,127,127,.35); overflow:visible; }
+    textarea { height:42vh; }
   }
   code { background:rgba(127,127,127,.12); padding:1px 6px; border-radius:8px; }
-
-  .tool-section { margin:8px 0; border:1px solid rgba(127,127,127,.28); border-radius:10px; padding:6px 8px; background:rgba(127,127,127,.05); }
-  .tool-section > summary { cursor:pointer; font-size:12px; font-weight:600; user-select:none; }
-  .tool-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:center; }
-  .small-input { font-size:11px; display:flex; align-items:center; gap:4px; }
-  .small-input input { font-size:11px; padding:4px 5px; border-radius:6px; border:1px solid rgba(127,127,127,.35); background:rgba(127,127,127,.10); }
-  .command-legend { margin-top:10px; font-size:12px; opacity:.9; line-height:1.55; }
-  .command-legend div { margin:2px 0; }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="panel">
     <h1>Logo 3D — CSP-safe (external JS)</h1>
+
+    <!-- Row 1: main actions -->
     <div class="row">
       <button id="runBtn" class="toolbar-btn">Run</button>
       <button id="clearBtn" class="toolbar-btn">Clear (CS)</button>
-      <button id="homeBtn" class="toolbar-btn">Home</button>
-      <button id="exportBtn" class="toolbar-btn">Export STL</button>
-      <button id="exportObjBtn" class="toolbar-btn">Export OBJ</button>
-      <button id="exportDotsBtn" class="toolbar-btn">Export Dots OBJ</button>
-      <label class="small-input">Dot size<input id="dotSizeInput" type="number" min="0.01" step="0.1" value="1" style="width:52px"></label>
-      <label class="small-input">Dots/unit<input id="dotDensityInput" type="number" min="0.1" step="0.5" value="2" style="width:46px"></label>
+      <button id="helpBtn" class="toolbar-btn">List of Commands</button>
+    </div>
+
+    <!-- Row 2: examples + acknowledge -->
+    <div class="row">
       <select id="exampleSel" class="toolbar-btn">
         <option value="">Examples…</option>
       </select>
-      <button id="helpBtn" class="toolbar-btn">Help</button>
-      <button id="ackBtn" class="toolbar-btn">Acknowledgements</button>
+      <button id="ackBtn" class="toolbar-btn">Acknowledge</button>
     </div>
 
-    <details class="tool-section">
-      <summary>Quilt &amp; Stereo Export</summary>
-      <div class="tool-grid">
-        <button id="previewQuiltBtn" class="toolbar-btn">Preview Quilt</button>
-        <button id="exportQuiltBtn" class="toolbar-btn">Export Quilt PNG</button>
-        <button id="exportSbsBtn" class="toolbar-btn">Export SBS PNG</button>
-        <label class="small-input">Quilt cols<input id="quiltColsInput" type="number" min="1" max="16" step="1" value="8" style="width:42px"></label>
-        <label class="small-input">Rows<input id="quiltRowsInput" type="number" min="1" max="16" step="1" value="6" style="width:42px"></label>
-        <label class="small-input">Views<input id="quiltViewsInput" type="number" min="1" max="256" step="1" value="48" style="width:46px"></label>
-        <label class="small-input">Tile W<input id="quiltTileWInput" type="number" min="64" step="16" value="420" style="width:54px"></label>
-        <label class="small-input">Tile H<input id="quiltTileHInput" type="number" min="64" step="16" value="420" style="width:54px"></label>
-        <label class="small-input">Parallax°<input id="quiltParallaxInput" type="number" min="0" max="90" step="1" value="10" style="width:46px"></label>
-        <label class="small-input">SBS L<input id="sbsLeftInput" type="number" min="0" step="1" value="18" style="width:42px"></label>
-        <label class="small-input">R<input id="sbsRightInput" type="number" min="0" step="1" value="30" style="width:42px"></label>
-      </div>
-    </details>
+    <!-- Row 3: Export pull-down -->
+    <div class="row">
+      <details class="menu" id="exportMenu">
+        <summary class="toolbar-btn">Export</summary>
+        <div class="menu-pop">
+          <button id="exportObjBtn" class="toolbar-btn">OBJ</button>
+          <button id="exportDotsBtn" class="toolbar-btn">Dots OBJ</button>
+
+          <details class="menu" id="unityMenu">
+            <summary class="toolbar-btn">Unity</summary>
+            <div class="sub-pop">
+              <button id="exportUnityObjBtn" class="toolbar-btn">Export Unity OBJ</button>
+              <select id="unityMaterialMode" class="toolbar-btn" title="Unity OBJ material mode">
+                <option value="colors">Unity: Logo3D Colors</option>
+                <option value="single">Unity: Single Material (SBS)</option>
+                <option value="texture">Unity: Photo Texture (UVs, no MTL)</option>
+              </select>
+              <select id="unitySheetUvMode" class="toolbar-btn" title="How a photo maps onto SHEETS planes (Photo Texture mode only)">
+                <option value="strip">Sheets: image flows along strip</option>
+                <option value="persheet">Sheets: full image on each sheet</option>
+                <option value="planar">Sheets: front projection</option>
+              </select>
+              <label class="field" title="Unity OBJ export size = 1/N of Logo units">Unity 1/<input id="unityScaleDivInput" type="number" min="0.01" step="1" value="40"></label>
+              <label class="field" title="If filled, the model's largest dimension is exported as exactly this many meters (overrides 1/N)">or fit (m)<input id="unityFitInput" type="number" min="0" step="0.1" placeholder="1"></label>
+              <label class="field" title="Sides per tube for Unity export: 6 = small file, 14 = smooth">Sides<input id="unitySidesInput" type="number" min="3" max="32" step="1" value="8"></label>
+            </div>
+          </details>
+
+          <details class="menu" id="threeDMenu">
+            <summary class="toolbar-btn">3D</summary>
+            <div class="sub-pop">
+              <button id="exportQuiltBtn" class="toolbar-btn">Export Quilt PNG</button>
+              <button id="exportSbsBtn" class="toolbar-btn">Export SBS PNG</button>
+              <label class="field">Dot size<input id="dotSizeInput" type="number" min="0.01" step="0.1" value="1"></label>
+              <label class="field">Dots/unit<input id="dotDensityInput" type="number" min="0.1" step="0.5" value="2"></label>
+              <label class="field">Quilt cols<input id="quiltColsInput" type="number" min="1" max="16" step="1" value="8"></label>
+              <label class="field">Rows<input id="quiltRowsInput" type="number" min="1" max="16" step="1" value="6"></label>
+              <label class="field">Views<input id="quiltViewsInput" type="number" min="1" max="256" step="1" value="48"></label>
+              <label class="field">Tile W<input id="quiltTileWInput" type="number" min="64" step="16" value="420"></label>
+              <label class="field">Tile H<input id="quiltTileHInput" type="number" min="64" step="16" value="420"></label>
+              <label class="field">Parallax°<input id="quiltParallaxInput" type="number" min="0" max="90" step="1" value="10"></label>
+              <label class="field">SBS L<input id="sbsLeftInput" type="number" min="0" step="1" value="18"></label>
+              <label class="field">R<input id="sbsRightInput" type="number" min="0" step="1" value="30"></label>
+            </div>
+          </details>
+
+          <button id="exportBtn" class="toolbar-btn">STL</button>
+        </div>
+      </details>
+    </div>
 
     <textarea id="code" spellcheck="false"></textarea>
     <div id="status">If this never changes to “Ready…”, your JS is being blocked.</div>
-    <div class="command-legend">
-      <div><strong>Move:</strong> <code>FD</code> <code>BK</code> <code>AR</code>/<code>AL</code>/<code>AU</code>/<code>AD</code> <code>SP</code></div>
-      <div><strong>Turn:</strong> <code>LT</code> <code>RT</code> <code>UP</code> <code>DN</code> <code>RL</code> <code>RR</code></div>
-      <div><strong>Pen:</strong> <code>PU</code> <code>PD</code> <code>SC</code>/<code>SETCOLOR</code> <code>WIDTH</code> <code>GC</code></div>
-      <div><strong>Nav:</strong> <code>HOME</code> <code>CENTER</code> <code>CS</code>/<code>CLEAR</code> <code>OMARK</code> <code>GOTO</code></div>
-      <div><strong>Flow:</strong> <code>REPEAT</code>/<code>RPT</code> <code>IF</code>/<code>ELSE</code> <code>STOP</code> <code>TO ... END</code> <code>IMPORT</code></div>
-      <div><strong>Values:</strong> <code>MAKE</code> variables <code>:NAME</code> math <code>+ - * /</code> <code>RANDOM</code> <code>PICK [ ... ]</code></div>
-    </div>
   </div>
   <div id="view">
     <canvas id="c"></canvas>
@@ -93,6 +138,6 @@
 </div>
 
 <!-- IMPORTANT: external script file -->
-<script src="./logo3d.js"></script>
+<script src="./logo3d.js?v=14m"></script>
 </body>
 </html>
