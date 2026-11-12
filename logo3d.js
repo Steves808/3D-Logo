@@ -59,6 +59,11 @@
   function addDrawnSegment(a, b, color, width){
     segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:false });
   }
+  // SHEETS mode: a filled rectangle from a to b, extending ±half (a vector) sideways.
+  function addSheetSegment(a, b, color, width, half){
+    segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:false,
+                    sheet: V(half.x, half.y, half.z) });
+  }
   function addSnapSpokeSegment(a, b, color, width){
     // spokes from SP should NOT become snap geometry
     segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:true });
@@ -116,11 +121,29 @@
     }
 
     const drawn = segments.map(s => {
+      if (s.sheet){
+        const h = s.sheet;
+        const q = [projector(sub(s.a,h)), projector(add(s.a,h)), projector(add(s.b,h)), projector(sub(s.b,h))];
+        return { sheet:true, q, color:s.color, z:(q[0].z+q[1].z+q[2].z+q[3].z)/4 };
+      }
       const pa = projector(s.a), pb = projector(s.b);
       return { pa, pb, color:s.color, width:s.width, z:(pa.z+pb.z)/2 };
     }).sort((u,v)=> v.z - u.z);
 
     for(const s of drawn){
+      if (s.sheet){
+        outCtx.beginPath();
+        outCtx.moveTo(s.q[0].x, s.q[0].y);
+        for (let k=1;k<4;k++) outCtx.lineTo(s.q[k].x, s.q[k].y);
+        outCtx.closePath();
+        outCtx.fillStyle = s.color;
+        outCtx.fill();
+        // thin darker edge so neighbouring sheets read as separate planes
+        outCtx.lineWidth = 1;
+        outCtx.strokeStyle = "rgba(0,0,0,0.18)";
+        outCtx.stroke();
+        continue;
+      }
       outCtx.strokeStyle = s.color;
       outCtx.lineWidth = Math.max(1, s.width);
       outCtx.beginPath();
@@ -222,7 +245,7 @@
 
   // ---------- Turtle + vars + marks + procedures ----------
   function makeTurtle(){
-    return { pos: V(0,0,0), R: I3(), penDown:true, color:"#ffffff", width:1.5 };
+    return { pos: V(0,0,0), R: I3(), penDown:true, color:"#ffffff", width:1.5, sheets:false, sheetW:0 };
   }
   let turtle = makeTurtle();
 
@@ -237,7 +260,9 @@
       R: t.R.slice(0),
       penDown: !!t.penDown,
       color: String(t.color),
-      width: +t.width
+      width: +t.width,
+      sheets: !!t.sheets,
+      sheetW: +t.sheetW || 0
     };
   }
 
@@ -401,8 +426,16 @@
         continue;
       }
 
+      // SHEETS / NONSHEETS (plane mode on / off) — aliases accepted
+      if (["SHEETS","SHEET"].includes(tok)){ block.push({ op:"SHEETS" }); i += 1; continue; }
+      if (["NONSHEETS","NONSHEET","NOSHEETS","NOSHEET"].includes(tok)){
+        block.push({ op:"NONSHEETS" });
+        i += 1;
+        continue;
+      }
+
       // one-arg ops (value token allowed)
-      const oneArgOps = ["FD","BK","LT","RT","UP","DN","RL","RR","WIDTH","OMARK","GOTO","PAUSE","SLY","SP"];
+      const oneArgOps = ["FD","BK","LT","RT","UP","DN","RL","RR","WIDTH","OMARK","GOTO","PAUSE","SLY","SP","SHEETW"];
       if (oneArgOps.includes(tok)){
         const pv = parseValueToken(tokens, i+1);
         if (pv.value == null) throw new Error(tok + " needs an argument");
@@ -760,6 +793,21 @@
           turtle.color = colorFromValue(ins.value);
           break;
 
+        case "SHEETS":
+          turtle.sheets = true;
+          break;
+
+        case "NONSHEETS":
+          turtle.sheets = false;
+          break;
+
+        case "SHEETW": {
+          const w = resolveNumber(ins.arg);
+          if (!Number.isFinite(w) || w < 0) throw new Error("SHEETW needs a width >= 0 (0 = square sheets)");
+          turtle.sheetW = w;
+          break;
+        }
+
         case "WIDTH": {
           const w = resolveNumber(ins.arg);
           if (Number.isFinite(w) && w > 0) turtle.width = w;
@@ -803,7 +851,12 @@
           const b = add(turtle.pos, step);
           turtle.pos = b;
 
-          if (turtle.penDown) addDrawnSegment(a, b, turtle.color, turtle.width);
+          if (turtle.penDown){
+            if (turtle.sheets){
+              const w = turtle.sheetW > 0 ? turtle.sheetW : Math.abs(dist); // default: square sheet
+              addSheetSegment(a, b, turtle.color, turtle.width, mul(basisRight(turtle.R), w/2));
+            } else addDrawnSegment(a, b, turtle.color, turtle.width);
+          }
           break;
         }
 
@@ -855,7 +908,13 @@
             const b = add(turtle.pos, mul(fwd, arcLen));
             turtle.pos = b;
 
-            if (turtle.penDown) addDrawnSegment(a, b, turtle.color, turtle.width);
+            if (turtle.penDown){
+              if (turtle.sheets){
+                // arcs become a curved ribbon; width = SHEETW, or the arc radius if SHEETW is 0
+                const w = turtle.sheetW > 0 ? turtle.sheetW : radius;
+                addSheetSegment(a, b, turtle.color, turtle.width, mul(basisRight(turtle.R), w/2));
+              } else addDrawnSegment(a, b, turtle.color, turtle.width);
+            }
           }
           break;
         }
@@ -919,8 +978,22 @@
   }
 
   // ---------- Export OBJ + MTL (tubes, width-based) ----------
+  const _kdCache = new Map();
   function parseCssColorToKd(colorStr){
     const s = String(colorStr || "").trim() || "#ffffff";
+    const hit = _kdCache.get(s);
+    if (hit) return hit;
+    let out = null;
+    // Fast paths (no canvas): rgb(r,g,b) and #rgb / #rrggbb — these are what the interpreter emits.
+    let m = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i.exec(s);
+    if (m) out = { r: +m[1]/255, g: +m[2]/255, b: +m[3]/255 };
+    else if ((m = /^#([0-9a-f]{6})/i.exec(s))) out = { r: parseInt(m[1].slice(0,2),16)/255, g: parseInt(m[1].slice(2,4),16)/255, b: parseInt(m[1].slice(4,6),16)/255 };
+    else if ((m = /^#([0-9a-f]{3})$/i.exec(s))) out = { r: parseInt(m[1][0]+m[1][0],16)/255, g: parseInt(m[1][1]+m[1][1],16)/255, b: parseInt(m[1][2]+m[1][2],16)/255 };
+    else out = parseCssColorToKdCanvas(s);
+    _kdCache.set(s, out);
+    return out;
+  }
+  function parseCssColorToKdCanvas(s){
     const c = document.createElement("canvas");
     c.width = c.height = 1;
     const x = c.getContext("2d");
@@ -931,24 +1004,109 @@
     return { r: d[0]/255, g: d[1]/255, b: d[2]/255 };
   }
 
+  // Points that bound a segment: its ends, or the 4 corners for a SHEETS rectangle.
+  function segmentPoints(s){
+    if (!s.sheet) return [s.a, s.b];
+    const h = s.sheet;
+    return [sub(s.a,h), add(s.a,h), add(s.b,h), sub(s.b,h)];
+  }
+
   function objExportTubesWithMtl(segments, opts = {}){
     const sides = opts.sides ?? 12;
     const minRadius = opts.minRadius ?? 0.25;
     const widthToRadius = opts.widthToRadius ?? 0.35;
     const capEnds = opts.capEnds ?? true;
     const mtlFilename = opts.mtlFilename ?? "logo3d.mtl";
+    const exportScale = Number.isFinite(Number(opts.scale)) && Number(opts.scale) > 0 ? Number(opts.scale) : 1;
+    // Material modes:
+    //   "colors"  – one MTL material per Logo3D color (default)
+    //   "single"  – one white MTL material (assign your own material in Unity)
+    //   "texture" – NO .mtl at all; planar UVs (front view, X-Y plane) are written so a
+    //               photo can be dropped onto the mesh as a texture in Unity
+    const materialMode = opts.materialMode || (opts.singleMaterial ? "single" : "colors");
+    const singleMaterial = materialMode !== "colors";
+    const writeMtl = materialMode !== "texture";
+    const writeUV  = materialMode === "texture";
+    // sheetUV: "planar" = one image spread across the whole model (front view);
+    //          "persheet" = every sheet gets the full 0..1 image (a picture on each plane)
+    //          "strip" = one image flows along each connected run of sheets (default)
+    const sheetUV  = ["persheet","planar"].includes(opts.sheetUV) ? opts.sheetUV : "strip";
+
 
     const cross = (a,b)=>V(a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x);
     const len = (a)=>Math.hypot(a.x,a.y,a.z);
     const norm2 = (a)=>{ const L=len(a)||1; return V(a.x/L,a.y/L,a.z/L); };
 
     const drawSegs = segments.filter(s => !s.isSnapSpoke);
-    const groups = new Map();
+    // Strip UVs: walk sheets in drawing order; a sheet continues the current run when it
+    // starts where the previous one ended with the same sideways vector (FD + UP/DN chains).
+    // v runs 0..1 along the whole run, u 0..1 across the sheet width.
+    const stripV = new Map();
+    if (writeUV && sheetUV === "strip"){
+      let run = [], runLen = 0, prev = null;
+      const close = ()=>{ for (const e of run) stripV.set(e.s, [e.v0/(runLen||1), e.v1/(runLen||1)]); run = []; runLen = 0; };
+      for (const sg of drawSegs){
+        if (!sg.sheet){ continue; }
+        const L = Math.hypot(sg.b.x-sg.a.x, sg.b.y-sg.a.y, sg.b.z-sg.a.z);
+        const tol = 1e-6 * Math.max(1, L);
+        const joins = prev &&
+          Math.hypot(prev.b.x-sg.a.x, prev.b.y-sg.a.y, prev.b.z-sg.a.z) <= tol*10 &&
+          Math.hypot(prev.sheet.x-sg.sheet.x, prev.sheet.y-sg.sheet.y, prev.sheet.z-sg.sheet.z) <= tol*10;
+        if (!joins) close();
+        run.push({ s: sg, v0: runLen, v1: runLen + L });
+        runLen += L;
+        prev = sg;
+      }
+      close();
+    }
+    // Group by color. A drawing using RC (random color per segment) can have hundreds of
+    // thousands of distinct colors; importers can't take that many material slots, so when
+    // there are more than maxMaterials distinct colors, quantize to a 6×6×6 (216) palette.
+    const maxMaterials = opts.maxMaterials ?? 64;
+    let groups = new Map();
+    let quantized = false;
+    const groupKey = (s)=> singleMaterial ? "#ffffff" : String(s.color || "#ffffff");
     for (const s of drawSegs){
-      const key = String(s.color || "#ffffff");
+      const key = groupKey(s);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(s);
     }
+    if (groups.size > maxMaterials){
+      quantized = true;
+      const q = new Map();
+      const lvl = (x)=>Math.round(x*5)*51; // 0,51,...,255
+      for (const s of drawSegs){
+        const kd = parseCssColorToKd(s.color);
+        const key = `rgb(${lvl(kd.r)},${lvl(kd.g)},${lvl(kd.b)})`;
+        if (!q.has(key)) q.set(key, []);
+        q.get(key).push(s);
+      }
+      groups = q;
+    }
+
+    // Bounding box in Logo units (padded by the largest tube radius) — used for
+    // planar UVs and reported in the header / status so the scale is verifiable.
+    const bb = { minX:Infinity, minY:Infinity, minZ:Infinity, maxX:-Infinity, maxY:-Infinity, maxZ:-Infinity };
+    let maxR = 0;
+    for (const s of drawSegs){
+      const r = s.sheet ? 0 : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius);
+      if (r > maxR) maxR = r;
+      for (const p of segmentPoints(s)){
+        if (p.x < bb.minX) bb.minX = p.x; if (p.x > bb.maxX) bb.maxX = p.x;
+        if (p.y < bb.minY) bb.minY = p.y; if (p.y > bb.maxY) bb.maxY = p.y;
+        if (p.z < bb.minZ) bb.minZ = p.z; if (p.z > bb.maxZ) bb.maxZ = p.z;
+      }
+    }
+    if (!drawSegs.length){ bb.minX=bb.minY=bb.minZ=0; bb.maxX=bb.maxY=bb.maxZ=0; }
+    bb.minX -= maxR; bb.minY -= maxR; bb.minZ -= maxR;
+    bb.maxX += maxR; bb.maxY += maxR; bb.maxZ += maxR;
+    const spanX = (bb.maxX - bb.minX) || 1;
+    const spanY = (bb.maxY - bb.minY) || 1;
+    const sizeScaled = {
+      x: (bb.maxX - bb.minX) * exportScale,
+      y: (bb.maxY - bb.minY) * exportScale,
+      z: (bb.maxZ - bb.minZ) * exportScale,
+    };
 
     let mtl = "";
     const colorToMtlName = new Map();
@@ -962,15 +1120,38 @@
       mtl += "Ka 0 0 0\nKs 0 0 0\nd 1\n\n";
     }
 
-    let obj = `# logo3d tube export\nmtllib ${mtlFilename}\n`;
+    const f6 = (n)=>Number(n).toFixed(6);
+    // The OBJ is accumulated as an array of chunks (never one giant string) so that
+    // sculptures with hundreds of thousands of segments don't hit the JS max string
+    // length ("Invalid string length"). Download it with downloadTextParts().
+    const parts = [];
+    let buf = "";
+    const flush = ()=>{ if (buf){ parts.push(buf); buf = ""; } };
+    const emit = (line)=>{ buf += line; if (buf.length > 1_000_000) flush(); };
+    emit(`# logo3d tube export\n`);
+    emit(`# export scale: ${exportScale} (1 Logo unit = ${exportScale} OBJ units)\n`);
+    emit(`# material mode: ${materialMode}${writeUV ? " (planar UVs on X-Y plane, no .mtl)" : ""}\n`);
+    emit(`# bounding box (OBJ units): ${f6(sizeScaled.x)} x ${f6(sizeScaled.y)} x ${f6(sizeScaled.z)}\n`);
+    emit(`# sheets: ${drawSegs.filter(q=>q.sheet).length}${writeUV ? `, sheet UVs: ${sheetUV}` : ""}\n`);
+    emit(`# segments: ${drawSegs.length}, sides per tube: ${sides}, materials: ${groups.size}${quantized ? " (colors quantized to 216-color palette)" : ""}\n`);
+    if (writeMtl) emit(`mtllib ${mtlFilename}\n`);
     let vCount = 0;
 
-    function addVertex(p){
-      obj += `v ${p.x} ${p.y} ${p.z}\n`;
+    function addVertex(p, uv){
+      emit(`v ${f6(p.x * exportScale)} ${f6(p.y * exportScale)} ${f6(p.z * exportScale)}\n`);
+      if (writeUV){
+        // explicit uv (per-sheet mode), else planar projection from the front:
+        // u across X, v up Y, normalized to the bbox
+        const u = uv ? uv[0] : (p.x - bb.minX) / spanX;
+        const v = uv ? uv[1] : (p.y - bb.minY) / spanY;
+        emit(`vt ${f6(u)} ${f6(v)}\n`);
+      }
       vCount += 1;
       return vCount;
     }
-    function addFace(i,j,k){ obj += `f ${i} ${j} ${k}\n`; }
+    function addFace(i,j,k){
+      emit(writeUV ? `f ${i}/${i} ${j}/${j} ${k}/${k}\n` : `f ${i} ${j} ${k}\n`);
+    }
 
     function addCylinderMesh(p0, p1, r, nSides, cap){
       const axis = sub(p1,p0);
@@ -992,8 +1173,8 @@
         ring1.push(add(p1, off));
       }
 
-      const idx0 = ring0.map(addVertex);
-      const idx1 = ring1.map(addVertex);
+      const idx0 = ring0.map(p => addVertex(p));
+      const idx1 = ring1.map(p => addVertex(p));
 
       for (let i=0;i<nSides;i++){
         const j = (i+1)%nSides;
@@ -1016,16 +1197,61 @@
       }
     }
 
+    // SHEETS rectangle → double-sided flat quad. Front and back use SEPARATE vertices so
+    // Unity computes proper normals for each side (shared vertices would cancel to zero).
+    // Per-sheet UVs: u across the sheet's width, v along the turtle path (a→b);
+    // the back face mirrors u so the image isn't reversed when seen from behind.
+    let sheetCount = 0;
+    function addSheetQuad(s){
+      const h = s.sheet;
+      const c0 = sub(s.a,h), c1 = add(s.a,h), c2 = add(s.b,h), c3 = sub(s.b,h);
+      // v0/v1 = where this sheet sits along the image: whole image (persheet) or its slice of the strip
+      const [v0, v1] = sheetUV === "persheet" ? [0,1] : (stripV.get(s) || [0,1]);
+      const own = sheetUV !== "planar";
+      const f0 = addVertex(c0, own ? [0,v0] : null), f1 = addVertex(c1, own ? [1,v0] : null);
+      const f2 = addVertex(c2, own ? [1,v1] : null), f3 = addVertex(c3, own ? [0,v1] : null);
+      addFace(f0,f1,f2); addFace(f0,f2,f3);
+      const b0 = addVertex(c0, own ? [1,v0] : null), b1 = addVertex(c1, own ? [0,v0] : null);
+      const b2 = addVertex(c2, own ? [0,v1] : null), b3 = addVertex(c3, own ? [1,v1] : null);
+      addFace(b0,b2,b1); addFace(b0,b3,b2);
+      sheetCount++;
+    }
+
     for (const [color, segs] of groups){
-      obj += `\nusemtl ${colorToMtlName.get(color)}\n`;
+      if (writeMtl) emit(`\nusemtl ${colorToMtlName.get(color)}\n`);
       for (const s of segs){
+        if (s.sheet){ addSheetQuad(s); continue; }
         const w = Number(s.width ?? 1);
         const r = Math.max(minRadius, w * widthToRadius);
+        // Coordinates and radius are scaled together by scaling generated vertices in addVertex().
         addCylinderMesh(s.a, s.b, r, sides, capEnds);
       }
     }
 
-    return { objText: obj, mtlText: mtl };
+    flush();
+    return {
+      objParts: parts,                       // pass to downloadTextParts()
+      get objText(){ return parts.join(""); }, // legacy: may throw for huge exports
+      mtlText: writeMtl ? mtl : "", size: sizeScaled, vertexCount: vCount,
+      segmentCount: drawSegs.length, scale: exportScale, materialMode,
+      materialCount: groups.size, quantized, sheetCount, sheetUV,
+    };
+  }
+
+  // Bounding box of drawn segments in Logo units (padded by tube radius) — cheap, no geometry.
+  function segmentsBoundingBox(segments, opts = {}){
+    const minRadius = opts.minRadius ?? 0.25, widthToRadius = opts.widthToRadius ?? 0.35;
+    let minX=Infinity,minY=Infinity,minZ=Infinity,maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity,maxR=0,n=0;
+    for (const s of segments){
+      if (s.isSnapSpoke) continue;
+      n++;
+      const r = s.sheet ? 0 : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius); if (r>maxR) maxR=r;
+      for (const p of segmentPoints(s)){
+        if (p.x<minX)minX=p.x; if (p.x>maxX)maxX=p.x; if (p.y<minY)minY=p.y; if (p.y>maxY)maxY=p.y; if (p.z<minZ)minZ=p.z; if (p.z>maxZ)maxZ=p.z;
+      }
+    }
+    if (!n) return { x:0, y:0, z:0, count:0 };
+    return { x: maxX-minX+2*maxR, y: maxY-minY+2*maxR, z: maxZ-minZ+2*maxR, count:n };
   }
 
   // ---------- Export OBJ + MTL (dots — small primitives at segment midpoints) ----------
@@ -1071,7 +1297,7 @@
 
     const groups = new Map();
     for (const s of drawSegs){
-      const key = String(s.color || "#ffffff");
+      const key = singleMaterial ? "#ffffff" : String(s.color || "#ffffff");
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(s);
     }
@@ -1118,11 +1344,18 @@
     return { objText: obj, mtlText: mtl };
   }
 
-  function downloadTextFile(filename, text, mimeType){
+  // Blob + object URL: no data: URI, no encodeURIComponent — works for files of hundreds of MB.
+  function downloadTextParts(filename, parts, mimeType = "text/plain"){
+    const blob = new Blob(Array.isArray(parts) ? parts : [String(parts)], { type: mimeType + ";charset=utf-8" });
     const a = document.createElement("a");
-    a.href = "data:" + mimeType + ";charset=utf-8," + encodeURIComponent(text);
+    a.href = URL.createObjectURL(blob);
     a.download = filename;
-    a.click();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+    return blob.size;
+  }
+  function downloadTextFile(filename, text, mimeType){
+    return downloadTextParts(filename, [text], mimeType);
   }
 
   function downloadCanvasPng(filename, outCanvas){
@@ -1186,163 +1419,6 @@
     return sbs;
   }
 
-
-  function readMultiviewSettings(){
-    const cols = Math.round(getNumberInput("quiltColsInput", 8, 1, 16));
-    const rows = Math.round(getNumberInput("quiltRowsInput", 6, 1, 16));
-    const totalViews = Math.min(cols * rows, Math.round(getNumberInput("quiltViewsInput", cols * rows, 1, cols * rows)));
-    const tileW = Math.round(getNumberInput("quiltTileWInput", 420, 64, 2048));
-    const tileH = Math.round(getNumberInput("quiltTileHInput", 420, 64, 2048));
-    const parallaxDeg = getNumberInput("quiltParallaxInput", 10, 0, 90);
-    let leftIndex = Math.round(getNumberInput("sbsLeftInput", Math.floor(totalViews * 0.38), 0, totalViews - 1));
-    let rightIndex = Math.round(getNumberInput("sbsRightInput", Math.floor(totalViews * 0.62), 0, totalViews - 1));
-    if (leftIndex === rightIndex) rightIndex = clamp(rightIndex + 1, 0, totalViews - 1);
-    return { cols, rows, totalViews, tileW, tileH, parallaxDeg, leftIndex, rightIndex };
-  }
-
-  function openMultiviewPreview(){
-    if (!segments.length) { setStatus("Nothing to preview (run something first)."); return; }
-
-    const existing = document.getElementById("_logoPreviewModal");
-    if (existing) existing.remove();
-
-    const settings = readMultiviewSettings();
-    const views = [];
-    let quiltCanvas = null;
-    let animTimer = null;
-    let animDir = 1;
-
-    setStatus(`Rendering ${settings.totalViews} preview views...`);
-    for (let i = 0; i < settings.totalViews; i++)
-      views.push(renderViewCanvas(i, settings.totalViews, settings.tileW, settings.tileH, settings.parallaxDeg));
-
-    const overlay = document.createElement("div");
-    overlay.id = "_logoPreviewModal";
-    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9998;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box";
-
-    const box = document.createElement("div");
-    box.style.cssText = "background:#111821;border:1px solid rgba(180,200,220,.28);border-radius:14px;padding:12px;width:min(96vw,1180px);height:min(92vh,900px);display:grid;grid-template-rows:auto 1fr auto;gap:10px;color:#e8eef8;box-sizing:border-box";
-
-    const top = document.createElement("div");
-    top.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap";
-    const title = document.createElement("div");
-    title.textContent = `Multiview Preview: ${settings.totalViews} views, ${settings.parallaxDeg}° parallax`;
-    title.style.cssText = "font-weight:650;margin-right:auto";
-    const close = document.createElement("button");
-    close.textContent = "✕";
-    close.style.cssText = "padding:5px 10px;border-radius:8px";
-    close.onclick = () => { if (animTimer) clearInterval(animTimer); overlay.remove(); };
-    top.appendChild(title); top.appendChild(close);
-    box.appendChild(top);
-
-    const stage = document.createElement("div");
-    stage.style.cssText = "background:#05080c;border:1px solid rgba(127,127,127,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:auto;min-height:0";
-    const preview = document.createElement("canvas");
-    preview.style.cssText = "max-width:100%;max-height:100%;object-fit:contain";
-    const pctx = preview.getContext("2d", { alpha:false });
-    stage.appendChild(preview);
-    box.appendChild(stage);
-
-    const controls = document.createElement("div");
-    controls.style.cssText = "display:grid;grid-template-columns:1fr;gap:8px;font-size:13px";
-
-    const row1 = document.createElement("div");
-    row1.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap";
-    const mode = document.createElement("select");
-    mode.innerHTML = '<option value="single">Single view</option><option value="sbs">SBS selected L/R</option><option value="quilt">Quilt sheet</option>';
-    mode.style.cssText = "padding:5px 8px;border-radius:8px";
-    const animate = document.createElement("button");
-    animate.textContent = "Animate wiggle";
-    animate.style.cssText = "padding:5px 8px;border-radius:8px";
-    const viewLabel = document.createElement("span");
-    const exportBtn = document.createElement("button");
-    exportBtn.textContent = "Export current preview PNG";
-    exportBtn.style.cssText = "padding:5px 8px;border-radius:8px";
-    row1.append("Mode:", mode, animate, exportBtn, viewLabel);
-
-    const row2 = document.createElement("div");
-    row2.style.cssText = "display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center";
-    const slider = document.createElement("input");
-    slider.type = "range"; slider.min = "0"; slider.max = String(settings.totalViews - 1); slider.value = String(Math.floor(settings.totalViews / 2));
-    const leftBox = document.createElement("input");
-    leftBox.type = "number"; leftBox.min = "0"; leftBox.max = String(settings.totalViews - 1); leftBox.value = String(settings.leftIndex); leftBox.style.cssText = "width:60px";
-    const rightBox = document.createElement("input");
-    rightBox.type = "number"; rightBox.min = "0"; rightBox.max = String(settings.totalViews - 1); rightBox.value = String(settings.rightIndex); rightBox.style.cssText = "width:60px";
-    row2.append("View:", slider, "L:", leftBox, rightBox);
-
-    const note = document.createElement("div");
-    note.textContent = "Tip: in SBS mode, make the L/R view numbers farther apart to simulate stronger depth or hyperstereo. If depth feels inside-out, swap L and R.";
-    note.style.cssText = "opacity:.82";
-    controls.append(row1, row2, note);
-    box.appendChild(controls);
-
-    function clampIndex(v){
-      v = Math.round(Number(v));
-      if (!Number.isFinite(v)) v = 0;
-      return clamp(v, 0, settings.totalViews - 1);
-    }
-
-    function drawPreview(){
-      const m = mode.value;
-      const idx = clampIndex(slider.value);
-      const li = clampIndex(leftBox.value);
-      const ri = clampIndex(rightBox.value);
-      leftBox.value = String(li); rightBox.value = String(ri);
-
-      if (m === "quilt"){
-        if (!quiltCanvas){
-          quiltCanvas = document.createElement("canvas");
-          quiltCanvas.width = settings.cols * settings.tileW;
-          quiltCanvas.height = settings.rows * settings.tileH;
-          const qctx = quiltCanvas.getContext("2d", { alpha:false });
-          qctx.fillStyle = "#0b0f14"; qctx.fillRect(0,0,quiltCanvas.width,quiltCanvas.height);
-          for (let i = 0; i < views.length; i++) qctx.drawImage(views[i], (i % settings.cols) * settings.tileW, Math.floor(i / settings.cols) * settings.tileH);
-        }
-        preview.width = quiltCanvas.width; preview.height = quiltCanvas.height;
-        pctx.drawImage(quiltCanvas, 0, 0);
-        viewLabel.textContent = ` Quilt ${settings.cols}×${settings.rows}`;
-      } else if (m === "sbs"){
-        preview.width = settings.tileW * 2; preview.height = settings.tileH;
-        pctx.fillStyle = "#0b0f14"; pctx.fillRect(0,0,preview.width,preview.height);
-        pctx.drawImage(views[li], 0, 0);
-        pctx.drawImage(views[ri], settings.tileW, 0);
-        viewLabel.textContent = ` SBS L${li} / R${ri}  separation ${Math.abs(ri-li)} views`;
-      } else {
-        preview.width = settings.tileW; preview.height = settings.tileH;
-        pctx.drawImage(views[idx], 0, 0);
-        viewLabel.textContent = ` View ${idx} of ${settings.totalViews - 1}`;
-      }
-    }
-
-    function stopAnim(){
-      if (animTimer) { clearInterval(animTimer); animTimer = null; animate.textContent = "Animate wiggle"; }
-    }
-
-    animate.onclick = () => {
-      if (animTimer) { stopAnim(); return; }
-      mode.value = "single";
-      animate.textContent = "Stop animation";
-      animTimer = setInterval(() => {
-        let v = clampIndex(slider.value) + animDir;
-        if (v >= settings.totalViews - 1) { v = settings.totalViews - 1; animDir = -1; }
-        if (v <= 0) { v = 0; animDir = 1; }
-        slider.value = String(v);
-        drawPreview();
-      }, 90);
-    };
-    exportBtn.onclick = () => downloadCanvasPng("logo3d_multiview_preview.png", preview);
-    mode.onchange = () => { stopAnim(); drawPreview(); };
-    slider.oninput = drawPreview;
-    leftBox.oninput = drawPreview;
-    rightBox.oninput = drawPreview;
-    overlay.onclick = (e) => { if (e.target === overlay) { stopAnim(); overlay.remove(); } };
-
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    drawPreview();
-    setStatus(`Preview ready ✅ ${settings.totalViews} views. Use the slider, SBS mode, or Animate wiggle.`);
-  }
-
   function stlExportFromSegments(segs, opts = {}){
     const sides = opts.sides ?? 12;
     const minRadius = opts.minRadius ?? 0.25;
@@ -1397,9 +1473,26 @@
       }
     }
 
+    // SHEETS rectangle → closed thin slab (a zero-thickness plane isn't printable).
+    // Thickness = 2 × tube radius for the segment's WIDTH.
+    function addSlab(s, r){
+      const h = s.sheet;
+      const fwd = sub(s.b, s.a);
+      const n = mul(norm2(cross(fwd, h)), r);
+      const c = [sub(s.a,h), add(s.a,h), add(s.b,h), sub(s.b,h)];
+      const T = c.map(p => add(p, n)), B = c.map(p => sub(p, n));
+      addTri(T[0],T[1],T[2]); addTri(T[0],T[2],T[3]);
+      addTri(B[0],B[2],B[1]); addTri(B[0],B[3],B[2]);
+      for (let i=0;i<4;i++){
+        const j=(i+1)%4;
+        addTri(B[i],B[j],T[j]); addTri(B[i],T[j],T[i]);
+      }
+    }
+
     for (const s of drawSegs){
       const w = Number(s.width ?? 1);
       const r = Math.max(minRadius, (Number.isFinite(w) ? w : 1) * widthToRadius);
+      if (s.sheet){ addSlab(s, r); continue; }
       addCylinder(s.a, s.b, r, sides, capEnds);
     }
 
@@ -1435,18 +1528,76 @@
     try {
       if (!segments.length) { setStatus("Nothing to export (run something first)."); return; }
       const mtlFilename = "logo3d.mtl";
-      const { objText, mtlText } = objExportTubesWithMtl(segments, {
+      const { objParts, mtlText } = objExportTubesWithMtl(segments, {
         sides: 14,
         capEnds: true,
         minRadius: 0.25,
         widthToRadius: 0.35,
         mtlFilename,
       });
-      downloadTextFile("logo3d.obj", objText, "text/plain");
+      downloadTextParts("logo3d.obj", objParts, "text/plain");
       downloadTextFile(mtlFilename, mtlText, "text/plain");
       setStatus("Exported OBJ+MTL ✅ (tubes, width-based)");
     } catch (e) {
       setStatus("OBJ export error: " + (e.message || e));
+    }
+  });
+
+  $("exportUnityObjBtn")?.addEventListener("click", () => {
+    try {
+      if (!segments.length) { setStatus("Nothing to export (run something first)."); return; }
+      const materialMode = $("unityMaterialMode")?.value || "colors";
+      // Scale: "Fit (m)" wins if filled — the model's largest dimension becomes exactly that
+      // many Unity units (meters). Otherwise "Unity 1/N" (default 40) is used.
+      const divisor = Math.max(0.0001, parseFloat($("unityScaleDivInput")?.value) || 40);
+      const fitMeters = parseFloat($("unityFitInput")?.value);
+      let scale = 1 / divisor;
+      let scaleLabel = `1/${divisor} scale`;
+      if (Number.isFinite(fitMeters) && fitMeters > 0){
+        const bbox = segmentsBoundingBox(segments, { minRadius: 0.25, widthToRadius: 0.35 });
+        const maxDim = Math.max(bbox.x, bbox.y, bbox.z) || 1;
+        scale = fitMeters / maxDim;
+        scaleLabel = `fit to ${fitMeters} m (scale ${scale.toFixed(6)})`;
+      }
+      // Sides per tube: 14 is smooth; 6 keeps huge sculptures (100k+ segments) importable.
+      const sides = Math.min(32, Math.max(3, Math.round(parseFloat($("unitySidesInput")?.value) || 8)));
+      const mtlFilename = "logo3d_unity.mtl";
+      // Size guard: browsers crash the tab somewhere past ~300–400 MB of generated text.
+      // Estimate ≈ per-segment bytes for vertex + (uv) + face lines, measured at ~1.2 KB per 8-sided segment.
+      const nSeg = segments.filter(s => !s.isSnapSpoke).length;
+      const perSeg = (materialMode === "texture" ? 60 : 34) * (sides*2+2) + (materialMode === "texture" ? 30 : 20) * (sides*4);
+      const estMB = nSeg * perSeg / 1048576;
+      if (estMB > 300){
+        setStatus(`Unity OBJ export refused: ~${Math.round(estMB)} MB estimated (${nSeg.toLocaleString()} segments × ${sides} sides) — the browser would run out of memory and Unity could not import it.\n`
+          + `Reduce the drawing for export: fewer arc steps (smaller n), fewer repeats (smaller t), or set Sides to 4. Target under ~50,000 segments.`);
+        return;
+      }
+      setStatus(`Building Unity OBJ… ${nSeg.toLocaleString()} segments, ~${Math.round(estMB)} MB (large sculptures take a while)`);
+      const res = objExportTubesWithMtl(segments, {
+        sides,
+        capEnds: true,
+        minRadius: 0.25,
+        widthToRadius: 0.35,
+        mtlFilename,
+        scale,
+        materialMode,
+        sheetUV: $("unitySheetUvMode")?.value || "strip",
+      });
+      const bytes = downloadTextParts("logo3d_unity.obj", res.objParts, "text/plain");
+      if (res.mtlText) downloadTextFile(mtlFilename, res.mtlText, "text/plain");
+      const dims = `${res.size.x.toFixed(3)} × ${res.size.y.toFixed(3)} × ${res.size.z.toFixed(3)}`;
+      const mb = (bytes / 1048576).toFixed(1);
+      const modeText = materialMode === "texture"
+                       ? ((!res.sheetCount ? "planar UVs"
+                          : res.sheetUV === "persheet" ? "sheets: full image on each sheet"
+                          : res.sheetUV === "strip"    ? "sheets: one image flowing along each run"
+                          : "planar UVs") + ", NO .mtl — assign a photo material in Unity")
+                     : materialMode === "single"  ? "one white material"
+                     : `Logo3D colors (${res.materialCount} materials${res.quantized ? ", quantized to a 216-color palette" : ""})`;
+      setStatus(`Exported Unity OBJ ✅ ${scaleLabel}, ${modeText}\nModel size in Unity units (meters): ${dims}\n${res.sheetCount ? res.sheetCount + " sheets + " : ""}${res.segmentCount - (res.sheetCount||0)} tube segments × ${sides} sides → ${res.vertexCount.toLocaleString()} vertices, ${mb} MB`
+        + (bytes > 300*1048576 ? "\n⚠ Very large file — Unity import will be slow; try fewer Sides or a simpler script." : ""));
+    } catch (e) {
+      setStatus("Unity OBJ export error: " + (e.message || e));
     }
   });
 
@@ -1506,12 +1657,6 @@
     } catch (e) {
       setStatus("SBS export error: " + (e.message || e));
     }
-  });
-
-
-  $("previewQuiltBtn")?.addEventListener("click", () => {
-    try { openMultiviewPreview(); }
-    catch (e) { setStatus("Preview error: " + (e.message || e)); }
   });
 
   // ---------- Help / Acknowledgements modals ----------
@@ -1586,8 +1731,8 @@
         "Error: " + err.message, false));
   }
 
-  $("helpBtn")?.addEventListener("click", () => loadAndShowModal("./commands.txt", "Command Reference", true));
-  $("ackBtn")?.addEventListener("click",  () => loadAndShowModal("./acknowledge.txt", "Acknowledgements", false));
+  $("helpBtn")?.addEventListener("click", () => loadAndShowModal("./commands.txt", "List of Commands", true));
+  $("ackBtn")?.addEventListener("click",  () => loadAndShowModal("./acknowledge.txt", "Acknowledge", false));
 
   // ---------- Examples dropdown ----------
   (function initExamples() {
@@ -1626,8 +1771,27 @@
     });
   })();
 
+  // ---------- Pull-down menus (<details class="menu">) ----------
+  // Close open menus when clicking outside them; opening one top-level menu closes the others.
+  function closeMenus(except) {
+    document.querySelectorAll("details.menu[open]").forEach(d => {
+      if (!except || !d.contains(except)) d.open = false;
+    });
+  }
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("details.menu")) closeMenus(null);
+  });
+  document.querySelectorAll("details.menu").forEach(d => {
+    d.addEventListener("toggle", () => {
+      if (!d.open) return;
+      const parent = d.parentElement.closest("details.menu");
+      if (!parent) closeMenus(d);
+      else parent.querySelectorAll(":scope details.menu[open]").forEach(o => { if (o !== d && !o.contains(d)) o.open = false; });
+    });
+  });
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape"){ const m = document.getElementById("_logoModal"); if (m) m.remove(); }
+    if (e.key === "Escape"){ const m = document.getElementById("_logoModal"); if (m) m.remove(); closeMenus(null); }
   });
 
   draw();
