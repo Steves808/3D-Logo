@@ -52,7 +52,9 @@ Key commands: `FD`/`BK` (move), `LT`/`RT` (yaw), `UP`/`DN` (pitch), `RL`/`RR` (r
 
 Pure functions, no classes: `V(x,y,z)`, `add/sub/mul`, `I3/matMul/matVec`, `rotAxis`, `norm`.
 
-## Current status (2026-11-14) — cu16 "learn to code" upgrade
+## Current status (2026-11-14) — c17 (was cu16) "learn to code" upgrade
+
+**Naming:** this build is **c17**. It was called cu16 while in progress (the "u" stood for Unity); "cu16" below means the same code. `index.html` and `logo3d.html` are the clean menu layout (Run/Watch/Step/Clear + Learn, View, Share, Export); the older three-row layout is gone.
 
 cu16 is cu15 plus a learning layer. **All cu15 commands, exports and element IDs are unchanged.**
 Files: `logo3d.js` (all logic), `index.html` = `logo3d.html` (identical), runtime text files
@@ -74,7 +76,7 @@ Files: `logo3d.js` (all logic), `index.html` = `logo3d.html` (identical), runtim
 | Sharing | Share button puts the program in the URL (`#p=…`); opening that link loads and runs it. Editor text is autosaved to localStorage. | `encodeProgram`, `initProgram` |
 | View | Fit (also double-click), Spin, Look: Classic / Neon / red-cyan 3D glasses, Picture (PNG) | `fitCamera`, `draw`, `uiLook` |
 | Split 3D | Live side-by-side stereo for free-viewing: `uiLook` `"sbs"` (parallel) / `"sbsx"` (cross-eyed), `sbs.depth` (degrees between eyes), `sbs.size` (% of half-screen). Button `#sbsBtn`, sliders `#sbsDepthInput`, `#sbsSizeInput`. | `draw` (SBS branch), `initLook` |
-| Menus | `indexclean.html` is the menu layout (Run/Watch/Step/Clear + Learn, View, Share, Export). Buttons inside a menu close it unless they have `class="stay"`. `index.html`/`logo3d.html` keep the older row layout. | `closeMenus` |
+| Menus | The menu layout is Run/Watch/Step/Clear + Learn, View, Share, Export. Buttons inside a menu close it unless they have `class="stay"`. | `closeMenus` |
 | Errors | Line numbers and "did you mean …?" | `formatError`, `suggestFor` |
 | Random | Seeded generator `rnd()`; Run picks a new seed, Live/slider/animation re-runs reuse it. | `newSeed`, `rnd` |
 | Fixes | "Export Dots OBJ" threw `singleMaterial is not defined` in cu15 — fixed. Procedure arguments are now all evaluated before binding. | `objExportDotsWithMtl`, `CALL` |

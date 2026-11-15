@@ -95,44 +95,69 @@
     #view { min-height:55vh; }
   }
   code { background:rgba(127,127,127,.12); padding:1px 6px; border-radius:8px; }
+  .toolbar { position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-bottom:8px; }
+  .toolbar > .toolbar-btn, .toolbar > details > summary { font-size:12px; padding:6px 8px; white-space:nowrap; }
+  .toolbar > details.menu { position:static; }
+  .toolbar .menu-pop {
+    inset-inline:0 auto; top:calc(100% + 4px); box-sizing:border-box;
+    width:min(100%, 340px); max-height:min(60vh, 420px); overflow:auto;
+  }
+  .toolbar .menu-pop select { min-width:0; max-width:100%; }
+  .toolbar .menu-pop .field input[type=range] { flex:1; min-width:0; }
+  .toolbar :focus-visible { outline:2px solid #398aff; outline-offset:1px; }
+
+  @media (min-width: 901px) {
+    #panel { display:flex; flex-direction:column; }
+    #panel > :not(textarea) { flex-shrink:0; }
+    #code { flex:1 0 auto; height:auto; min-height:240px; }
+  }
+
 </style>
 </head>
 <body>
 <div id="app">
   <div id="panel">
-    <h1>Logo 3D <small>— code a turtle that flies (cu16)</small></h1>
+    <h1>Logo 3D <small>— code a turtle that flies (c17)</small></h1>
 
-    <!-- Row 1: run / watch -->
-    <div class="row">
+    <div class="toolbar" role="group" aria-label="Logo 3D controls">
       <button id="runBtn" class="toolbar-btn primary" title="Run the program (Ctrl+Enter)">▶ Run</button>
       <button id="watchBtn" class="toolbar-btn" title="Watch the turtle draw it step by step">👁 Watch</button>
       <button id="stepBtn" class="toolbar-btn" title="Draw one step at a time">Step</button>
-      <button id="clearBtn" class="toolbar-btn">Clear (CS)</button>
-      <label class="field" title="How fast Watch draws">Speed<input id="speedInput" type="range" min="0" max="100" step="1" value="45"></label>
-    </div>
+      <button id="clearBtn" class="toolbar-btn" title="Clear the drawing">Clear</button>
 
-    <!-- Row 2: learn -->
-    <div class="row">
-      <select id="exampleSel" class="toolbar-btn">
-        <option value="">Examples…</option>
-      </select>
-      <button id="questBtn" class="toolbar-btn" title="Coding challenges that check your answer">⭐ Quests</button>
-      <button id="surpriseBtn" class="toolbar-btn" title="Load and run a random example">🎲 Surprise</button>
-      <button id="helpBtn" class="toolbar-btn">List of Commands</button>
-    </div>
+      <details class="menu">
+        <summary class="toolbar-btn">Learn</summary>
+        <div class="menu-pop">
+          <select id="exampleSel" class="toolbar-btn" aria-label="Examples">
+            <option value="">Examples…</option>
+          </select>
+          <button id="questBtn" class="toolbar-btn" title="Coding challenges that check your answer">⭐ Quests</button>
+          <button id="surpriseBtn" class="toolbar-btn" title="Load and run a random example">🎲 Surprise</button>
+          <button id="helpBtn" class="toolbar-btn">List of Commands</button>
+          <button id="ackBtn" class="toolbar-btn">Acknowledgements</button>
+        </div>
+      </details>
 
-    <!-- Row 3: view + share + export -->
-    <div class="row">
-      <button id="liveBtn" class="toolbar-btn" title="Redraw while you type">Live: on</button>
-      <button id="spinBtn" class="toolbar-btn" title="Slowly turn the camera">Spin</button>
-      <button id="fitBtn" class="toolbar-btn" title="Zoom to fit the drawing (or double-click the picture)">Fit</button>
-      <select id="lookSel" class="toolbar-btn" title="How the picture is drawn">
-        <option value="classic">Look: Classic</option>
-        <option value="neon">Look: Neon glow</option>
-        <option value="glasses">Look: 3D glasses (red/cyan)</option>
-        <option value="sbs">Look: Split 3D (parallel)</option>
-        <option value="sbsx">Look: Split 3D (cross-eyed)</option>
-      </select>
+      <details class="menu">
+        <summary class="toolbar-btn">View</summary>
+        <div class="menu-pop">
+          <button id="sbsBtn" class="toolbar-btn stay" title="Two live pictures side by side for free-viewing in 3D. Press again for cross-eyed, again for off.">Split 3D: off</button>
+          <label class="field" title="How far apart the two eyes' views are. More = deeper 3D.">3D depth<input id="sbsDepthInput" type="range" min="0.5" max="16" step="0.5" value="4"></label>
+          <label class="field" title="Size of the two pictures. Parallel viewing needs them close together: make them smaller on a big screen.">3D picture size<input id="sbsSizeInput" type="range" min="20" max="100" step="1" value="100"></label>
+          <select id="lookSel" class="toolbar-btn" aria-label="Drawing style">
+            <option value="classic">Look: Classic</option>
+            <option value="neon">Look: Neon glow</option>
+            <option value="glasses">Look: 3D glasses (red/cyan)</option>
+            <option value="sbs">Look: Split 3D (parallel)</option>
+            <option value="sbsx">Look: Split 3D (cross-eyed)</option>
+          </select>
+          <button id="fitBtn" class="toolbar-btn stay" title="Zoom to fit the drawing (or double-click the picture)">Fit</button>
+          <button id="spinBtn" class="toolbar-btn stay" title="Slowly turn the camera">Spin</button>
+          <button id="liveBtn" class="toolbar-btn stay" title="Redraw while you type">Live: on</button>
+          <label class="field">Watch speed<input id="speedInput" type="range" min="0" max="100" step="1" value="45"></label>
+        </div>
+      </details>
+
       <button id="shareBtn" class="toolbar-btn" title="Copy a link that opens this program">🔗 Share</button>
 
       <details class="menu" id="exportMenu">
@@ -141,6 +166,7 @@
           <button id="exportPngBtn" class="toolbar-btn">Picture (PNG)</button>
           <button id="exportObjBtn" class="toolbar-btn">OBJ</button>
           <button id="exportDotsBtn" class="toolbar-btn">Dots OBJ</button>
+          <button id="exportBtn" class="toolbar-btn">STL</button>
 
           <details class="menu" id="unityMenu">
             <summary class="toolbar-btn">Unity</summary>
@@ -179,18 +205,15 @@
               <label class="field">R<input id="sbsRightInput" type="number" min="0" step="1" value="30"></label>
             </div>
           </details>
-
-          <button id="exportBtn" class="toolbar-btn">STL</button>
         </div>
       </details>
-      <button id="ackBtn" class="toolbar-btn">Acknowledge</button>
     </div>
 
     <div id="questCard"></div>
     <div id="sliders" style="display:none"></div>
 
     <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"
-      placeholder="Type Logo here, for example:&#10;&#10;repeat 4 [fd 80 rt 90]&#10;&#10;New here? Tap ⭐ Quests or 🎲 Surprise."></textarea>
+      placeholder="Type Logo here, for example:&#10;&#10;repeat 4 [fd 80 rt 90]&#10;&#10;New here? Open Learn for quests and examples."></textarea>
     <div id="status">If this never changes to “Ready…”, your JS is being blocked.</div>
     <pre id="console"></pre>
   </div>
@@ -201,6 +224,6 @@
 </div>
 
 <!-- IMPORTANT: external script file -->
-<script src="./logo3d.js?v=16b"></script>
+<script src="./logo3d.js?v=17a"></script>
 </body>
 </html>
