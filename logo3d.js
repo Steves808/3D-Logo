@@ -1,4 +1,5 @@
 (() => {
+  const VERSION = "cu16";
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
   const canvas = $("c");
@@ -10,9 +11,26 @@
   const DEG = Math.PI / 180;
   const ARC_STEP_DEG = 3; // smaller = smoother arcs (slower)
   function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+  function nowMs(){ return (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now(); }
 
   // Sentinel thrown by STOP; caught by the nearest CALL handler to exit that procedure.
   const _STOP = Object.freeze({ __stop__: true });
+
+  // Tiny localStorage wrappers (storage may be blocked on file:// or in private mode).
+  function lsGet(k){ try { return window.localStorage.getItem(k); } catch(e){ return null; } }
+  function lsSet(k,v){ try { window.localStorage.setItem(k, v); } catch(e){ /* ignore */ } }
+
+  // Seeded random numbers: the same seed is replayed for Live edits, sliders and animation
+  // frames (so random art holds still while you tweak it); pressing Run picks a new seed.
+  let _seed = ((Math.random() * 4294967296) >>> 0) || 1;
+  let _rs = _seed;
+  function newSeed(){ _seed = ((Math.random() * 4294967296) >>> 0) || 1; }
+  function rnd(){
+    _rs = (_rs + 0x6D2B79F5) | 0;
+    let t = Math.imul(_rs ^ (_rs >>> 15), 1 | _rs);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
 
   // 3D vector
   function V(x=0,y=0,z=0){ return {x,y,z}; }
@@ -52,25 +70,74 @@
   function basisRight(R){ return norm(matVec(R, V(1,0,0))); }
   function basisUp(R){ return norm(matVec(R, V(0,1,0))); }
 
-  // ---------- Drawing ----------
-  let segments = [];
-  function clearSegments(){ segments = []; }
+  // Triangles of a low-poly sphere (outward-facing) — used by OBJ and STL export for BALL.
+  function sphereTris(c, r, nLat = 8, nLon = 12){
+    const P = (i,j) => {
+      const th = i * Math.PI / nLat, ph = j * 2 * Math.PI / nLon;
+      return V(c.x + r*Math.sin(th)*Math.cos(ph), c.y + r*Math.cos(th), c.z + r*Math.sin(th)*Math.sin(ph));
+    };
+    const tris = [];
+    for (let i=0;i<nLat;i++) for (let j=0;j<nLon;j++){
+      const a = P(i,j), b = P(i+1,j), cc = P(i+1,j+1), d = P(i,j+1);
+      if (i < nLat-1) tris.push([a, cc, b]);
+      if (i > 0)      tris.push([a, d, cc]);
+    }
+    return tris;
+  }
 
+  // ---------- Drawing ----------
+  // Everything the turtle makes lives in `segments`, in the order it was made:
+  //   line     { a, b, color, width }
+  //   sheet    { ..., sheet: halfVector }          (SHEETS mode)
+  //   ball     { a, b (same point), ball: radius } (BALL)
+  //   label    { a, b (same point), label: text }  (LABEL)
+  //   snap     { ..., isSnapSpoke: true }          (SP)
+  // Each entry also carries: step (draw order, used by Watch), line (source line),
+  // and, on the first copy only, R (turtle orientation right after it was drawn).
+  let segments = [];
+  let stepCounter = 0;
+  let events = [];      // things that happen in time but draw nothing: PRINT, NOTE, REST
+  let symN = 1;         // SYMMETRY n: every drawn thing is repeated n times around the up axis
+  let curLine = 0;      // source line of the instruction being executed
+  function clearSegments(){ segments = []; stepCounter = 0; events = []; }
+
+  function symRot(p, k){
+    if (!k) return V(p.x, p.y, p.z);
+    const a = k * 2 * Math.PI / symN, c = Math.cos(a), s = Math.sin(a);
+    return V(p.x*c + p.z*s, p.y, -p.x*s + p.z*c);
+  }
+  function pushSeg(seg){
+    const step = ++stepCounter;
+    for (let k = 0; k < symN; k++){
+      const s = Object.assign({}, seg, { a: symRot(seg.a, k), b: symRot(seg.b, k), step, line: curLine });
+      if (seg.sheet) s.sheet = symRot(seg.sheet, k);
+      if (k === 0) s.R = turtle.R;
+      segments.push(s);
+    }
+  }
   function addDrawnSegment(a, b, color, width){
-    segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:false });
+    pushSeg({ a, b, color, width, isSnapSpoke:false });
   }
   // SHEETS mode: a filled rectangle from a to b, extending ±half (a vector) sideways.
   function addSheetSegment(a, b, color, width, half){
-    segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:false,
-                    sheet: V(half.x, half.y, half.z) });
+    pushSeg({ a, b, color, width, isSnapSpoke:false, sheet: half });
   }
   function addSnapSpokeSegment(a, b, color, width){
     // spokes from SP should NOT become snap geometry
-    segments.push({ a: V(a.x,a.y,a.z), b: V(b.x,b.y,b.z), color, width, isSnapSpoke:true });
+    pushSeg({ a, b, color, width, isSnapSpoke:true });
   }
 
+  // ---------- Scene look (set by GLOW / BG / GRID / HT / ST; reset at every run) ----------
+  function defaultScene(){ return { bg:"#0b0f14", glow:false, grid:true, showTurtle:true }; }
+  let scene = defaultScene();
+  let uiLook = "classic";   // "classic" | "neon" | "glasses" (red/cyan 3D glasses)
+  let ghostSegs = [];       // quest target shape, drawn faintly
+  let confetti = [];
+
   // ---------- Camera ----------
-  const cam = { yaw: 35*DEG, pitch: -25*DEG, dist: 420, panX:0, panY:0 };
+  const cam = { yaw: 35*DEG, pitch: -25*DEG, dist: 420, panX:0, panY:0, target: V(0,0,0) };
+  const CAM_MAX_DIST = 12000;
+  let DPR = 1;
 
   function resize(){
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -78,21 +145,24 @@
     canvas.width = Math.floor(w*dpr);
     canvas.height = Math.floor(h*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
+    DPR = dpr;
   }
   window.addEventListener("resize", () => { resize(); draw(); });
   resize();
 
   function makeProjector(viewW, viewH, yawOffset = 0, panX = cam.panX, panY = cam.panY){
+    const Ry = rotAxis(V(0,1,0), cam.yaw + yawOffset);
+    const Rx = rotAxis(V(1,0,0), cam.pitch);
+    const R = matMul(Rx, Ry);
+    const tx = cam.target.x, ty = cam.target.y, tz = cam.target.z;
+    const dist = cam.dist, f = 600, hw = viewW/2 + panX, hh = viewH/2 + panY;
     return function projectForView(p){
-      const Ry = rotAxis(V(0,1,0), cam.yaw + yawOffset);
-      const Rx = rotAxis(V(1,0,0), cam.pitch);
-      const R = matMul(Rx, Ry);
-      const pc = matVec(R, p);
-      const z = pc.z + cam.dist;
-      const f = 600;
-      const sx = (pc.x * f) / (z || 1);
-      const sy = (pc.y * f) / (z || 1);
-      return { x: sx + viewW/2 + panX, y: -sy + viewH/2 + panY, z };
+      const x = p.x - tx, y = p.y - ty, zz = p.z - tz;
+      const px = R[0]*x + R[1]*y + R[2]*zz;
+      const py = R[3]*x + R[4]*y + R[5]*zz;
+      const z  = R[6]*x + R[7]*y + R[8]*zz + dist;
+      const k = f / (z || 1);
+      return { x: px*k + hw, y: -py*k + hh, z };
     };
   }
 
@@ -100,9 +170,44 @@
     return makeProjector(canvas.clientWidth, canvas.clientHeight)(p);
   }
 
+  // Number of entries in `segments` whose step is <= limit (segments are in step order).
+  function countUpToStep(limit){
+    if (limit == null || limit >= stepCounter) return segments.length;
+    let lo = 0, hi = segments.length;
+    while (lo < hi){ const mid = (lo+hi) >> 1; if (segments[mid].step <= limit) lo = mid+1; else hi = mid; }
+    return lo;
+  }
+
+  function drawTurtleGlyph(outCtx, projector, pose){
+    const sz = cam.dist * 0.035;
+    const f = basisForward(pose.R), r = basisRight(pose.R), u = basisUp(pose.R);
+    const P = pose.pos;
+    const nose = add(P, mul(f, sz));
+    const tail = sub(P, mul(f, sz*0.55));
+    const wl = add(tail, mul(r, -sz*0.6)), wr = add(tail, mul(r, sz*0.6));
+    const fin = add(tail, mul(u, sz*0.55));
+    const pts = [nose, wl, wr, tail, fin, P].map(projector);
+    if (pts.some(p => p.z < 1)) return;
+    outCtx.lineWidth = 1.5; outCtx.lineJoin = "round";
+    outCtx.beginPath(); outCtx.moveTo(pts[0].x,pts[0].y); outCtx.lineTo(pts[1].x,pts[1].y); outCtx.lineTo(pts[2].x,pts[2].y); outCtx.closePath();
+    outCtx.fillStyle = "rgba(100,220,255,0.30)"; outCtx.fill();
+    outCtx.strokeStyle = "#9fe8ff"; outCtx.stroke();
+    outCtx.beginPath(); outCtx.moveTo(pts[0].x,pts[0].y); outCtx.lineTo(pts[3].x,pts[3].y); outCtx.lineTo(pts[4].x,pts[4].y); outCtx.closePath();
+    outCtx.fillStyle = "rgba(255,214,10,0.30)"; outCtx.fill();
+    outCtx.strokeStyle = "#ffd60a"; outCtx.stroke();
+    // pen dot: filled with the pen colour when the pen is down, hollow when it is up
+    outCtx.beginPath(); outCtx.arc(pts[5].x, pts[5].y, 3, 0, Math.PI*2);
+    if (pose.penDown){ outCtx.fillStyle = pose.color || "#fff"; outCtx.fill(); }
+    outCtx.strokeStyle = "#ffffff"; outCtx.lineWidth = 1; outCtx.stroke();
+  }
+
   function drawSceneToContext(outCtx, w, h, projector, opts = {}){
-    const drawGrid = opts.drawGrid !== false;
-    const bg = opts.background || "#0b0f14";
+    const drawGrid = opts.drawGrid !== false && scene.grid;
+    const bg = opts.background || scene.bg || "#0b0f14";
+    const glow = opts.glow != null ? opts.glow : (scene.glow || uiLook === "neon");
+    outCtx.globalCompositeOperation = "source-over";
+    outCtx.globalAlpha = 1;
+    outCtx.fillStyle = "#0b0f14";
     outCtx.fillStyle = bg;
     outCtx.fillRect(0,0,w,h);
 
@@ -110,52 +215,162 @@
       outCtx.lineWidth = 1;
       outCtx.strokeStyle = "rgba(120,150,180,0.12)";
       const gridN = 20, step = 30;
-      for(let i=-gridN;i<=gridN;i++){
-        const a = projector(V(i*step,0,-gridN*step));
-        const b = projector(V(i*step,0, gridN*step));
+      const line = (p, q) => {
+        const a = projector(p), b = projector(q);
+        if (a.z < 1 || b.z < 1) return;
         outCtx.beginPath(); outCtx.moveTo(a.x,a.y); outCtx.lineTo(b.x,b.y); outCtx.stroke();
-        const c = projector(V(-gridN*step,0,i*step));
-        const d = projector(V( gridN*step,0,i*step));
-        outCtx.beginPath(); outCtx.moveTo(c.x,c.y); outCtx.lineTo(d.x,d.y); outCtx.stroke();
+      };
+      for(let i=-gridN;i<=gridN;i++){
+        line(V(i*step,0,-gridN*step), V(i*step,0, gridN*step));
+        line(V(-gridN*step,0,i*step), V( gridN*step,0,i*step));
       }
     }
 
-    const drawn = segments.map(s => {
-      if (s.sheet){
-        const h = s.sheet;
-        const q = [projector(sub(s.a,h)), projector(add(s.a,h)), projector(add(s.b,h)), projector(sub(s.b,h))];
-        return { sheet:true, q, color:s.color, z:(q[0].z+q[1].z+q[2].z+q[3].z)/4 };
+    // quest target ("ghost") — faint dashed lines to trace over
+    if (opts.ghost && ghostSegs.length){
+      outCtx.save();
+      outCtx.setLineDash([6,6]);
+      outCtx.lineWidth = 2;
+      outCtx.strokeStyle = "rgba(255,255,255,0.33)";
+      for (const s of ghostSegs){
+        const pa = projector(s.a), pb = projector(s.b);
+        if (pa.z < 1 || pb.z < 1) continue;
+        outCtx.beginPath(); outCtx.moveTo(pa.x,pa.y); outCtx.lineTo(pb.x,pb.y); outCtx.stroke();
       }
-      const pa = projector(s.a), pb = projector(s.b);
-      return { pa, pb, color:s.color, width:s.width, z:(pa.z+pb.z)/2 };
-    }).sort((u,v)=> v.z - u.z);
+      outCtx.restore();
+    }
 
-    for(const s of drawn){
+    const n = countUpToStep(opts.limit);
+    const drawn = [];
+    for (let i = 0; i < n; i++){
+      const s = segments[i];
       if (s.sheet){
+        const hv = s.sheet;
+        const q = [projector(sub(s.a,hv)), projector(add(s.a,hv)), projector(add(s.b,hv)), projector(sub(s.b,hv))];
+        if (q[0].z < 1 || q[1].z < 1 || q[2].z < 1 || q[3].z < 1) continue;
+        drawn.push({ k:1, q, color:s.color, z:(q[0].z+q[1].z+q[2].z+q[3].z)/4 });
+      } else if (s.ball){
+        const c = projector(s.a);
+        if (c.z < 1) continue;
+        drawn.push({ k:2, c, r: s.ball * 600 / c.z, color:s.color, z:c.z });
+      } else if (s.label != null){
+        const c = projector(s.a);
+        if (c.z < 1) continue;
+        drawn.push({ k:3, c, text:s.label, px: clamp(12 * (s.width/1.5) * 600 / c.z, 7, 220), color:s.color, z:c.z });
+      } else {
+        const pa = projector(s.a), pb = projector(s.b);
+        if (pa.z < 1 || pb.z < 1) continue;
+        drawn.push({ k:0, pa, pb, color:s.color, width:s.width, z:(pa.z+pb.z)/2 });
+      }
+    }
+    drawn.sort((u,v)=> v.z - u.z);
+
+    outCtx.lineCap = "round";
+    for(const s of drawn){
+      if (s.k === 1){
         outCtx.beginPath();
         outCtx.moveTo(s.q[0].x, s.q[0].y);
         for (let k=1;k<4;k++) outCtx.lineTo(s.q[k].x, s.q[k].y);
         outCtx.closePath();
         outCtx.fillStyle = s.color;
+        if (glow){ outCtx.globalCompositeOperation = "lighter"; outCtx.globalAlpha = 0.55; }
         outCtx.fill();
-        // thin darker edge so neighbouring sheets read as separate planes
-        outCtx.lineWidth = 1;
-        outCtx.strokeStyle = "rgba(0,0,0,0.18)";
-        outCtx.stroke();
+        outCtx.globalCompositeOperation = "source-over";
+        outCtx.globalAlpha = 1;
+        if (!glow){
+          // thin darker edge so neighbouring sheets read as separate planes
+          outCtx.lineWidth = 1;
+          outCtx.strokeStyle = "rgba(0,0,0,0.18)";
+          outCtx.stroke();
+        }
+        continue;
+      }
+      if (s.k === 2){
+        const r = Math.max(0.5, s.r);
+        outCtx.beginPath(); outCtx.arc(s.c.x, s.c.y, r, 0, Math.PI*2);
+        outCtx.fillStyle = s.color; outCtx.fill();
+        const g = outCtx.createRadialGradient(s.c.x - r*0.35, s.c.y - r*0.4, r*0.05, s.c.x, s.c.y, r);
+        g.addColorStop(0, "rgba(255,255,255,0.75)");
+        g.addColorStop(0.45, "rgba(255,255,255,0)");
+        g.addColorStop(1, "rgba(0,0,0,0.45)");
+        outCtx.fillStyle = g; outCtx.fill();
+        continue;
+      }
+      if (s.k === 3){
+        outCtx.font = "600 " + s.px.toFixed(1) + "px system-ui, sans-serif";
+        outCtx.textAlign = "center"; outCtx.textBaseline = "middle";
+        outCtx.fillStyle = s.color;
+        outCtx.fillText(s.text, s.c.x, s.c.y);
         continue;
       }
       outCtx.strokeStyle = s.color;
+      if (glow){
+        // soft additive halo under a normal, solid core line
+        outCtx.globalCompositeOperation = "lighter";
+        outCtx.globalAlpha = 0.10;
+        outCtx.lineWidth = Math.max(1, s.width) * 5 + 3;
+        outCtx.beginPath(); outCtx.moveTo(s.pa.x, s.pa.y); outCtx.lineTo(s.pb.x, s.pb.y); outCtx.stroke();
+        outCtx.globalAlpha = 1;
+        outCtx.globalCompositeOperation = "source-over";
+      }
       outCtx.lineWidth = Math.max(1, s.width);
       outCtx.beginPath();
       outCtx.moveTo(s.pa.x, s.pa.y);
       outCtx.lineTo(s.pb.x, s.pb.y);
       outCtx.stroke();
     }
+    outCtx.globalCompositeOperation = "source-over";
+    outCtx.globalAlpha = 1;
+
+    if (opts.turtle) drawTurtleGlyph(outCtx, projector, opts.turtle);
   }
 
+  // Where the turtle is right now (or, during Watch playback, where it was at that moment).
+  function currentPose(){
+    if (play.active){
+      let i = countUpToStep(play.pos) - 1;
+      if (i < 0) return { pos: V(0,0,0), R: I3(), penDown:true, color:"#ffffff" };
+      const step = segments[i].step;
+      while (i > 0 && segments[i-1].step === step) i--;
+      const s = segments[i];
+      return { pos: s.b, R: s.R || I3(), penDown:true, color: s.color };
+    }
+    return { pos: turtle.pos, R: turtle.R, penDown: turtle.penDown, color: turtle.color };
+  }
+
+  const _eyeCanvas = [null, null];
   function draw(){
     const w = canvas.clientWidth, h = canvas.clientHeight;
-    drawSceneToContext(ctx, w, h, project, { drawGrid:true });
+    const o = { drawGrid:true, ghost:true, limit: play.active ? play.pos : null,
+                turtle: scene.showTurtle ? currentPose() : null };
+    if (uiLook === "glasses"){
+      // Red/cyan anaglyph: left eye in the red channel, right eye in green+blue.
+      for (let e = 0; e < 2; e++){
+        let oc = _eyeCanvas[e];
+        if (!oc) oc = _eyeCanvas[e] = document.createElement("canvas");
+        if (oc.width !== canvas.width || oc.height !== canvas.height){ oc.width = canvas.width; oc.height = canvas.height; }
+        const ox = oc.getContext("2d", { alpha:false });
+        ox.setTransform(DPR,0,0,DPR,0,0);
+        drawSceneToContext(ox, w, h, makeProjector(w, h, (e === 0 ? -1 : 1) * 1.3 * DEG),
+                           Object.assign({}, o, { background:"#000000", glow:false }));
+        ox.setTransform(1,0,0,1,0,0);
+        ox.globalCompositeOperation = "multiply";
+        ox.fillStyle = e === 0 ? "#ff0000" : "#00ffff";
+        ox.fillRect(0, 0, oc.width, oc.height);
+        ox.globalCompositeOperation = "source-over";
+      }
+      ctx.save();
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(_eyeCanvas[0], 0, 0);
+      ctx.drawImage(_eyeCanvas[1], 0, 0);
+      ctx.restore();
+    } else {
+      drawSceneToContext(ctx, w, h, project, o);
+    }
+    drawConfetti(ctx);
   }
 
   // ---------- Touch orbit/zoom/pan ----------
@@ -215,7 +430,7 @@
       cam.yaw  += _velYaw;
       cam.pitch = clamp(cam.pitch + _velPitch, -1.35, 1.35);
     } else if (now.mode==="pinch" && last.mode==="pinch"){
-      cam.dist = clamp(cam.dist - (now.dist-last.dist)*0.7, 60, 4000);
+      cam.dist = clamp(cam.dist - (now.dist-last.dist)*0.7, 60, CAM_MAX_DIST);
       cam.panX += (now.cx-last.cx);
       cam.panY += (now.cy-last.cy);
     }
@@ -239,9 +454,33 @@
 
   canvas.addEventListener("wheel", (e) => {
     e.preventDefault();
-    cam.dist = clamp(cam.dist + e.deltaY * 0.8, 60, 4000);
+    cam.dist = clamp(cam.dist + e.deltaY * 0.8, 60, CAM_MAX_DIST);
     scheduleRedraw();
   }, { passive: false });
+
+  canvas.addEventListener("dblclick", () => { fitCamera(); draw(); });
+
+  // Frame the whole drawing: aim the camera at its middle and back off until it fits.
+  function fitCamera(){
+    let minX=Infinity,minY=Infinity,minZ=Infinity,maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity,n=0;
+    const grow = (p, r) => {
+      n++;
+      if (p.x-r<minX)minX=p.x-r; if (p.x+r>maxX)maxX=p.x+r;
+      if (p.y-r<minY)minY=p.y-r; if (p.y+r>maxY)maxY=p.y+r;
+      if (p.z-r<minZ)minZ=p.z-r; if (p.z+r>maxZ)maxZ=p.z+r;
+    };
+    for (const s of segments){
+      if (s.sheet){ for (const p of [sub(s.a,s.sheet), add(s.a,s.sheet), add(s.b,s.sheet), sub(s.b,s.sheet)]) grow(p, 0); }
+      else { grow(s.a, s.ball || 0); grow(s.b, s.ball || 0); }
+    }
+    for (const s of ghostSegs){ grow(s.a, 0); grow(s.b, 0); }
+    cam.panX = 0; cam.panY = 0;
+    if (!n){ cam.target = V(0,0,0); cam.dist = 420; return; }
+    cam.target = V((minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2);
+    const rad = Math.max(10, Math.hypot(maxX-minX, maxY-minY, maxZ-minZ) / 2);
+    const view = Math.max(120, Math.min(canvas.clientWidth || 600, canvas.clientHeight || 600));
+    cam.dist = clamp(rad * 600 / (0.62 * view) + rad * 0.5, 60, CAM_MAX_DIST);
+  }
 
   // ---------- Turtle + vars + marks + procedures ----------
   function makeTurtle(){
@@ -266,33 +505,83 @@
     };
   }
 
+  // Run-time state used by the newer language features
+  const repStack = [];            // REPCOUNT values of the enclosing REPEATs
+  let timeNow = 0, frameNow = 0;  // TIME (seconds) and FRAME for animated programs
+  let usesTime = false;           // set when a program reads TIME or FRAME -> it gets animated
+  let tempoBpm = 120;             // TEMPO for NOTE / REST
+  const sliderState = new Map();  // SLIDER name -> { min, max, value }
+  let sliderSeen = [];            // sliders declared by the latest run, in order
+
   // ---------- Tokenizer / parser ----------
+  // Returns an array of UPPERCASE token strings with two parallel arrays attached:
+  //   tokens.lines[i] = 1-based source line,  tokens.raws[i] = the token as typed (for text).
   function tokenize(src){
     // normalize NBSP -> space (iPad paste fix)
-    src = src.replace(/\u00A0/g, " ");
+    src = String(src).replace(/ /g, " ");
 
-    // strip ; comments
-    src = src.split("\n").map(line => {
-      const i = line.indexOf(";");
-      return i >= 0 ? line.slice(0,i) : line;
-    }).join("\n");
-
-    // remove #timeout directives
-    src = src.replace(/#timeout\s*=\s*[0-9.]+/gi, "");
-
-    // split into: [, ], or "anything not whitespace or brackets"
-    const raw = src.match(/\[|\]|[^\s\[\]]+/g) || [];
-
-    // uppercase except hex colors
-    return raw.map(t => {
-      if (/^#[0-9a-fA-F]{3,8}$/.test(t)) return t;
-      return t.toUpperCase();
+    const t0 = [], l0 = [], r0 = [];
+    src.split("\n").forEach((line, li) => {
+      const ci = line.indexOf(";");               // strip ; comments
+      if (ci >= 0) line = line.slice(0, ci);
+      line = line.replace(/#timeout\s*=\s*[0-9.]+/gi, ""); // remove #timeout directives
+      // split into: [, ], or "anything not whitespace or brackets"
+      const m = line.match(/\[|\]|[^\s\[\]]+/g) || [];
+      for (const t of m){
+        r0.push(t);
+        t0.push(/^#[0-9a-fA-F]{3,8}$/.test(t) ? t : t.toUpperCase()); // uppercase except hex colors
+        l0.push(li + 1);
+      }
     });
+
+    // Join arithmetic that was typed with spaces, so  fd 2 * :r / 72  works like  fd 2*:r/72.
+    // A token is glued to the previous one when the previous ends with an operator / "(" / ","
+    // or when it starts with * / ^ % ) , or is a lone + or -.  ("fd a -5" is left alone.)
+    const endsOpen   = (t) => t !== "[" && t !== "]" && /[+\-*\/^%(,]$/.test(t);
+    const startsJoin = (t) => t !== "[" && t !== "]" && (/^[*\/^%),]/.test(t) || t === "+" || t === "-");
+    const toks = [], lines = [], raws = [];
+    let textDepth = 0;            // inside PRINT [ ... ] / LABEL [ ... ]: leave the words alone
+    for (let i = 0; i < t0.length; i++){
+      const t = t0[i];
+      if (textDepth > 0){
+        if (t === "[") textDepth++; else if (t === "]") textDepth--;
+        toks.push(t); lines.push(l0[i]); raws.push(r0[i]);
+        continue;
+      }
+      if ((t0[i-1] === "PRINT" || t0[i-1] === "LABEL" || t0[i-1] === "SAY") && t === "["){
+        textDepth = 1;
+        toks.push(t); lines.push(l0[i]); raws.push(r0[i]);
+        continue;
+      }
+      const prev = toks.length ? toks[toks.length-1] : null;
+      if (prev !== null && prev !== "[" && prev !== "]" && t !== "[" && t !== "]" &&
+          !/^#[0-9a-fA-F]{3,8}$/.test(t) && (endsOpen(prev) || startsJoin(t))){
+        toks[toks.length-1] = prev + t;
+        raws[raws.length-1] += r0[i];
+        continue;
+      }
+      toks.push(t); lines.push(l0[i]); raws.push(r0[i]);
+    }
+    toks.lines = lines; toks.raws = raws;
+    return toks;
+  }
+  function sliceTokens(tokens, a, b){
+    const out = tokens.slice(a, b);
+    out.lines = (tokens.lines || []).slice(a, b);
+    out.raws  = (tokens.raws  || []).slice(a, b);
+    return out;
+  }
+  function parseError(msg, tokens, i){
+    const e = new Error(msg);
+    const L = tokens && tokens.lines;
+    if (L && L.length) e.line = L[Math.min(i, L.length-1)];
+    return e;
   }
 
   function parseList(tokens, i){
     // nested lists supported; nested list is stored as an Array
-    if (tokens[i] !== "[") throw new Error("Expected [");
+    if (tokens[i] !== "[") throw parseError("Expected [", tokens, i);
+    const start = i;
     i++;
     const items = [];
     while (i < tokens.length){
@@ -307,50 +596,78 @@
       items.push(tok);
       i++;
     }
-    throw new Error("Unclosed [ ... ] list");
+    throw parseError("This [ is never closed with a ]", tokens, start);
   }
 
   function parseValueToken(tokens, i){
     const tok = tokens[i];
 
     if (tok === "PICK"){
-      if (tokens[i+1] !== "[") throw new Error("PICK must be followed by [ ... ]");
+      if (tokens[i+1] !== "[") throw parseError("PICK must be followed by [ ... ]", tokens, i);
       const lst = parseList(tokens, i+1);
       return { value: { fn:"PICK", items: lst.items }, next: lst.next };
     }
 
     if (tok === "RANDOM"){
       const mx = tokens[i+1];
-      if (mx == null) throw new Error("RANDOM needs a max");
+      if (mx == null) throw parseError("RANDOM needs a max", tokens, i);
       return { value: { fn:"RANDOM", max: mx }, next: i+2 };
     }
 
     return { value: tok, next: i+1 };
   }
 
+  // Friendly long names -> the short command they mean.
+  const ALIASES = {
+    FORWARD:"FD", BACK:"BK", BACKWARD:"BK", LEFT:"LT", RIGHT:"RT",
+    PENUP:"PU", PENDOWN:"PD", HIDETURTLE:"HT", SHOWTURTLE:"ST",
+    SYM:"SYMMETRY", SPHERE3D:"BALL", SAY:"PRINT", BACKGROUND:"BG",
+    ARCRIGHT:"AR", ARCLEFT:"AL", ARCUP:"AU", ARCDOWN:"AD"
+  };
+  // Commands added in cu16. If a program (or an earlier run) defines its own procedure with
+  // one of these names, the procedure wins — so older scripts keep working unchanged.
+  const NEW_KEYWORDS = new Set([
+    "FORWARD","BACK","BACKWARD","LEFT","RIGHT","PENUP","PENDOWN","HIDETURTLE","SHOWTURTLE","HT","ST",
+    "COLOR","SETPC","BG","BACKGROUND","HUE","BALL","SPHERE3D","LABEL","PRINT","SAY","NOTE","REST","TEMPO",
+    "SYMMETRY","SYM","GLOW","GRID","FOR","WHILE","SLIDER"
+  ]);
+  const KNOWN_COMMANDS = [
+    "FD","BK","LT","RT","UP","DN","RL","RR","AR","AL","AU","AD","PU","PD","HOME","CENTER","CS","CLEAR",
+    "SC","SETCOLOR","COLOR","WIDTH","MAKE","REPEAT","RPT","IF","ELSE","TO","END","STOP","OMARK","GOTO","SP",
+    "SHEETS","NONSHEETS","SHEETW","PICK","RANDOM","FORWARD","BACK","LEFT","RIGHT","PENUP","PENDOWN",
+    "HT","ST","BG","HUE","BALL","LABEL","PRINT","NOTE","REST","TEMPO","SYMMETRY","GLOW","GRID","FOR","WHILE","SLIDER"
+  ];
+
   // arities = map of procedure name → number of colon-params it declares.
   // Collected in a pre-pass so call sites know how many tokens to consume as arguments.
   function parseBlock(tokens, i, arities = Object.create(null)){
     const block = [];
+    const L = tokens.lines || [];
+    const put = (ins, at) => { ins.line = L[at] || 0; block.push(ins); };
     while (i < tokens.length){
-      const tok = tokens[i];
+      let tok = tokens[i];
+      const at = i;
       if (tok === "]") return { block, next: i+1 };
+
+      // A user procedure named like a cu16 command takes priority over the command.
+      const shadowed = NEW_KEYWORDS.has(tok) && (arities[tok] !== undefined || procs[tok]);
+      if (!shadowed && ALIASES[tok]) tok = ALIASES[tok];
 
       // TO <name> [:param ...] ... END
       if (tok === "TO"){
         const name = tokens[i+1];
-        if (!name) throw new Error("TO needs a procedure name");
+        if (!name) throw parseError("TO needs a procedure name", tokens, i);
         let j = i+2;
         const params = [];
         while (j < tokens.length && String(tokens[j]).startsWith(":")) {
           params.push(String(tokens[j]).slice(1).toUpperCase());
           j++;
         }
-        const bodyTokens = [];
-        while (j < tokens.length && tokens[j] !== "END") { bodyTokens.push(tokens[j]); j++; }
-        if (j >= tokens.length) throw new Error("TO " + name + " is missing END");
-        const inner = parseBlock(bodyTokens, 0, arities);
-        block.push({ op:"PROCDEF", name: String(name).toUpperCase(), params, body: inner.block });
+        const bodyStart = j;
+        while (j < tokens.length && tokens[j] !== "END") j++;
+        if (j >= tokens.length) throw parseError("TO " + name + " is missing END", tokens, i);
+        const inner = parseBlock(sliceTokens(tokens, bodyStart, j), 0, arities);
+        put({ op:"PROCDEF", name: String(name).toUpperCase(), params, body: inner.block }, at);
         i = j + 1;
         continue;
       }
@@ -358,99 +675,157 @@
       // REPEAT/RPT n [ ... ]
       if (tok === "REPEAT" || tok === "RPT"){
         const countTok = tokens[i+1];
-        if (countTok == null) throw new Error(tok + " needs a count");
-        if (tokens[i+2] !== "[") throw new Error(tok + " must be followed by [ ... ]");
+        if (countTok == null) throw parseError(tok + " needs a count", tokens, i);
+        if (tokens[i+2] !== "[") throw parseError(tok + " must be followed by [ ... ]", tokens, i);
         const inner = parseBlock(tokens, i+3, arities);
-        block.push({ op:"REPEAT", count: countTok, body: inner.block });
+        put({ op:"REPEAT", count: countTok, body: inner.block }, at);
         i = inner.next;
         continue;
       }
 
-      // IF <cond...> [ ... ] (ELSE [ ... ])?
-      if (tok === "IF"){
+      // FOR var from to [ ... ]   (counts up or down by 1, both ends included)
+      if (tok === "FOR" && !shadowed){
+        const name = tokens[i+1], a = tokens[i+2], b = tokens[i+3];
+        if (name == null || a == null || b == null || tokens[i+4] !== "[")
+          throw parseError("FOR looks like:  FOR I 1 10 [ ... ]", tokens, i);
+        const inner = parseBlock(tokens, i+5, arities);
+        put({ op:"FOR", name: String(name).replace(/^[:"]/, "").toUpperCase(), from: a, to: b, body: inner.block }, at);
+        i = inner.next;
+        continue;
+      }
+
+      // IF <cond...> [ ... ] (ELSE [ ... ])?      WHILE <cond...> [ ... ]
+      if (tok === "IF" || (tok === "WHILE" && !shadowed)){
         let j = i+1;
         const cond = [];
         while (j < tokens.length && tokens[j] !== "[") { cond.push(tokens[j]); j++; }
-        if (tokens[j] !== "[") throw new Error("IF missing [ ... ]");
+        if (tokens[j] !== "[") throw parseError(tok + " missing [ ... ]", tokens, i);
         const thenInner = parseBlock(tokens, j+1, arities);
         let k = thenInner.next;
+        if (tok === "WHILE"){
+          put({ op:"WHILE", cond, body: thenInner.block }, at);
+          i = k;
+          continue;
+        }
         let elseBody = null;
         if (tokens[k] === "ELSE"){
-          if (tokens[k+1] !== "[") throw new Error("ELSE must be followed by [ ... ]");
+          if (tokens[k+1] !== "[") throw parseError("ELSE must be followed by [ ... ]", tokens, k);
           const elseInner = parseBlock(tokens, k+2, arities);
           elseBody = elseInner.block;
           k = elseInner.next;
         }
-        block.push({ op:"IF", cond, thenBody: thenInner.block, elseBody });
+        put({ op:"IF", cond, thenBody: thenInner.block, elseBody }, at);
         i = k;
         continue;
       }
 
-      // SC value  OR  SC [r g b]
-      if (tok === "SC" || tok === "SETCOLOR"){
+      // SC value  OR  SC [r g b]     (COLOR / SETPC are the same thing; BG sets the background)
+      if (tok === "SC" || tok === "SETCOLOR" || (!shadowed && (tok === "COLOR" || tok === "SETPC" || tok === "BG"))){
+        const op = tok === "BG" ? "BG" : "SC";
         const n1 = tokens[i+1];
-        if (n1 == null) throw new Error("SC needs an argument");
+        if (n1 == null) throw parseError(tok + " needs a color", tokens, i);
 
         if (n1 === "["){
           const lst = parseList(tokens, i+1);
-          block.push({ op:"SC", value: lst.items });
+          put({ op, value: lst.items }, at);
           i = lst.next;
           continue;
         }
         const pv = parseValueToken(tokens, i+1);
-        block.push({ op:"SC", value: pv.value });
+        put({ op, value: pv.value }, at);
         i = pv.next;
         continue;
       }
 
-      // MAKE A=...  or MAKE A ...
+      // MAKE A=...  or MAKE A ...   (also accepted: MAKE A = ...,  MAKE "A ...)
       if (tok === "MAKE"){
-        const a1 = tokens[i+1];
-        if (!a1) throw new Error("MAKE needs a variable");
-        if (String(a1).includes("=")){
-          block.push({ op:"MAKE", a1 });
+        let a1 = tokens[i+1];
+        if (!a1) throw parseError("MAKE needs a variable", tokens, i);
+        a1 = String(a1).replace(/^[":]/, "");
+        const eq = a1.indexOf("=");
+        if (eq >= 0 && eq < a1.length-1){
+          put({ op:"MAKE", a1 }, at);
           i += 2;
           continue;
         }
-        const pv = parseValueToken(tokens, i+2);
-        if (pv.value == null) throw new Error("MAKE " + a1 + " needs a value");
-        block.push({ op:"MAKE", a1, a2: pv.value });
+        let vi = i+2;
+        if (eq >= 0) a1 = a1.slice(0, eq);                    // "A=" then the value
+        else if (tokens[vi] === "=") vi++;                     // "A" "=" value
+        let pv;
+        if (tokens[vi] != null && /^=./.test(tokens[vi])) pv = { value: tokens[vi].slice(1), next: vi+1 }; // "A" "=5"
+        else pv = parseValueToken(tokens, vi);
+        if (pv.value == null) throw parseError("MAKE " + a1 + " needs a value", tokens, i);
+        put({ op:"MAKE", a1, a2: pv.value }, at);
         i = pv.next;
         continue;
       }
 
       // no-arg ops
-      if (["PU","PD","HOME","CENTER","CS","CLEAR","STOP"].includes(tok)){
-        block.push({ op: tok });
+      if (["PU","PD","HOME","CENTER","CS","CLEAR","STOP"].includes(tok) ||
+          (!shadowed && ["HT","ST","REST"].includes(tok))){
+        put({ op: tok }, at);
         i += 1;
         continue;
       }
 
       // SHEETS / NONSHEETS (plane mode on / off) — aliases accepted
-      if (["SHEETS","SHEET"].includes(tok)){ block.push({ op:"SHEETS" }); i += 1; continue; }
+      if (["SHEETS","SHEET"].includes(tok)){ put({ op:"SHEETS" }, at); i += 1; continue; }
       if (["NONSHEETS","NONSHEET","NOSHEETS","NOSHEET"].includes(tok)){
-        block.push({ op:"NONSHEETS" });
+        put({ op:"NONSHEETS" }, at);
         i += 1;
+        continue;
+      }
+
+      // PRINT / LABEL: a [ list of words ] (kept as typed) or a single value
+      if (!shadowed && (tok === "PRINT" || tok === "LABEL")){
+        if (tokens[i+1] === "["){
+          const R = tokens.raws || tokens;
+          let depth = 1, j = i+2;
+          const words = [];
+          while (j < tokens.length && depth > 0){
+            if (tokens[j] === "[") depth++;
+            else if (tokens[j] === "]"){ depth--; if (!depth) break; }
+            words.push(R[j]);
+            j++;
+          }
+          if (depth) throw parseError("This [ is never closed with a ]", tokens, i+1);
+          put({ op: tok, words }, at);
+          i = j + 1;
+          continue;
+        }
+        const pv = parseValueToken(tokens, i+1);
+        if (pv.value == null) throw parseError(tok + " needs something to show", tokens, i);
+        put({ op: tok, arg: pv.value, raw: (tokens.raws || tokens)[i+1] }, at);
+        i = pv.next;
+        continue;
+      }
+
+      // SLIDER name min max start
+      if (tok === "SLIDER" && !shadowed){
+        const name = tokens[i+1], mn = tokens[i+2], mx = tokens[i+3], st = tokens[i+4];
+        if (name == null || mn == null || mx == null || st == null)
+          throw parseError("SLIDER looks like:  SLIDER SIZE 10 200 80   (name, smallest, biggest, start)", tokens, i);
+        put({ op:"SLIDER", name: String(name).replace(/^[:"]/, "").toUpperCase(), min: mn, max: mx, start: st }, at);
+        i += 5;
         continue;
       }
 
       // one-arg ops (value token allowed)
       const oneArgOps = ["FD","BK","LT","RT","UP","DN","RL","RR","WIDTH","OMARK","GOTO","PAUSE","SLY","SP","SHEETW"];
-      if (oneArgOps.includes(tok)){
+      const newOneArgOps = ["BALL","HUE","SYMMETRY","GLOW","GRID","NOTE","TEMPO"];
+      if (oneArgOps.includes(tok) || (!shadowed && newOneArgOps.includes(tok))){
         const pv = parseValueToken(tokens, i+1);
-        if (pv.value == null) throw new Error(tok + " needs an argument");
-        block.push({ op: tok, arg: pv.value });
+        if (pv.value == null || pv.value === "]") throw parseError(tokens[i] + " needs a number after it", tokens, i);
+        put({ op: tok, arg: pv.value }, at);
         i = pv.next;
         continue;
       }
 
       // two-arg arc ops (ARCRIGHT/ARCLEFT/ARCUP/ARCDOWN are long-form aliases)
-      if (["AR","AL","AU","AD","ARCRIGHT","ARCLEFT","ARCUP","ARCDOWN"].includes(tok)){
-        const op = tok === "ARCRIGHT" ? "AR" : tok === "ARCLEFT" ? "AL" :
-                   tok === "ARCUP"    ? "AU" : tok === "ARCDOWN"  ? "AD" : tok;
+      if (["AR","AL","AU","AD"].includes(tok)){
         const a1 = tokens[i+1], a2 = tokens[i+2];
-        if (a1 == null || a2 == null) throw new Error(tok + " needs 2 args (angle radius)");
-        block.push({ op, a1, a2 });
+        if (a1 == null || a2 == null) throw parseError(tokens[i] + " needs 2 args (angle radius)", tokens, i);
+        put({ op: tok, a1, a2 }, at);
         i += 3;
         continue;
       }
@@ -463,11 +838,12 @@
 
       // fallback: procedure call — consume as many tokens as the procedure declares params
       {
-        const callName = String(tok).toUpperCase();
-        const arity = arities[callName] || 0;
+        const callName = String(tokens[i]).toUpperCase();
+        const arity = arities[callName] !== undefined ? arities[callName]
+                    : (procs[callName] && procs[callName].params ? procs[callName].params.length : 0);
         const args = [];
         for (let k = 0; k < arity; k++) args.push(tokens[i + 1 + k]);
-        block.push({ op:"CALL", name: callName, args });
+        put({ op:"CALL", name: callName, args }, at);
         i += 1 + arity;
       }
     }
@@ -491,85 +867,125 @@
   }
 
   // ---------- Numeric expression evaluator ----------
+  // Supports + - * / % ^, parentheses, variables, and functions (angles in degrees):
+  //   SIN COS TAN ASIN ACOS ATAN SQRT ABS INT ROUND FLOOR CEIL SIGN MIN MAX MOD POW RANDOM
+  // plus the built-in values PI, TIME, FRAME and REPCOUNT.
+  // Each distinct expression is compiled once and cached (animated programs re-run every frame).
+  const FUNCS = {
+    SIN:(a)=>Math.sin(a*DEG), COS:(a)=>Math.cos(a*DEG), TAN:(a)=>Math.tan(a*DEG),
+    ASIN:(a)=>Math.asin(a)/DEG, ACOS:(a)=>Math.acos(a)/DEG,
+    ATAN:(a,b)=> b === undefined ? Math.atan(a)/DEG : Math.atan2(a,b)/DEG,
+    SQRT:(a)=>Math.sqrt(a), ABS:(a)=>Math.abs(a), INT:(a)=>Math.trunc(a), ROUND:(a)=>Math.round(a),
+    FLOOR:(a)=>Math.floor(a), CEIL:(a)=>Math.ceil(a), SIGN:(a)=>Math.sign(a),
+    MIN:(...a)=>Math.min(...a), MAX:(...a)=>Math.max(...a),
+    MOD:(a,b)=>((a % b) + b) % b, POW:(a,b)=>Math.pow(a,b), POWER:(a,b)=>Math.pow(a,b),
+    RANDOM:(a)=>Math.floor(rnd() * (a || 1)), RND:(a)=>Math.floor(rnd() * (a || 1))
+  };
+  function builtinValue(name){
+    switch(name){
+      case "PI": return Math.PI;
+      case "TIME": usesTime = true; return timeNow;
+      case "FRAME": usesTime = true; return frameNow;
+      case "REPCOUNT": return repStack.length ? repStack[repStack.length-1] : 0;
+    }
+    return undefined;
+  }
+  function getVarNumber(name){
+    const v = vars[name];
+    if (v != null){
+      const n = Number(v);
+      if (!Number.isFinite(n)) throw new Error("Variable not numeric: " + name);
+      return n;
+    }
+    const b = builtinValue(name);
+    if (b !== undefined) return b;
+    throw new Error("Unknown variable: " + name + suggestFor(name, Object.keys(vars)));
+  }
+
+  const _exprCache = new Map();
+  function compileExpr(src){
+    const tokens = [];
+    const re = /\s*([A-Z_][A-Z0-9_]*|\d+(?:\.\d+)?|\.\d+|[()+\-*\/^%,])\s*/g;
+    let m;
+    while ((m = re.exec(src)) !== null) tokens.push(m[1]);
+    if (tokens.length === 0) throw new Error("Empty expression");
+    let p = 0;
+    const bad = () => new Error("Bad expression: " + src);
+
+    function parseAdd(){
+      let left = parseMul();
+      while (tokens[p] === "+" || tokens[p] === "-"){
+        const op = tokens[p++], l = left, r = parseMul();
+        left = op === "+" ? () => l() + r() : () => l() - r();
+      }
+      return left;
+    }
+    function parseMul(){
+      let left = parseUnary();
+      while (tokens[p] === "*" || tokens[p] === "/" || tokens[p] === "%"){
+        const op = tokens[p++], l = left, r = parseUnary();
+        left = op === "*" ? () => l() * r() : op === "/" ? () => l() / r() : () => l() % r();
+      }
+      return left;
+    }
+    function parseUnary(){
+      if (tokens[p] === "-"){ p++; const v = parseUnary(); return () => -v(); }
+      if (tokens[p] === "+"){ p++; return parseUnary(); }
+      return parsePow();
+    }
+    function parsePow(){
+      const base = parseAtom();
+      if (tokens[p] === "^"){ p++; const ex = parseUnary(); return () => Math.pow(base(), ex()); }
+      return base;
+    }
+    function parseAtom(){
+      const t = tokens[p];
+      if (t === undefined) throw bad();
+      if (/^\d/.test(t) || /^\.\d/.test(t)){ p++; const n = Number(t); return () => n; }
+      if (t === "("){
+        p++;
+        const v = parseAdd();
+        if (tokens[p] !== ")") throw new Error("Mismatched parentheses in " + src);
+        p++;
+        return v;
+      }
+      if (/^[A-Z_]/.test(t)){
+        p++;
+        if (tokens[p] === "(" && FUNCS[t]){
+          p++;
+          const args = [];
+          if (tokens[p] !== ")"){
+            args.push(parseAdd());
+            while (tokens[p] === ","){ p++; args.push(parseAdd()); }
+          }
+          if (tokens[p] !== ")") throw new Error("Mismatched parentheses in " + src);
+          p++;
+          const fn = FUNCS[t];
+          return () => fn(...args.map(a => a()));
+        }
+        return () => getVarNumber(t);
+      }
+      if (t === ")") throw new Error("Mismatched parentheses in " + src);
+      throw bad();
+    }
+
+    const root = parseAdd();
+    if (p < tokens.length){
+      if (tokens[p] === ")" ) throw new Error("Mismatched parentheses in " + src);
+      throw bad();
+    }
+    return root;
+  }
   function evalExpr(expr){
     // Normalise colon-prefixed variables (:name → name) before lexing.
-    expr = String(expr).trim().toUpperCase().replace(/:[A-Z_][A-Z0-9_]*/g, s => s.slice(1));
-
-    const tokens = [];
-    const re = /\s*([A-Z_][A-Z0-9_]*|\d+(?:\.\d+)?|\.\d+|[()+\-*/])\s*/g;
-    let m;
-    while ((m = re.exec(expr)) !== null) tokens.push(m[1]);
-    if (tokens.length === 0) throw new Error("Empty expression");
-
-    const out = [];
-    const ops = [];
-    const prec = { "u-": 3, "*": 2, "/": 2, "+": 1, "-": 1 };
-    const rightAssoc = { "u-": true };
-    function isOp(t){ return t === "+" || t === "-" || t === "*" || t === "/" || t === "u-"; }
-
-    for (let i=0;i<tokens.length;i++){
-      let t = tokens[i];
-      if (t === "-"){
-        const prev = tokens[i-1];
-        const isUnary = (i === 0) || (prev === "(") || isOp(prev);
-        if (isUnary) t = "u-";
-      }
-
-      if (/^\d/.test(t) || /^\.\d/.test(t)){
-        out.push({type:"num", v: Number(t)});
-      } else if (/^[A-Z_]/.test(t)){
-        out.push({type:"var", v: t});
-      } else if (t === "("){
-        ops.push(t);
-      } else if (t === ")"){
-        while (ops.length && ops[ops.length-1] !== "(") out.push({type:"op", v: ops.pop()});
-        if (!ops.length) throw new Error("Mismatched parentheses");
-        ops.pop();
-      } else if (isOp(t)){
-        while (ops.length){
-          const top = ops[ops.length-1];
-          if (!isOp(top)) break;
-          const pTop = prec[top], pT = prec[t];
-          if (pTop > pT || (pTop === pT && !rightAssoc[t])) out.push({type:"op", v: ops.pop()});
-          else break;
-        }
-        ops.push(t);
-      } else {
-        throw new Error("Bad token in expression: " + t);
-      }
+    const key = String(expr).trim().toUpperCase().replace(/:[A-Z_][A-Z0-9_]*/g, s => s.slice(1));
+    let fn = _exprCache.get(key);
+    if (!fn){
+      fn = compileExpr(key);
+      if (_exprCache.size > 5000) _exprCache.clear();
+      _exprCache.set(key, fn);
     }
-    while (ops.length){
-      const op = ops.pop();
-      if (op === "(" || op === ")") throw new Error("Mismatched parentheses");
-      out.push({type:"op", v: op});
-    }
-
-    const stack = [];
-    for (const item of out){
-      if (item.type === "num") stack.push(item.v);
-      else if (item.type === "var") {
-        if (vars[item.v] == null) throw new Error("Unknown variable: " + item.v);
-        const n = Number(vars[item.v]);
-        if (!Number.isFinite(n)) throw new Error("Variable not numeric: " + item.v);
-        stack.push(n);
-      } else if (item.type === "op") {
-        if (item.v === "u-"){
-          if (stack.length < 1) throw new Error("Bad unary minus");
-          stack.push(-stack.pop());
-        } else {
-          if (stack.length < 2) throw new Error("Bad operator: " + item.v);
-          const b = stack.pop(), a = stack.pop();
-          switch(item.v){
-            case "+": stack.push(a+b); break;
-            case "-": stack.push(a-b); break;
-            case "*": stack.push(a*b); break;
-            case "/": stack.push(a/b); break;
-          }
-        }
-      }
-    }
-    if (stack.length !== 1) throw new Error("Bad expression: " + expr);
-    return stack[0];
+    return fn();
   }
 
   // resolveAny: returns number/string/array
@@ -577,17 +993,18 @@
     if (tok && typeof tok === "object" && !Array.isArray(tok)){
       if (tok.fn === "RANDOM"){
         const mx = resolveNumber(tok.max);
-        return Math.floor(Math.random() * (mx || 1));
+        return Math.floor(rnd() * (mx || 1));
       }
       if (tok.fn === "PICK"){
         const items = tok.items || [];
         if (!items.length) throw new Error("PICK [] is empty");
-        const idx = Math.floor(Math.random() * items.length);
+        const idx = Math.floor(rnd() * items.length);
         return items[idx]; // may be string or nested list
       }
     }
 
     if (Array.isArray(tok)) return tok;
+    if (typeof tok === "number") return tok;
 
     tok = String(tok).trim().toUpperCase();
     if (tok.startsWith(":")) tok = tok.slice(1); // colon-variable: :name → name
@@ -611,35 +1028,63 @@
     return n;
   }
 
-  // Evaluate an IF condition token array.
-  // Handles:  ["CC=1"]  |  [":D=0"]  |  ["CC","GT","5"]  |  ["CT","LT","100"]
+  // Evaluate an IF / WHILE condition token array.
+  // Handles:  CC=1 | :D=0 | CC GT 5 | A > 5 | A<=B | A != 3 | NOT A=1 | A>1 AND B<5 | A=1 OR A=2
+  const _CMP = {
+    GT:(a,b)=>a>b, LT:(a,b)=>a<b, GE:(a,b)=>a>=b, LE:(a,b)=>a<=b,
+    EQ:(a,b)=>a===b, NE:(a,b)=>a!==b, NEQ:(a,b)=>a!==b,
+    ">":(a,b)=>a>b, "<":(a,b)=>a<b, ">=":(a,b)=>a>=b, "<=":(a,b)=>a<=b,
+    "=":(a,b)=>a===b, "==":(a,b)=>a===b, "!=":(a,b)=>a!==b, "<>":(a,b)=>a!==b
+  };
+  function evalClause(toks){
+    let neg = false;
+    while (toks.length && toks[0] === "NOT"){ neg = !neg; toks = toks.slice(1); }
+    let res;
+    if (!toks.length) res = false;
+    else {
+      const wi = toks.findIndex((t, k) => k > 0 && k < toks.length-1 && /^(GT|LT|GE|LE|EQ|NE|NEQ)$/.test(t));
+      if (wi > 0){
+        try { res = _CMP[toks[wi]](resolveNumber(toks.slice(0, wi).join("")), resolveNumber(toks.slice(wi+1).join(""))); }
+        catch(e){ res = false; }
+      } else {
+        const joined = toks.join("");
+        const m = /^(.+?)(>=|<=|<>|!=|==|=|>|<)(.+)$/.exec(joined);
+        if (m){
+          try { res = _CMP[m[2]](resolveNumber(m[1]), resolveNumber(m[3])); }
+          catch(e){ res = false; }
+        } else if (toks.length === 1){
+          try { res = resolveNumber(toks[0]) !== 0; } catch(e){ res = false; }
+        } else res = true; // unrecognised form — default truthy (preserves old behaviour)
+      }
+    }
+    return neg ? !res : res;
+  }
   function evalCondition(cond){
     if (!cond || cond.length === 0) return false;
-
-    // Three-token form: EXPR  OP  EXPR  (e.g. "CC GT 5" or ":N LT 1" or "CC = 1")
-    if (cond.length >= 3){
-      const op = String(cond[1]).toUpperCase();
-      const cmp = { GT:(a,b)=>a>b, LT:(a,b)=>a<b, GE:(a,b)=>a>=b, LE:(a,b)=>a<=b,
-                    "=":(a,b)=>a===b, EQ:(a,b)=>a===b, NE:(a,b)=>a!==b, NEQ:(a,b)=>a!==b };
-      if (cmp[op]){
-        try { return cmp[op](resolveNumber(cond[0]), resolveNumber(cond[2])); }
-        catch(e){ return false; }
-      }
-    }
-
-    // Single token with embedded "=": "CC=1"  or  ":D=0"
-    if (cond.length === 1){
-      const tok = String(cond[0]);
-      const eq = tok.indexOf("=");
-      if (eq > 0){
-        try { return resolveNumber(tok.slice(0, eq)) === resolveNumber(tok.slice(eq + 1)); }
-        catch(e){ return false; }
-      }
-      try { return resolveNumber(tok) !== 0; } catch(e){ return false; }
-    }
-
-    return true; // unrecognised form — default truthy (preserves old behaviour)
+    const toks = cond.map(t => String(t).toUpperCase());
+    const split = (arr, word) => {
+      const out = [[]];
+      for (const t of arr){ if (t === word) out.push([]); else out[out.length-1].push(t); }
+      return out;
+    };
+    return split(toks, "OR").some(group => split(group, "AND").every(evalClause));
   }
+
+  function hueToRgb(h){
+    h = ((h % 360) + 360) % 360;
+    const c = 1, x = 1 - Math.abs((h / 60) % 2 - 1);
+    let r = 0, g = 0, b = 0;
+    if (h < 60){ r = c; g = x; } else if (h < 120){ r = x; g = c; } else if (h < 180){ g = c; b = x; }
+    else if (h < 240){ g = x; b = c; } else if (h < 300){ r = x; b = c; } else { r = c; b = x; }
+    return `rgb(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)})`;
+  }
+
+  const NAMED_COLORS = {
+    WHITE:"#ffffff", BLACK:"#000000",
+    RED:"#ff3b30", ORANGE:"#ff9f0a", YELLOW:"#ffd60a",
+    GREEN:"#34c759", BLUE:"#0a84ff", PURPLE:"#bf5af2",
+    MAGENTA:"#ff2d55", CYAN:"#64d2ff", PINK:"#ff2d55", GRAY:"#8e8e93"
+  };
 
   // IMPORTANT: handle RC and named colors WITHOUT numeric eval
   function colorFromValue(val){
@@ -660,21 +1105,16 @@
     const up = tok.toUpperCase();
 
     if (up === "RC"){
-      const rr = Math.floor(Math.random()*256);
-      const gg = Math.floor(Math.random()*256);
-      const bb = Math.floor(Math.random()*256);
+      const rr = Math.floor(rnd()*256);
+      const gg = Math.floor(rnd()*256);
+      const bb = Math.floor(rnd()*256);
       return `rgb(${rr},${gg},${bb})`;
     }
 
     if (/^#[0-9A-F]{3,8}$/i.test(tok)) return tok;
+    if (/^rgb\(/i.test(tok)) return tok;
 
-    const named = {
-      WHITE:"#ffffff", BLACK:"#000000",
-      RED:"#ff3b30", ORANGE:"#ff9f0a", YELLOW:"#ffd60a",
-      GREEN:"#34c759", BLUE:"#0a84ff", PURPLE:"#bf5af2",
-      MAGENTA:"#ff2d55", CYAN:"#64d2ff", PINK:"#ff2d55", GRAY:"#8e8e93"
-    };
-    if (named[up]) return named[up];
+    if (NAMED_COLORS[up]) return NAMED_COLORS[up];
 
     // Variable holding a color (string or list)
     if (/^[A-Z_][A-Z0-9_]*$/.test(up) && vars[up] != null){
@@ -683,6 +1123,61 @@
 
     // raw CSS fallback
     return tok;
+  }
+
+  // "Did you mean …?" helper for typos.
+  function editDistance(a, b){
+    const m = a.length, n = b.length;
+    if (Math.abs(m - n) > 2) return 9;
+    let prev = Array.from({ length: n+1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++){
+      const cur = [i];
+      for (let j = 1; j <= n; j++)
+        cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[n];
+  }
+  function suggestFor(word, candidates){
+    word = String(word).toUpperCase();
+    let best = null, bestD = 3;
+    for (const c of candidates){
+      if (c === word) continue;
+      const d = editDistance(word, c);
+      const limit = Math.min(2, Math.max(1, Math.floor(Math.max(word.length, c.length) / 3)));
+      if (d <= limit && d < bestD){ best = c; bestD = d; }
+    }
+    return best ? "  — did you mean " + best + "?" : "";
+  }
+
+  // NOTE values: a MIDI number (60 = middle C) or a note name like C4, F#4, BB3.
+  function noteToFreq(tok){
+    let midi = null;
+    const s = String(tok).toUpperCase();
+    const m = /^([A-G])([#B]?)(-?\d)$/.exec(s);
+    if (m && vars[s] == null){
+      const base = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 }[m[1]];
+      midi = base + (m[2] === "#" ? 1 : m[2] === "B" ? -1 : 0) + (Number(m[3]) + 1) * 12;
+    } else midi = resolveNumber(tok);
+    midi = clamp(midi, 0, 127);
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
+  function fmtNumber(n){ return String(+Number(n).toFixed(4)); }
+  function textFromIns(ins){
+    if (ins.words){
+      return ins.words.map(w => {
+        if (/^:[A-Za-z_]/.test(w)){
+          const v = vars[w.slice(1).toUpperCase()];
+          if (v != null) return typeof v === "number" ? fmtNumber(v) : String(v);
+        }
+        return w;
+      }).join(" ");
+    }
+    try {
+      const v = resolveAny(ins.arg);
+      return typeof v === "number" ? fmtNumber(v) : String(v);
+    } catch(e){ return String(ins.raw != null ? ins.raw : ins.arg); }
   }
 
   // ---------- SP helper: closest ray-segment ----------
@@ -731,6 +1226,7 @@
   function execBlock(block, safety){
     for (const ins of block){
       if (--safety.stepsLeft <= 0) throw new Error("Stopped: too many steps (infinite loop?)");
+      curLine = ins.line;
 
       switch(ins.op){
         case "PROCDEF":
@@ -739,20 +1235,26 @@
 
         case "CALL": {
           const procDef = procs[ins.name];
-          if (!procDef) throw new Error("Unknown procedure: " + ins.name);
+          if (!procDef) throw new Error("Unknown procedure: " + ins.name +
+            suggestFor(ins.name, KNOWN_COMMANDS.concat(Object.keys(procs))));
           // Support both new {body,params} format and legacy plain-array format.
           const body   = Array.isArray(procDef) ? procDef : procDef.body;
           const params = Array.isArray(procDef) ? []      : (procDef.params || []);
           const callArgs = ins.args || [];
           // Bind colon-params as local variables, saving any shadowed globals.
+          // (All arguments are worked out first, so "t :b :a" swaps correctly.)
+          const vals = params.map((p, k) => k < callArgs.length && callArgs[k] !== undefined ? resolveAny(callArgs[k]) : undefined);
           const saved = {};
           for (let k = 0; k < params.length; k++){
             saved[params[k]] = vars[params[k]];
-            vars[params[k]] = k < callArgs.length ? resolveAny(callArgs[k]) : undefined;
+            vars[params[k]] = vals[k];
           }
+          if ((safety.depth = (safety.depth || 0) + 1) > 20000)
+            throw new Error("Stopped: " + ins.name + " keeps calling itself (add an IF ... [STOP])");
           try { execBlock(body, safety); }
           catch(e){ if (e !== _STOP) throw e; } // STOP = normal procedure exit
           finally {
+            safety.depth--;
             for (const p of params){
               if (saved[p] === undefined) delete vars[p]; else vars[p] = saved[p];
             }
@@ -767,6 +1269,24 @@
           const ok = evalCondition(ins.cond);
           if (ok) execBlock(ins.thenBody, safety);
           else if (ins.elseBody) execBlock(ins.elseBody, safety);
+          break;
+        }
+
+        case "WHILE":
+          while (evalCondition(ins.cond)){
+            if (--safety.stepsLeft <= 0) throw new Error("Stopped: too many steps (infinite loop?)");
+            execBlock(ins.body, safety);
+          }
+          break;
+
+        case "FOR": {
+          const a = resolveNumber(ins.from), b = resolveNumber(ins.to);
+          const dir = b >= a ? 1 : -1;
+          for (let v = a; dir > 0 ? v <= b + 1e-9 : v >= b - 1e-9; v += dir){
+            if (--safety.stepsLeft <= 0) throw new Error("Stopped: too many steps (infinite loop?)");
+            vars[ins.name] = v;
+            execBlock(ins.body, safety);
+          }
           break;
         }
 
@@ -789,9 +1309,66 @@
           turtle.penDown = true;
           break;
 
+        case "HT": scene.showTurtle = false; break;
+        case "ST": scene.showTurtle = true; break;
+
         case "SC":
           turtle.color = colorFromValue(ins.value);
           break;
+
+        case "BG":
+          scene.bg = colorFromValue(ins.value);
+          break;
+
+        case "HUE":
+          turtle.color = hueToRgb(resolveNumber(ins.arg));
+          break;
+
+        case "GLOW": scene.glow = resolveNumber(ins.arg) !== 0; break;
+        case "GRID": scene.grid = resolveNumber(ins.arg) !== 0; break;
+
+        case "SYMMETRY":
+          symN = clamp(Math.round(resolveNumber(ins.arg)), 1, 64);
+          break;
+
+        case "BALL": {
+          const r = resolveNumber(ins.arg);
+          if (r > 0) pushSeg({ a: turtle.pos, b: turtle.pos, color: turtle.color, width: turtle.width, isSnapSpoke:false, ball: r });
+          break;
+        }
+
+        case "LABEL":
+          pushSeg({ a: turtle.pos, b: turtle.pos, color: turtle.color, width: turtle.width, isSnapSpoke:false, label: textFromIns(ins) });
+          break;
+
+        case "PRINT":
+          if (events.length < 5000) events.push({ step: stepCounter, type:"print", text: textFromIns(ins) });
+          break;
+
+        case "TEMPO":
+          tempoBpm = clamp(resolveNumber(ins.arg), 20, 960);
+          break;
+
+        case "NOTE":
+          if (events.length < 5000) events.push({ step: stepCounter, type:"note", freq: noteToFreq(ins.arg), dur: 60 / tempoBpm });
+          break;
+
+        case "REST":
+          if (events.length < 5000) events.push({ step: stepCounter, type:"rest", dur: 60 / tempoBpm });
+          break;
+
+        case "SLIDER": {
+          const mn = resolveNumber(ins.min), mx = resolveNumber(ins.max);
+          const lo = Math.min(mn, mx), hi = Math.max(mn, mx);
+          let st = sliderState.get(ins.name);
+          if (!st || st.min !== lo || st.max !== hi){
+            st = { min: lo, max: hi, value: clamp(resolveNumber(ins.start), lo, hi) };
+            sliderState.set(ins.name, st);
+          }
+          if (!sliderSeen.includes(ins.name)) sliderSeen.push(ins.name);
+          vars[ins.name] = st.value;
+          break;
+        }
 
         case "SHEETS":
           turtle.sheets = true;
@@ -816,14 +1393,17 @@
 
         case "MAKE": {
           const a1 = String(ins.a1).toUpperCase();
+          let name, rhs;
           if (a1.includes("=")){
-            const [name, rhs] = a1.split("=");
-            if (!name || rhs == null) throw new Error("Bad MAKE syntax: " + a1);
-            vars[name.toUpperCase()] = resolveAny(rhs);
+            const eq = a1.indexOf("=");
+            name = a1.slice(0, eq); rhs = a1.slice(eq + 1);
+            if (!name || rhs === "") throw new Error("Bad MAKE syntax: " + a1);
           } else {
-            const name = a1.toUpperCase();
-            vars[name] = resolveAny(ins.a2);
+            name = a1; rhs = ins.a2;
           }
+          // a color word can be stored in a variable:  make c red   ...   sc c
+          if (typeof rhs === "string" && (NAMED_COLORS[rhs] || rhs === "RC") && vars[rhs] == null) vars[name] = rhs;
+          else vars[name] = resolveAny(rhs);
           break;
         }
 
@@ -836,7 +1416,7 @@
         case "GOTO": {
           const key = String(ins.arg).toUpperCase();
           const m = marks[key];
-          if (!m) throw new Error("No mark named: " + key);
+          if (!m) throw new Error("No mark named: " + key + suggestFor(key, Object.keys(marks)));
           turtle = cloneTurtle(m);
           break;
         }
@@ -954,7 +1534,10 @@
         case "REPEAT": {
           const n = Math.floor(resolveNumber(ins.count));
           if (!Number.isFinite(n) || n < 0) throw new Error("REPEAT count must be >= 0");
-          for (let k=0;k<n;k++) execBlock(ins.body, safety);
+          repStack.push(0);
+          try {
+            for (let k=0;k<n;k++){ repStack[repStack.length-1] = k+1; execBlock(ins.body, safety); }
+          } finally { repStack.pop(); }
           break;
         }
 
@@ -968,13 +1551,64 @@
     }
   }
 
-  function runProgram(){
+  // ---------- Running programs ----------
+  let srcLines = [];
+  let lastRunMs = 0;
+  const play = { active:false, paused:false, pos:0, total:0, acc:0, evIdx:0 };   // Watch playback
+  const anim = { active:false, ast:null, t0:0, frame:0 };                        // TIME animation
+
+  function wipe(obj){ for (const k in obj) delete obj[k]; }
+  function resetWorld(){
+    clearSegments();
+    turtle = makeTurtle();
+    wipe(vars); wipe(marks); wipe(procs);
+  }
+
+  // Parse + execute. Returns null on success or the Error (with .line set) on failure.
+  function execSource(src, ast){
+    symN = 1; scene = defaultScene(); repStack.length = 0; curLine = 0; tempoBpm = 120;
+    sliderSeen = []; events = []; _rs = _seed;
+    try { execBlock(ast || parseProgram(src), { stepsLeft: 800000 }); }
+    catch(e){
+      if (e === _STOP) return null;           // top-level STOP ends the program normally
+      const err = e instanceof Error ? e : new Error(String(e));
+      if (e instanceof RangeError && /call stack/i.test(e.message || ""))
+        err.message = "Stopped: a procedure keeps calling itself (add an IF ... [STOP])";
+      if (err.line == null && curLine) err.line = curLine;
+      return err;
+    }
+    return null;
+  }
+  function formatError(e){
+    return (e.line ? "Line " + e.line + ": " : "") + (e.message || String(e));
+  }
+
+  // opts: fresh (start from an empty world), watch (play it back step by step),
+  //       quiet (typing/slider re-run: no sound, softer errors), keepSeed (same random numbers)
+  function runProgram(opts = {}){
+    stopPlay(); stopAnim();
     const src = $("code")?.value ?? "";
-    const ast = parseProgram(src);
-    try { execBlock(ast, { stepsLeft: 800000 }); }
-    catch(e){ if (e !== _STOP) throw e; } // top-level STOP ends the program normally
+    srcLines = src.split("\n");
+    if (opts.fresh) resetWorld();
+    if (!opts.keepSeed) newSeed();
+    usesTime = false; timeNow = 0; frameNow = 0;
+    const t0 = nowMs();
+    const err = execSource(src);
+    lastRunMs = nowMs() - t0;
+    syncSliders();
+    if (err){
+      flushEvents(false);
+      draw();
+      setStatus((opts.quiet ? "Hmm… " : "Error: ") + formatError(err));
+      return false;
+    }
+    if (opts.watch && stepCounter > 0){ startPlay(false); return true; }
+    flushEvents(!opts.quiet);
+    if (usesTime) startAnim(src);
     draw();
-    setStatus("OK ✅  Segments: " + segments.length);
+    setStatus("OK ✅  Segments: " + segments.length + (anim.active ? "   ▶ animating (uses TIME) — Clear stops it" : ""));
+    checkQuest();
+    return true;
   }
 
   // ---------- Export OBJ + MTL (tubes, width-based) ----------
@@ -1037,7 +1671,7 @@
     const len = (a)=>Math.hypot(a.x,a.y,a.z);
     const norm2 = (a)=>{ const L=len(a)||1; return V(a.x/L,a.y/L,a.z/L); };
 
-    const drawSegs = segments.filter(s => !s.isSnapSpoke);
+    const drawSegs = segments.filter(s => !s.isSnapSpoke && s.label == null);
     // Strip UVs: walk sheets in drawing order; a sheet continues the current run when it
     // starts where the previous one ended with the same sideways vector (FD + UP/DN chains).
     // v runs 0..1 along the whole run, u 0..1 across the sheet width.
@@ -1089,7 +1723,7 @@
     const bb = { minX:Infinity, minY:Infinity, minZ:Infinity, maxX:-Infinity, maxY:-Infinity, maxZ:-Infinity };
     let maxR = 0;
     for (const s of drawSegs){
-      const r = s.sheet ? 0 : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius);
+      const r = s.sheet ? 0 : s.ball ? s.ball : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius);
       if (r > maxR) maxR = r;
       for (const p of segmentPoints(s)){
         if (p.x < bb.minX) bb.minX = p.x; if (p.x > bb.maxX) bb.maxX = p.x;
@@ -1197,6 +1831,14 @@
       }
     }
 
+    // BALL → low-poly sphere
+    function addSphereMesh(c, r){
+      for (const t of sphereTris(c, r)){
+        const i = addVertex(t[0]), j = addVertex(t[1]), k = addVertex(t[2]);
+        addFace(i, j, k);
+      }
+    }
+
     // SHEETS rectangle → double-sided flat quad. Front and back use SEPARATE vertices so
     // Unity computes proper normals for each side (shared vertices would cancel to zero).
     // Per-sheet UVs: u across the sheet's width, v along the turtle path (a→b);
@@ -1220,6 +1862,7 @@
     for (const [color, segs] of groups){
       if (writeMtl) emit(`\nusemtl ${colorToMtlName.get(color)}\n`);
       for (const s of segs){
+        if (s.ball){ addSphereMesh(s.a, s.ball); continue; }
         if (s.sheet){ addSheetQuad(s); continue; }
         const w = Number(s.width ?? 1);
         const r = Math.max(minRadius, w * widthToRadius);
@@ -1243,9 +1886,9 @@
     const minRadius = opts.minRadius ?? 0.25, widthToRadius = opts.widthToRadius ?? 0.35;
     let minX=Infinity,minY=Infinity,minZ=Infinity,maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity,maxR=0,n=0;
     for (const s of segments){
-      if (s.isSnapSpoke) continue;
+      if (s.isSnapSpoke || s.label != null) continue;
       n++;
-      const r = s.sheet ? 0 : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius); if (r>maxR) maxR=r;
+      const r = s.sheet ? 0 : s.ball ? s.ball : Math.max(minRadius, Number(s.width ?? 1) * widthToRadius); if (r>maxR) maxR=r;
       for (const p of segmentPoints(s)){
         if (p.x<minX)minX=p.x; if (p.x>maxX)maxX=p.x; if (p.y<minY)minY=p.y; if (p.y>maxY)maxY=p.y; if (p.z<minZ)minZ=p.z; if (p.z>maxZ)maxZ=p.z;
       }
@@ -1293,11 +1936,11 @@
     const mtlFilename = opts.mtlFilename ?? "logo3d_dots.mtl";
 
     const prim = _DOT_SHAPES[shape] ?? _DOT_SHAPES.tetra;
-    const drawSegs = segs.filter(s => !s.isSnapSpoke);
+    const drawSegs = segs.filter(s => !s.isSnapSpoke && s.label == null);
 
     const groups = new Map();
     for (const s of drawSegs){
-      const key = singleMaterial ? "#ffffff" : String(s.color || "#ffffff");
+      const key = String(s.color || "#ffffff");
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(s);
     }
@@ -1429,7 +2072,7 @@
     const lenV = (a)=>Math.hypot(a.x,a.y,a.z);
     const norm2 = (a)=>{ const L=lenV(a)||1; return V(a.x/L,a.y/L,a.z/L); };
 
-    const drawSegs = segs.filter(s => !s.isSnapSpoke);
+    const drawSegs = segs.filter(s => !s.isSnapSpoke && s.label == null);
     let out = "solid logo3d\n";
 
     function addTri(a, b, c){
@@ -1492,6 +2135,7 @@
     for (const s of drawSegs){
       const w = Number(s.width ?? 1);
       const r = Math.max(minRadius, (Number.isFinite(w) ? w : 1) * widthToRadius);
+      if (s.ball){ for (const t of sphereTris(s.a, s.ball)) addTri(t[0], t[1], t[2]); continue; }
       if (s.sheet){ addSlab(s, r); continue; }
       addCylinder(s.a, s.b, r, sides, capEnds);
     }
@@ -1500,13 +2144,495 @@
     return out;
   }
 
+  // ---------- Console (PRINT output) ----------
+  let consoleLines = [];
+  function renderConsole(){
+    const el = $("console");
+    if (!el) return;
+    if (consoleLines.length > 300) consoleLines = consoleLines.slice(-300);
+    el.textContent = consoleLines.join("\n");
+    el.style.display = consoleLines.length ? "block" : "none";
+    el.scrollTop = el.scrollHeight;
+  }
+
+  // ---------- Sound (NOTE / REST / TEMPO) — plain Web Audio, no files ----------
+  let actx = null;
+  let liveOscs = [];
+  function audio(){
+    if (actx) return actx;
+    try { const AC = window.AudioContext || window.webkitAudioContext; if (AC) actx = new AC(); } catch(e){ /* no sound */ }
+    return actx;
+  }
+  function tone(freq, when, dur){
+    const ac = audio();
+    if (!ac) return;
+    try {
+      if (ac.state === "suspended" && ac.resume) ac.resume();
+      const t = Math.max(ac.currentTime, when || 0);
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "triangle"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.18, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.06, dur * 0.95));
+      o.connect(g); g.connect(ac.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+      liveOscs.push(o);
+      if (liveOscs.length > 800) liveOscs = liveOscs.slice(-400);
+    } catch(e){ /* ignore audio errors */ }
+  }
+  function stopTune(){
+    for (const o of liveOscs){ try { o.stop(); } catch(e){ /* already stopped */ } }
+    liveOscs = [];
+  }
+
+  // After an instant run: show every PRINT, and (if sound is wanted) play the NOTEs as a tune.
+  function flushEvents(sound){
+    stopTune();
+    consoleLines = [];
+    const ac = sound && events.some(e => e.type === "note") ? audio() : null;
+    const base = ac ? ac.currentTime + 0.05 : 0;
+    let t = 0, notes = 0;
+    for (const e of events){
+      if (e.type === "print") consoleLines.push(e.text);
+      else if (e.type === "note"){ if (ac && notes++ < 600) tone(e.freq, base + t, e.dur); t += e.dur; }
+      else if (e.type === "rest") t += e.dur;
+    }
+    renderConsole();
+  }
+
+  // ---------- One animation loop for Watch playback, TIME animation, Spin and confetti ----------
+  let spinOn = false;
+  let loopOn = false, lastTs = 0;
+  function needLoop(){ return (play.active && !play.paused) || anim.active || spinOn || confetti.length > 0; }
+  function kick(){
+    if (!loopOn && needLoop()){ loopOn = true; lastTs = 0; requestAnimationFrame(tick); }
+  }
+  function tick(ts){
+    const dt = lastTs ? Math.min(0.1, (ts - lastTs) / 1000) : 0.016;
+    lastTs = ts;
+    if (spinOn && pointers.size === 0 && !_momentumLive) cam.yaw += dt * 0.35;
+    if (play.active && !play.paused) advancePlay(dt);
+    if (anim.active) animFrame(ts);
+    updateConfetti(dt);
+    draw();
+    if (needLoop()) requestAnimationFrame(tick); else loopOn = false;
+  }
+
+  // ---------- Watch: replay the drawing one step at a time ----------
+  function setHud(text){ const el = $("hud"); if (el){ el.textContent = text || ""; el.style.display = text ? "block" : "none"; } }
+  function updateWatchBtn(){
+    const b = $("watchBtn");
+    if (b) b.textContent = !play.active ? "👁 Watch" : play.paused ? "▶ Resume" : "⏸ Pause";
+  }
+  function speedRate(){
+    const v = parseFloat($("speedInput")?.value);
+    return 2 * Math.pow(10, (Number.isFinite(v) ? v : 45) / 25);   // 2 … 20,000 steps per second
+  }
+  function startPlay(paused){
+    play.active = true; play.paused = !!paused;
+    play.pos = 0; play.total = stepCounter; play.acc = 0; play.evIdx = 0;
+    consoleLines = []; renderConsole(); stopTune();
+    updateWatchBtn();
+    setPlayPos(paused ? 1 : 0);
+    kick(); draw();
+  }
+  function setPlayPos(p){
+    play.pos = Math.min(play.total, p);
+    let notes = 0, dirty = false;
+    while (play.evIdx < events.length && events[play.evIdx].step <= play.pos){
+      const e = events[play.evIdx++];
+      if (e.type === "print"){ consoleLines.push(e.text); dirty = true; }
+      else if (e.type === "note" && notes++ < 3) tone(e.freq, 0, e.dur);
+    }
+    if (dirty) renderConsole();
+    const i = countUpToStep(play.pos) - 1;
+    const ln = i >= 0 ? segments[i].line : 0;
+    setHud("step " + play.pos + " / " + play.total + (ln ? "   ·   line " + ln + ":  " + String(srcLines[ln-1] || "").trim().slice(0, 70) : ""));
+    if (play.pos >= play.total) finishPlay();
+  }
+  function advancePlay(dt){
+    const rate = Math.max(speedRate(), play.total / 45);   // never longer than ~45 s
+    play.acc += rate * dt;
+    const n = Math.floor(play.acc);
+    if (n > 0){ play.acc -= n; setPlayPos(play.pos + n); }
+  }
+  function finishPlay(){
+    play.active = false;
+    setHud(""); updateWatchBtn();
+    if (usesTime) startAnim($("code")?.value ?? "");
+    setStatus("OK ✅  Segments: " + segments.length);
+    checkQuest();
+  }
+  function stopPlay(){
+    if (!play.active) return;
+    play.active = false;
+    setHud(""); updateWatchBtn();
+  }
+
+  // ---------- TIME animation: programs that read TIME or FRAME are re-run every frame ----------
+  function startAnim(src){
+    try { anim.ast = parseProgram(src); } catch(e){ return; }
+    anim.active = true; anim.t0 = 0; anim.frame = 0;
+    kick();
+  }
+  function stopAnim(){ anim.active = false; anim.ast = null; }
+  function animFrame(ts){
+    if (!anim.t0) anim.t0 = ts;
+    timeNow = (ts - anim.t0) / 1000;
+    frameNow = ++anim.frame;
+    resetWorld();
+    const err = execSource("", anim.ast);
+    if (events.length){ consoleLines = events.filter(e => e.type === "print").map(e => e.text); renderConsole(); }
+    if (err){ stopAnim(); setStatus("Error: " + formatError(err)); }
+  }
+
+  // ---------- SLIDER controls ----------
+  let sliderSig = "";
+  function syncSliders(){
+    const box = $("sliders");
+    if (!box) return;
+    const sig = sliderSeen.map(n => { const s = sliderState.get(n); return n + ":" + s.min + ":" + s.max; }).join("|");
+    if (sig === sliderSig) return;
+    sliderSig = sig;
+    box.textContent = "";
+    box.style.display = sliderSeen.length ? "" : "none";
+    for (const name of sliderSeen){
+      const st = sliderState.get(name);
+      const row = document.createElement("label");
+      row.className = "slider-row";
+      const cap = document.createElement("span");
+      cap.textContent = name.toLowerCase() + " = " + fmtNumber(st.value);
+      const inp = document.createElement("input");
+      const range = st.max - st.min;
+      inp.type = "range"; inp.min = st.min; inp.max = st.max;
+      inp.step = (Number.isInteger(st.min) && Number.isInteger(st.max) && range >= 20) ? 1 : (range / 200 || 0.01);
+      inp.value = st.value;
+      inp.addEventListener("input", () => {
+        st.value = parseFloat(inp.value);
+        cap.textContent = name.toLowerCase() + " = " + fmtNumber(st.value);
+        if (!anim.active) runProgram({ fresh:true, quiet:true, keepSeed:true });
+      });
+      row.appendChild(cap); row.appendChild(inp);
+      box.appendChild(row);
+    }
+  }
+
+  // ---------- Confetti (quest solved!) ----------
+  function confettiBurst(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const cols = ["#ff3b30","#ff9f0a","#ffd60a","#34c759","#0a84ff","#bf5af2","#64d2ff"];
+    for (let i = 0; i < 140; i++){
+      const a = Math.random() * Math.PI * 2, sp = 120 + Math.random() * 420;
+      confetti.push({ x: w/2, y: h*0.45, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 220,
+                      c: cols[i % cols.length], life: 1.6 + Math.random()*1.2, s: 4 + Math.random()*5 });
+    }
+    kick();
+  }
+  function updateConfetti(dt){
+    if (!confetti.length) return;
+    for (const p of confetti){ p.vy += 620*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; }
+    confetti = confetti.filter(p => p.life > 0);
+  }
+  function drawConfetti(outCtx){
+    if (!confetti.length) return;
+    for (const p of confetti){
+      outCtx.globalAlpha = clamp(p.life, 0, 1);
+      outCtx.fillStyle = p.c;
+      outCtx.fillRect(p.x, p.y, p.s, p.s * 0.6);
+    }
+    outCtx.globalAlpha = 1;
+  }
+
+  // ---------- Quests: small coding challenges with a target shape that is checked for you ----------
+  // Quest text lives in quests.txt (same idea as examples.txt) so it can be edited without code.
+  const quest = { list: [], idx: -1, solved: false };
+
+  function parseQuests(text){
+    const blocks = [];
+    let cur = null;
+    String(text).replace(/\r/g, "").split("\n").forEach(line => {
+      if (/^\/{10,}\s*$/.test(line)){ cur = []; blocks.push(cur); }
+      else if (cur) cur.push(line);
+    });
+    const out = [];
+    for (const lines of blocks){
+      while (lines.length && !lines[0].trim()) lines.shift();
+      if (!lines.length) continue;
+      const q = { title: lines[0].trim(), goal: "", hint: "", start: "", solution: "" };
+      let sec = null;
+      for (const line of lines.slice(1)){
+        const m = /^(GOAL|HINT|START|SOLUTION):\s?(.*)$/.exec(line);
+        if (m){ sec = m[1].toLowerCase(); if (m[2]) q[sec] += m[2] + "\n"; continue; }
+        if (sec) q[sec] += line + "\n";
+      }
+      for (const k of ["goal","hint","start","solution"]) q[k] = q[k].replace(/\s+$/, "");
+      if (q.title && q.solution) out.push(q);
+    }
+    return out;
+  }
+
+  // Run a program without disturbing what is on screen; returns the lines it would draw.
+  function runSandbox(src){
+    const keep = { segments, stepCounter, events, turtle, symN, scene, sliderSeen, seed:_seed, rs:_rs, usesTime, tempoBpm,
+                   vars: Object.assign({}, vars), marks: Object.assign({}, marks), procs: Object.assign({}, procs) };
+    resetWorld();
+    const err = execSource(src);
+    const out = err ? [] : segments.filter(s => !s.isSnapSpoke && s.label == null);
+    segments = keep.segments; stepCounter = keep.stepCounter; events = keep.events; turtle = keep.turtle;
+    symN = keep.symN; scene = keep.scene; sliderSeen = keep.sliderSeen; _seed = keep.seed; _rs = keep.rs;
+    usesTime = keep.usesTime; tempoBpm = keep.tempoBpm;
+    wipe(vars); Object.assign(vars, keep.vars);
+    wipe(marks); Object.assign(marks, keep.marks);
+    wipe(procs); Object.assign(procs, keep.procs);
+    return out;
+  }
+
+  function pointSegDist2(p, a, b){
+    const abx = b.x-a.x, aby = b.y-a.y, abz = b.z-a.z;
+    const ab2 = abx*abx + aby*aby + abz*abz;
+    let t = ab2 > 1e-12 ? ((p.x-a.x)*abx + (p.y-a.y)*aby + (p.z-a.z)*abz) / ab2 : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const dx = a.x + abx*t - p.x, dy = a.y + aby*t - p.y, dz = a.z + abz*t - p.z;
+    return dx*dx + dy*dy + dz*dz;
+  }
+  // Fraction of sample points along `from` that lie on (within tol of) some line in `onto`.
+  function coverage(from, onto, tol){
+    let total = 0, hit = 0;
+    const tol2 = tol * tol;
+    for (const s of from){
+      const len = Math.hypot(s.b.x-s.a.x, s.b.y-s.a.y, s.b.z-s.a.z);
+      const n = Math.max(1, Math.ceil(len / 4));
+      for (let k = 0; k <= n; k++){
+        const t = k / n;
+        const p = V(s.a.x + (s.b.x-s.a.x)*t, s.a.y + (s.b.y-s.a.y)*t, s.a.z + (s.b.z-s.a.z)*t);
+        total++;
+        for (const o of onto){ if (pointSegDist2(p, o.a, o.b) <= tol2){ hit++; break; } }
+      }
+    }
+    return total ? hit / total : 0;
+  }
+  // 0..1 — how closely the drawing matches the quest target (colour and draw order don't matter).
+  function questScore(){
+    const mine = segments.filter(s => !s.isSnapSpoke && s.label == null);
+    if (!mine.length || !ghostSegs.length || mine.length > 6000) return 0;
+    return Math.min(coverage(ghostSegs, mine, 2.5), coverage(mine, ghostSegs, 2.5));
+  }
+
+  function questStars(){ try { return JSON.parse(lsGet("logo3d.stars") || "{}") || {}; } catch(e){ return {}; } }
+  function mkBtn(label, onClick){
+    const b = document.createElement("button");
+    b.className = "toolbar-btn"; b.textContent = label;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  function renderQuestCard(message){
+    const card = $("questCard");
+    if (!card) return;
+    card.textContent = "";
+    if (quest.idx < 0){ card.style.display = "none"; return; }
+    const q = quest.list[quest.idx];
+    card.style.display = "block";
+    const h = document.createElement("div");
+    h.className = "quest-title";
+    h.textContent = (quest.solved ? "⭐ " : "☆ ") + "Quest " + (quest.idx + 1) + " of " + quest.list.length + " — " + q.title;
+    const goal = document.createElement("div");
+    goal.className = "quest-goal"; goal.textContent = q.goal;
+    const msg = document.createElement("div");
+    msg.className = "quest-msg"; msg.textContent = message || "Make your drawing cover the dashed shape, then press Run.";
+    const row = document.createElement("div");
+    row.className = "row";
+    if (q.hint) row.appendChild(mkBtn("💡 Hint", () => { msg.textContent = "Hint: " + q.hint; }));
+    row.appendChild(mkBtn("↺ Start over", () => { startQuest(quest.idx); }));
+    if (quest.idx < quest.list.length - 1) row.appendChild(mkBtn("Next ▸", () => { startQuest(quest.idx + 1); }));
+    row.appendChild(mkBtn("✕ Leave quest", () => { exitQuest(); }));
+    card.appendChild(h); card.appendChild(goal); card.appendChild(msg); card.appendChild(row);
+  }
+
+  function startQuest(i){
+    if (i < 0 || i >= quest.list.length) return;
+    const q = quest.list[i];
+    quest.idx = i; quest.solved = false;
+    ghostSegs = runSandbox(q.solution);
+    const code = $("code");
+    if (code){ code.value = q.start || ""; lsSet("logo3d.code", code.value); }
+    renderQuestCard();
+    runProgram({ fresh:true, quiet:true });
+    fitCamera(); draw();
+  }
+  function exitQuest(){
+    if (quest.idx < 0) return;
+    quest.idx = -1; quest.solved = false; ghostSegs = [];
+    renderQuestCard(); draw();
+  }
+  function checkQuest(){
+    if (quest.idx < 0 || quest.solved) return;
+    const score = questScore();
+    if (score >= 0.97){
+      quest.solved = true;
+      const stars = questStars();
+      stars[quest.list[quest.idx].title] = 1;
+      lsSet("logo3d.stars", JSON.stringify(stars));
+      renderQuestCard("⭐ Solved! " + (quest.idx < quest.list.length - 1 ? "Press Next for the next quest." : "That was the last quest — you are a 3D turtle master!"));
+      confettiBurst();
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, k) => tone(f, (audio() ? audio().currentTime : 0) + 0.05 + k * 0.12, 0.25));
+    } else {
+      renderQuestCard("Match so far: " + Math.round(score * 100) + "%.  Cover the dashed shape, then press Run.");
+    }
+  }
+
+  function openQuestList(){
+    const old = document.getElementById("_logoModal");
+    if (old) old.remove();
+    const overlay = document.createElement("div");
+    overlay.id = "_logoModal";
+    overlay.className = "modal-overlay";
+    const box = document.createElement("div");
+    box.className = "modal-box";
+    const h2 = document.createElement("h2");
+    h2.textContent = "⭐ Quests — learn to code in 3D";
+    box.appendChild(h2);
+    const list = document.createElement("div");
+    list.className = "quest-list";
+    if (!quest.list.length){
+      const p = document.createElement("p");
+      p.textContent = "Could not load quests.txt.\n\nIf you opened this page straight from a file (file://) in Chrome, the browser blocks it. Open it from a web server, or use Firefox.";
+      p.style.whiteSpace = "pre-wrap";
+      list.appendChild(p);
+    }
+    const stars = questStars();
+    quest.list.forEach((q, i) => {
+      const b = mkBtn((stars[q.title] ? "⭐ " : "☆ ") + (i + 1) + ". " + q.title, () => { overlay.remove(); startQuest(i); });
+      list.appendChild(b);
+    });
+    box.appendChild(list);
+    box.appendChild(mkBtn("Close", () => overlay.remove()));
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  }
+
+  if (typeof fetch === "function"){
+    fetch("./quests.txt")
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(text => { quest.list = parseQuests(text); })
+      .catch(() => { /* Quests button explains if the file could not be loaded */ });
+  }
+  $("questBtn")?.addEventListener("click", openQuestList);
+
+  // ---------- Share link: the whole program travels inside the URL (#p=...) ----------
+  function encodeProgram(src){
+    const bytes = new TextEncoder().encode(src);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function decodeProgram(s){
+    const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/"));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  $("shareBtn")?.addEventListener("click", () => {
+    const src = $("code")?.value ?? "";
+    if (!src.trim()){ setStatus("Nothing to share yet — write a program first."); return; }
+    const url = String(location.href).split("#")[0] + "#p=" + encodeProgram(src);
+    try { history.replaceState(null, "", url); } catch(e){ /* file:// may refuse */ }
+    const done = () => setStatus("Link copied ✅  Paste it to a friend — it opens your program and runs it.\n" + (url.length > 300 ? "" : url));
+    const fallback = () => setStatus("Copy this link to share your program:\n" + url);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fallback);
+    else fallback();
+  });
+
   // ---------- UI wiring ----------
+  let liveOn = lsGet("logo3d.live") !== "0";
+  function setToggle(id, on, label){
+    const b = $(id);
+    if (!b) return;
+    b.classList.toggle("on", !!on);
+    if (label) b.textContent = label;
+  }
+
   $("runBtn")?.addEventListener("click", () => {
-    try { runProgram(); } catch(e){ setStatus("Error: " + (e.message || e)); }
+    // Live on: Run always starts from a clean page. Live off: classic behaviour — each Run
+    // adds to what is already drawn and the turtle carries on from where it stopped.
+    runProgram({ fresh: liveOn });
+  });
+
+  $("watchBtn")?.addEventListener("click", () => {
+    if (play.active){ play.paused = !play.paused; updateWatchBtn(); kick(); return; }
+    runProgram({ fresh:true, watch:true });
+  });
+
+  $("stepBtn")?.addEventListener("click", () => {
+    if (!play.active){
+      if (!runProgram({ fresh:true, watch:true })) return;
+      if (!play.active) return;
+      play.paused = true; updateWatchBtn();
+      setPlayPos(1); draw();
+      return;
+    }
+    play.paused = true; updateWatchBtn();
+    setPlayPos(play.pos + 1); draw();
   });
 
   $("clearBtn")?.addEventListener("click", () => {
-    clearSegments(); draw(); setStatus("Cleared.");
+    stopPlay(); stopAnim(); stopTune();
+    clearSegments(); scene = defaultScene(); symN = 1;
+    consoleLines = []; renderConsole();
+    draw(); setStatus("Cleared.");
+  });
+
+  $("liveBtn")?.addEventListener("click", () => {
+    liveOn = !liveOn;
+    lsSet("logo3d.live", liveOn ? "1" : "0");
+    setToggle("liveBtn", liveOn, liveOn ? "Live: on" : "Live: off");
+    setStatus(liveOn ? "Live is on: the drawing updates while you type, and Run starts from a clean page."
+                     : "Live is off: press Run to draw. Each Run adds to the picture (use Clear to start over).");
+  });
+  setToggle("liveBtn", liveOn, liveOn ? "Live: on" : "Live: off");
+
+  $("spinBtn")?.addEventListener("click", () => {
+    spinOn = !spinOn;
+    setToggle("spinBtn", spinOn);
+    kick();
+  });
+
+  $("fitBtn")?.addEventListener("click", () => { fitCamera(); draw(); });
+
+  (function initLook(){
+    const sel = $("lookSel");
+    const saved = lsGet("logo3d.look");
+    if (saved === "neon" || saved === "glasses") uiLook = saved;
+    if (sel){
+      sel.value = uiLook;
+      sel.addEventListener("change", () => { uiLook = sel.value || "classic"; lsSet("logo3d.look", uiLook); draw(); });
+    }
+  })();
+
+  $("exportPngBtn")?.addEventListener("click", () => {
+    draw();
+    downloadCanvasPng("logo3d.png", canvas);
+    setStatus("Saved picture ✅ (logo3d.png)");
+  });
+
+  // Typing: remember the program, and (Live) redraw shortly after the last keystroke.
+  let liveTimer = null;
+  $("code")?.addEventListener("input", () => {
+    const src = $("code").value;
+    lsSet("logo3d.code", src);
+    if (!liveOn) return;
+    if (liveTimer) clearTimeout(liveTimer);
+    if (lastRunMs > 1500){ setStatus("Big program — press Run to redraw."); return; }
+    liveTimer = setTimeout(() => {
+      liveTimer = null;
+      runProgram({ fresh:true, quiet:true, keepSeed:true });
+    }, lastRunMs > 250 ? 900 : 350);
+  });
+
+  // Ctrl+Enter (or ⌘+Enter) runs the program from the keyboard.
+  $("code")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); runProgram({ fresh: liveOn }); }
   });
 
   $("homeBtn")?.addEventListener("click", () => {
@@ -1745,7 +2871,7 @@
       .then(text => {
         const blocks = [];
         let current = null;
-        text.split("\n").forEach(line => {
+        text.replace(/\r/g, "").split("\n").forEach(line => {
           if (/^\/{10,}\s*$/.test(line)) { current = []; blocks.push(current); }
           else if (current !== null) { current.push(line); }
         });
@@ -1767,7 +2893,25 @@
     sel.addEventListener("change", () => {
       const opt = sel.options[sel.selectedIndex];
       if (!opt || !opt._logoCode) return;
+      exitQuest();
       $("code").value = opt._logoCode;
+      lsSet("logo3d.code", opt._logoCode);
+      setStatus("Loaded: " + opt.textContent + "\nPress Run to draw it, or Watch to see the turtle build it step by step.");
+    });
+
+    // Surprise: load a random example and run it straight away.
+    $("surpriseBtn")?.addEventListener("click", () => {
+      const opts = [...sel.options].filter(o => o._logoCode);
+      if (!opts.length){ setStatus("No examples loaded (examples.txt could not be read)."); return; }
+      const opt = opts[Math.floor(Math.random() * opts.length)];
+      exitQuest();
+      sel.value = opt.value;
+      $("code").value = opt._logoCode;
+      lsSet("logo3d.code", opt._logoCode);
+      if (runProgram({ fresh:true })){
+        fitCamera(); draw();
+        setStatus("🎲 " + opt.textContent + " — " + segments.length + " segments. Change a number and see what happens!");
+      }
     });
   })();
 
@@ -1793,6 +2937,43 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape"){ const m = document.getElementById("_logoModal"); if (m) m.remove(); closeMenus(null); }
   });
+
+  // ---------- Start-up: a shared link wins, otherwise bring back what was typed last time ----------
+  (function initProgram(){
+    const code = $("code");
+    if (!code) return;
+    let shared = null;
+    try {
+      const m = /[#&]p=([^&]+)/.exec(String(location.hash || ""));
+      if (m) shared = decodeProgram(m[1]);
+    } catch(e){ shared = null; }
+    if (shared != null && shared.trim()){
+      code.value = shared;
+      if (runProgram({ fresh:true })){ fitCamera(); draw(); setStatus("Opened a shared program ✅  Segments: " + segments.length + "\nChange it and make it yours!"); }
+      return;
+    }
+    const saved = lsGet("logo3d.code");
+    if (saved && !code.value) code.value = saved;
+  })();
+
+  // Small scripting hook (used by tests and other tools): run Logo source without the page UI.
+  window.Logo3D = {
+    version: VERSION,
+    runSource(src, opts = {}){
+      if (opts.fresh !== false) resetWorld();
+      if (opts.seed != null) _seed = (opts.seed >>> 0) || 1; else if (!opts.keepSeed) newSeed();
+      usesTime = false;
+      timeNow = Number(opts.time) || 0; frameNow = Number(opts.frame) || 0;
+      const err = execSource(String(src));
+      return { error: err ? formatError(err) : null, segments, events, usesTime, scene, sliders: sliderSeen.slice() };
+    },
+    tokenize, parseQuests, runSandbox,
+    objExport: (o) => objExportTubesWithMtl(segments, o || {}),
+    dotsExport: (o) => objExportDotsWithMtl(segments, o || {}),
+    stlExport: (o) => stlExportFromSegments(segments, o || {}),
+    questScoreAgainst(solutionSrc){ const keep = ghostSegs; ghostSegs = runSandbox(solutionSrc); const s = questScore(); ghostSegs = keep; return s; },
+    encodeProgram, decodeProgram, fitCamera, draw, sphereTris
+  };
 
   draw();
 })();

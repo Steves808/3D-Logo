@@ -395,3 +395,101 @@ No external dependencies
   or a build step. It works from file:// URLs. (Note: the Help and Acknowledgements
   modals fetch their .txt files at runtime; on Chrome from a file:// URL this
   fetch is blocked -- use Firefox or a local web server for that feature.)
+
+
+NEW IN CU16
+===========
+Everything above still works exactly as before. These are additions.
+
+SPACES IN ARITHMETIC
+  Arithmetic may now be typed with spaces:  FD 2 * 3.14159 * :R / 72
+  MAKE also accepts an equals sign with spaces:  MAKE A = A + 5
+  (One thing to know:  FD A -5  is still read as two things, FD A and then -5.)
+
+MATH FUNCTIONS (angles in degrees)
+  SIN(x) COS(x) TAN(x) ASIN(x) ACOS(x) ATAN(x) ATAN(y,x)
+  SQRT(x) ABS(x) INT(x) ROUND(x) FLOOR(x) CEIL(x) SIGN(x)
+  MIN(a,b) MAX(a,b) MOD(a,b) POW(a,b) RANDOM(n)
+  Operators:  + - * /  %  (remainder)  ^  (power)
+  Built-in values:  PI   REPCOUNT (which turn of the REPEAT this is, from 1)
+  Example:  REPEAT 36 [FD 50+SIN(REPCOUNT*30)*20 RT 10]
+
+FRIENDLY NAMES
+  FORWARD=FD  BACK=BK  LEFT=LT  RIGHT=RT  PENUP=PU  PENDOWN=PD  COLOR=SC
+  If your own program defines a procedure with one of the new names
+  (for example TO COLOR ... END), your procedure wins.
+
+FOR
+  Syntax:  FOR name from to [ commands ]
+  Counts from <from> to <to> (both included), up or down by 1.
+  Example:  FOR I 1 10 [FD I*10 RT 90]
+
+WHILE
+  Syntax:  WHILE condition [ commands ]
+  Repeats while the condition is true.
+  Example:  MAKE N 100  WHILE N > 5 [FD N RT 90 MAKE N=N*0.9]
+
+IF CONDITIONS
+  Now also:  <  >  <=  >=  !=  and the words AND, OR, NOT.
+  Example:  IF A > 1 AND A < 5 [SC RED]
+
+HUE
+  Syntax:  HUE degrees
+  Sets the pen to a rainbow colour: 0 red, 60 yellow, 120 green, 180 cyan, 240 blue, 300 magenta.
+  Example:  REPEAT 36 [HUE REPCOUNT*10 FD 80 RT 170]
+
+BALL
+  Syntax:  BALL radius
+  Puts a shaded ball where the turtle is, in the pen colour. Exported as a sphere in OBJ and STL.
+  Example:  SC RED BALL 15
+
+LABEL
+  Syntax:  LABEL word   or   LABEL [several words]
+  Writes text where the turtle is. Not exported.
+  Example:  LABEL [Hello world]
+
+PRINT
+  Syntax:  PRINT value   or   PRINT [words and :variables]
+  Shows text under the editor. Good for checking what a variable holds.
+  Example:  MAKE X 4   PRINT [x is :x]   PRINT X*2
+
+SYMMETRY
+  Syntax:  SYMMETRY n
+  Everything drawn after it is copied n times around the centre (a kaleidoscope). SYMMETRY 1 turns it off.
+  Example:  SYMMETRY 8 REPEAT 3 [FD 70 RT 120]
+
+SLIDER
+  Syntax:  SLIDER name smallest biggest start
+  Makes a variable with a slider under the buttons. Drag it and the drawing changes at once.
+  Example:  SLIDER SIZE 10 200 80   REPEAT 4 [FD SIZE RT 90]
+
+TIME and FRAME (animation)
+  TIME is the number of seconds since the program started; FRAME counts redraws.
+  A program that uses TIME or FRAME is drawn again and again, so it moves. Clear stops it.
+  Example:  REPEAT 4 [FD 60+SIN(TIME*90)*30 RT 90]
+
+NOTE / REST / TEMPO (sound)
+  NOTE pitch    plays a note: a number (60 is middle C, 61 the next key up) or a name like C4, F#4, BB3.
+  REST          one beat of silence.
+  TEMPO bpm     beats per minute (default 120).
+  Run plays the notes as a tune. Watch plays each note at the moment the turtle reaches it.
+  Example:  TEMPO 240 NOTE C4 NOTE E4 NOTE G4 NOTE C5
+
+GLOW / BG / GRID / HT / ST (the look of the picture)
+  GLOW 1 / GLOW 0   neon glow on or off
+  BG color          background colour (same forms as SC)
+  GRID 0 / GRID 1   hide or show the floor grid
+  HT / ST           hide or show the turtle
+  These go back to normal at the start of every Run.
+
+BUTTONS
+  Run        Draw the program. Ctrl+Enter does the same.
+  Watch      Replay the drawing step by step; shows which line is running. Speed sets how fast.
+  Step       One step at a time.
+  Live       On: the picture updates while you type and Run starts from a clean page.
+             Off: classic behaviour, each Run adds to the picture and Clear starts over.
+  Quests     Challenges with a dashed target shape. Cover it with your drawing to win a star.
+  Surprise   Loads and runs a random example.
+  Spin / Fit Turn the camera slowly / zoom to fit the drawing (double-click also fits).
+  Look       Classic, Neon glow, or red/cyan 3D glasses.
+  Share      Copies a link that contains the whole program.
