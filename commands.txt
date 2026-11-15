@@ -492,4 +492,9 @@ BUTTONS
   Surprise   Loads and runs a random example.
   Spin / Fit Turn the camera slowly / zoom to fit the drawing (double-click also fits).
   Look       Classic, Neon glow, or red/cyan 3D glasses.
+  Split 3D   Two live pictures side by side for free-viewing in 3D (no glasses).
+             Press once for parallel viewing, again for cross-eyed, again for off.
+             3D depth sets how strong the effect is. 3D picture size shrinks the pair:
+             for parallel viewing the two white dots must be no further apart than your eyes.
+             Everything stays live: drag to turn, Watch, Spin and animation all work in 3D.
   Share      Copies a link that contains the whole program.

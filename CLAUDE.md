@@ -73,6 +73,8 @@ Files: `logo3d.js` (all logic), `index.html` = `logo3d.html` (identical), runtim
 | Quests | `quests.txt` (GOAL/HINT/START/SOLUTION). The solution is run in a sandbox to make a dashed "ghost"; the drawing is compared by shape. Stars in localStorage. | `parseQuests`, `runSandbox`, `questScore`, `checkQuest` |
 | Sharing | Share button puts the program in the URL (`#p=…`); opening that link loads and runs it. Editor text is autosaved to localStorage. | `encodeProgram`, `initProgram` |
 | View | Fit (also double-click), Spin, Look: Classic / Neon / red-cyan 3D glasses, Picture (PNG) | `fitCamera`, `draw`, `uiLook` |
+| Split 3D | Live side-by-side stereo for free-viewing: `uiLook` `"sbs"` (parallel) / `"sbsx"` (cross-eyed), `sbs.depth` (degrees between eyes), `sbs.size` (% of half-screen). Button `#sbsBtn`, sliders `#sbsDepthInput`, `#sbsSizeInput`. | `draw` (SBS branch), `initLook` |
+| Menus | `indexclean.html` is the menu layout (Run/Watch/Step/Clear + Learn, View, Share, Export). Buttons inside a menu close it unless they have `class="stay"`. `index.html`/`logo3d.html` keep the older row layout. | `closeMenus` |
 | Errors | Line numbers and "did you mean …?" | `formatError`, `suggestFor` |
 | Random | Seeded generator `rnd()`; Run picks a new seed, Live/slider/animation re-runs reuse it. | `newSeed`, `rnd` |
 | Fixes | "Export Dots OBJ" threw `singleMaterial is not defined` in cu15 — fixed. Procedure arguments are now all evaluated before binding. | `objExportDotsWithMtl`, `CALL` |

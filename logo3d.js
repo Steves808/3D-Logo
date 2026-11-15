@@ -130,7 +130,12 @@
   // ---------- Scene look (set by GLOW / BG / GRID / HT / ST; reset at every run) ----------
   function defaultScene(){ return { bg:"#0b0f14", glow:false, grid:true, showTurtle:true }; }
   let scene = defaultScene();
-  let uiLook = "classic";   // "classic" | "neon" | "glasses" (red/cyan 3D glasses)
+  let uiLook = "classic";   // "classic" | "neon" | "glasses" (red/cyan) | "sbs" (parallel) | "sbsx" (cross-eyed)
+  // Side-by-side free-viewing: depth = total angle between the two eyes' views (degrees),
+  // size = how much of the half-screen each picture fills (parallel viewers need them small
+  // enough that matching points are no further apart than their eyes).
+  const sbs = { depth: 4, size: 100 };
+  const isSbs = () => uiLook === "sbs" || uiLook === "sbsx";
   let ghostSegs = [];       // quest target shape, drawn faintly
   let confetti = [];
 
@@ -367,6 +372,35 @@
       ctx.drawImage(_eyeCanvas[0], 0, 0);
       ctx.drawImage(_eyeCanvas[1], 0, 0);
       ctx.restore();
+    } else if (isSbs()){
+      // Two live pictures side by side for free-viewing. Each eye is drawn at half the view
+      // width, then placed (optionally shrunk) left and right of the centre line.
+      // Parallel: left picture is the left eye's view.  Cross-eyed: the two are swapped.
+      const hw = Math.max(40, Math.floor(w / 2));
+      for (let e = 0; e < 2; e++){
+        let oc = _eyeCanvas[e];
+        if (!oc) oc = _eyeCanvas[e] = document.createElement("canvas");
+        const cw = Math.floor(hw * DPR), ch = canvas.height;
+        if (oc.width !== cw || oc.height !== ch){ oc.width = cw; oc.height = ch; }
+        const ox = oc.getContext("2d", { alpha:false });
+        ox.setTransform(DPR,0,0,DPR,0,0);
+        drawSceneToContext(ox, hw, h, makeProjector(hw, h, (e === 0 ? -1 : 1) * (sbs.depth / 2) * DEG, cam.panX / 2, cam.panY), o);
+      }
+      const k = clamp(sbs.size, 20, 100) / 100;
+      const pw = Math.floor(hw * k), ph = Math.floor(h * k), gap = k < 1 ? 6 : 0;
+      const top = Math.floor((h - ph) / 2);
+      const leftImg = uiLook === "sbsx" ? _eyeCanvas[1] : _eyeCanvas[0];
+      const rightImg = uiLook === "sbsx" ? _eyeCanvas[0] : _eyeCanvas[1];
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+      ctx.fillStyle = "#000"; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(leftImg,  w/2 - gap/2 - pw, top, pw, ph);
+      ctx.drawImage(rightImg, w/2 + gap/2,      top, pw, ph);
+      // divider + two fusion dots (line the dots up into three, the middle one is the 3D view)
+      ctx.fillStyle = "#000"; ctx.fillRect(w/2 - Math.max(1, gap/2), top, Math.max(2, gap), ph);
+      ctx.fillStyle = "#ffffff";
+      for (const cx of [w/2 - gap/2 - pw/2, w/2 + gap/2 + pw/2]){
+        ctx.beginPath(); ctx.arc(cx, top + 10, 3, 0, Math.PI*2); ctx.fill();
+      }
     } else {
       drawSceneToContext(ctx, w, h, project, o);
     }
@@ -478,7 +512,8 @@
     if (!n){ cam.target = V(0,0,0); cam.dist = 420; return; }
     cam.target = V((minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2);
     const rad = Math.max(10, Math.hypot(maxX-minX, maxY-minY, maxZ-minZ) / 2);
-    const view = Math.max(120, Math.min(canvas.clientWidth || 600, canvas.clientHeight || 600));
+    const viewW = (canvas.clientWidth || 600) / (isSbs() ? 2 : 1);
+    const view = Math.max(120, Math.min(viewW, canvas.clientHeight || 600));
     cam.dist = clamp(rad * 600 / (0.62 * view) + rad * 0.5, 60, CAM_MAX_DIST);
   }
 
@@ -2602,12 +2637,36 @@
 
   (function initLook(){
     const sel = $("lookSel");
+    const LOOKS = ["classic","neon","glasses","sbs","sbsx"];
     const saved = lsGet("logo3d.look");
-    if (saved === "neon" || saved === "glasses") uiLook = saved;
-    if (sel){
-      sel.value = uiLook;
-      sel.addEventListener("change", () => { uiLook = sel.value || "classic"; lsSet("logo3d.look", uiLook); draw(); });
+    if (LOOKS.includes(saved)) uiLook = saved;
+    let lastSbs = lsGet("logo3d.sbsMode") === "sbsx" ? "sbsx" : "sbs";
+    const d = parseFloat(lsGet("logo3d.sbsDepth")), z = parseFloat(lsGet("logo3d.sbsSize"));
+    if (Number.isFinite(d)) sbs.depth = clamp(d, 0.5, 16);
+    if (Number.isFinite(z)) sbs.size = clamp(z, 20, 100);
+
+    function apply(look){
+      uiLook = LOOKS.includes(look) ? look : "classic";
+      if (isSbs()){ lastSbs = uiLook; lsSet("logo3d.sbsMode", lastSbs); }
+      lsSet("logo3d.look", uiLook);
+      if (sel && [...sel.options].some(o => o.value === uiLook)) sel.value = uiLook;
+      setToggle("sbsBtn", isSbs(), isSbs() ? (uiLook === "sbsx" ? "Split 3D: cross-eyed" : "Split 3D: parallel") : "Split 3D: off");
+      draw();
     }
+    if (sel) sel.addEventListener("change", () => apply(sel.value || "classic"));
+    // One button cycles: off -> parallel -> cross-eyed -> off
+    $("sbsBtn")?.addEventListener("click", () => apply(uiLook === "sbs" ? "sbsx" : uiLook === "sbsx" ? "classic" : "sbs"));
+
+    const depthEl = $("sbsDepthInput"), sizeEl = $("sbsSizeInput");
+    if (depthEl){
+      depthEl.value = sbs.depth;
+      depthEl.addEventListener("input", () => { sbs.depth = clamp(parseFloat(depthEl.value) || 4, 0.5, 16); lsSet("logo3d.sbsDepth", String(sbs.depth)); draw(); });
+    }
+    if (sizeEl){
+      sizeEl.value = sbs.size;
+      sizeEl.addEventListener("input", () => { sbs.size = clamp(parseFloat(sizeEl.value) || 100, 20, 100); lsSet("logo3d.sbsSize", String(sbs.size)); draw(); });
+    }
+    apply(uiLook);
   })();
 
   $("exportPngBtn")?.addEventListener("click", () => {
@@ -2933,6 +2992,14 @@
       else parent.querySelectorAll(":scope details.menu[open]").forEach(o => { if (o !== d && !o.contains(d)) o.open = false; });
     });
   });
+
+  // Picking something from a menu closes it — except controls marked class="stay"
+  // (toggles and settings you may want to press several times).
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (btn && btn.closest("details.menu") && !btn.classList.contains("stay")) closeMenus(null);
+  });
+  $("exampleSel")?.addEventListener("change", () => closeMenus(null));
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape"){ const m = document.getElementById("_logoModal"); if (m) m.remove(); closeMenus(null); }
