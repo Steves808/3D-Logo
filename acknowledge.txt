@@ -11,6 +11,10 @@ This browser version was written from scratch to run the Logo scripts I
 made on that app. It does not contain any of their code. The command
 names follow theirs, with gratitude.
 
+Thanks also to ChatGPT, which wrote the first versions, and especially
+to Claude AI, which made the major improvements. They did most of this.
+I was like a backseat driver nagging the limo driver.
+
 
 NO RIGHTS RESERVED
 ------------------
@@ -19,34 +23,3 @@ Copy it, change it, improve it, share it, sell it. You do not need to
 ask me or credit me.
 
 -- Steve
-
-///////////////////////////////////////
-Examples you can Copy/Paste
-  (but the Example Button is easier)
-//////////////////////////////////////
-;Simple Stacked Hexagons
-Repeat 20 [
-           Repeat 6 [fd 100 rt 60]
-                 up 90 fd 10 dn 90 ]
-/////////////////////////////////////////
-;Cube colors
-make x=100
-To s repeat 4 [fd x rt 90] end
-
-sc red s 
-up 90 sc gold s
-fd x dn 90 sc green s
-fd x dn 90 sc purple s
-///////////////////////////////////////////
-;Sphere in Sphere
-make x=100
-make t=16
-to sphere rpt t [au 360 x rt 360/t/2] 
-end
-
-sc orange sphere sc magenta make x=50 sphere
-//////////////////////////////////////////////
-
-
-
-
