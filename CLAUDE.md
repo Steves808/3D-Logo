@@ -16,7 +16,7 @@ There are no build, lint, or test commands.
 
 ## Architecture
 
-Everything lives in `logo3d.js` (≈960 lines), wrapped in a single IIFE. The pipeline is:
+Everything lives in `logo3d.js` (≈3000 lines in cu16), wrapped in a single IIFE. The pipeline is:
 
 ```
 Textarea input → tokenize() → parseProgram() → execBlock() → segments[] → draw()
@@ -51,6 +51,55 @@ Key commands: `FD`/`BK` (move), `LT`/`RT` (yaw), `UP`/`DN` (pitch), `RL`/`RR` (r
 ### Math primitives
 
 Pure functions, no classes: `V(x,y,z)`, `add/sub/mul`, `I3/matMul/matVec`, `rotAxis`, `norm`.
+
+## Current status (2026-11-14) — cu16 "learn to code" upgrade
+
+cu16 is cu15 plus a learning layer. **All cu15 commands, exports and element IDs are unchanged.**
+Files: `logo3d.js` (all logic), `index.html` = `logo3d.html` (identical), runtime text files
+`commands.txt`, `examples.txt`, `acknowledge.txt` and the new **`quests.txt`**.
+
+### What cu16 added (all in `logo3d.js`)
+
+| Area | What | Where to look |
+|---|---|---|
+| Watch / Step | Replays the drawing step by step with a turtle glyph and a "line N: …" HUD. Every entry in `segments` carries `step`, `line` and (first copy) `R`. | `startPlay`, `setPlayPos`, `currentPose`, `drawTurtleGlyph` |
+| Live | Redraws ~350 ms after typing. Live ON ⇒ Run is a fresh run; Live OFF ⇒ classic cu15 Run (adds to the picture). | `runProgram(opts)`, `liveOn` |
+| Sliders | `SLIDER name min max start` builds a range input in `#sliders`; dragging re-runs. | `syncSliders`, `sliderState` |
+| Animation | Reading `TIME`/`FRAME` sets `usesTime`; the program is then re-run every frame. | `startAnim`, `animFrame` |
+| Language | spaces in arithmetic (token-merge pass in `tokenize`), functions (`FUNCS`), `% ^`, `FOR`, `WHILE`, `REPCOUNT`, `AND/OR/NOT`, `< > <= >= !=`, long names (`ALIASES`), `COLOR` alias, `MAKE A = …` | `tokenize`, `compileExpr`, `evalCondition`, `parseBlock` |
+| Drawing | `BALL`, `LABEL`, `HUE`, `SYMMETRY n`, `GLOW`, `BG`, `GRID`, `HT`/`ST` | `pushSeg`, `drawSceneToContext`, `scene` |
+| Sound | `NOTE`, `REST`, `TEMPO` via Web Audio (no files) | `tone`, `flushEvents`, `events` |
+| Output | `PRINT` → `#console` | `renderConsole` |
+| Quests | `quests.txt` (GOAL/HINT/START/SOLUTION). The solution is run in a sandbox to make a dashed "ghost"; the drawing is compared by shape. Stars in localStorage. | `parseQuests`, `runSandbox`, `questScore`, `checkQuest` |
+| Sharing | Share button puts the program in the URL (`#p=…`); opening that link loads and runs it. Editor text is autosaved to localStorage. | `encodeProgram`, `initProgram` |
+| View | Fit (also double-click), Spin, Look: Classic / Neon / red-cyan 3D glasses, Picture (PNG) | `fitCamera`, `draw`, `uiLook` |
+| Errors | Line numbers and "did you mean …?" | `formatError`, `suggestFor` |
+| Random | Seeded generator `rnd()`; Run picks a new seed, Live/slider/animation re-runs reuse it. | `newSeed`, `rnd` |
+| Fixes | "Export Dots OBJ" threw `singleMaterial is not defined` in cu15 — fixed. Procedure arguments are now all evaluated before binding. | `objExportDotsWithMtl`, `CALL` |
+
+Compatibility rule used throughout: new command names are listed in `NEW_KEYWORDS`; if a program
+defines its own procedure with one of those names (the corpus has `to color`, `to st`), the
+procedure wins.
+
+### Testing (Node, no browser needed)
+
+`logo3d.js` exposes `window.Logo3D` (`runSource`, `tokenize`, `parseQuests`, `questScoreAgainst`,
+`objExport`, `stlExport`, …). A Node harness with a stubbed DOM can load the file and run Logo
+source headlessly; cu16 was checked that way against every block in `examples.txt`, and
+all quest solutions score 1.00 against themselves while their starter code does not.
+
+### Not done yet / ideas for the next version
+
+- `batch-export.js` still has the **cu15 dialect** (its own interpreter copy): none of the cu16
+  commands work there yet.
+- Watch shows the current line in the HUD only; highlighting the line inside the editor would be better.
+- No procedures that return a value (`OUTPUT`), no lists as data, no keyboard/mouse input commands.
+- Quest/WebXR: cu16 is still the 2D-canvas renderer. BALL/LABEL/SYMMETRY would need porting to the
+  Three.js/WebXR build.
+- Ideas: more quests (colour, FOR, sliders, animation), a "remix gallery" page of shared links,
+  recording an animation to GIF/WebM, a teacher page that lists quests.txt.
+
+---
 
 ## Current status (2026-05-13)
 
@@ -137,7 +186,7 @@ Run the full test suite against the updated interpreter, focusing on the color-c
 
 ## Data loading rule
 
-Help, Acknowledgements, and Examples content must always be fetched at runtime from their `.txt` files (`commands.txt`, `acknowledge.txt`, `examples.txt`). Never embed this content as hardcoded constants in `logo3d.js`. The `.txt` files are the single source of truth and must be editable without touching code.
+Help, Acknowledgements, and Examples content must always be fetched at runtime from their `.txt` files (`commands.txt`, `acknowledge.txt`, `examples.txt`, and Quests from `quests.txt`). Never embed this content as hardcoded constants in `logo3d.js`. The `.txt` files are the single source of truth and must be editable without touching code.
 
 ## Button sizing rule
 

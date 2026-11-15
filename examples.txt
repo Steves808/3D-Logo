@@ -164,5 +164,60 @@ cc3d
 
 Center
 /////////////////////////
-
-
+;NEW Rainbow flower (symmetry + hue)
+; symmetry copies everything 12 times. Try another number!
+symmetry 12
+glow 1
+pu fd 30 pd
+repeat 9 [hue repcount*40 fd 70 rt 80 fd 25 lt 120]
+/////////////////////////
+;NEW Sliders - design your own spiral
+; Drag the sliders under the buttons.
+slider turn 60 160 121
+slider grow 1 6 3
+slider count 20 200 90
+make s=2
+repeat count [hue repcount*4 fd s rt turn up 2 make s=s+grow]
+/////////////////////////
+;NEW Dancing ring (uses TIME, so it moves)
+make n 60
+repeat n [
+  home pu rt repcount*360/n fd 120
+  hue repcount*6+time*60
+  up 90 pd fd 40+sin(time*120+repcount*24)*30
+  ball 4 ]
+/////////////////////////
+;NEW Musical staircase (press Watch and listen)
+tempo 300
+make p 60
+repeat 8 [hue p*20 up 90 fd 20 dn 90 fd 20 note p make p=p+2]
+repeat 8 [make p=p-2 hue p*20 dn 90 fd 20 up 90 fd 20 note p]
+/////////////////////////
+;NEW Fractal tree with fruit
+to tree :s
+if :s < 6 [sc red ball 2 stop]
+sc [60 40 10] width :s/8 fd :s
+rl 70 lt 25 tree :s*0.72
+rt 50 tree :s*0.72
+lt 25 rr 70 pu bk :s pd
+end
+dn 90 tree 70
+/////////////////////////
+;NEW Random city (Run again for a new one)
+to tower :h
+repeat 4 [fd 20 rt 90]
+repeat 4 [up 90 fd :h bk :h dn 90 fd 20 rt 90]
+up 90 pu fd :h pd dn 90 repeat 4 [fd 20 rt 90]
+end
+for i 1 6 [ for j 1 6 [
+  home pu fd i*40-140 rt 90 fd j*40-140 lt 90 pd
+  sc rc tower 20+random(90) ] ]
+/////////////////////////
+;NEW Solar system (TIME + ball + label)
+bg #000010 grid 0 ht
+sc yellow ball 22
+for i 1 5 [
+  home pu rt time*120/i+i*70 fd 30+i*28
+  hue i*60 ball 3+i
+  sc white label i ]
+/////////////////////////
