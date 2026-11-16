@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo 3D Together</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="head">
+      <div class="title">Logo 3D <span>Together</span></div>
+      <button id="btnSide" class="toolbar-btn ghost" title="Hide or show this panel">◀</button>
+    </div>
+
+    <div class="row big">
+      <button id="btnVR" class="toolbar-btn primary" disabled>Enter VR</button>
+      <button id="btnAR" class="toolbar-btn primary alt" disabled>Enter AR (see your room)</button>
+    </div>
+    <div id="xrNote" class="note"></div>
+
+    <div class="row wrap roomrow">
+      <span class="lbl">Room</span><b id="roomName">main</b>
+      <span id="netStatus" class="pill">connecting…</span>
+      <span id="playerChips"></span>
+    </div>
+
+    <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Type Logo here - or press buttons on the tablet.  Everyone in the room shares this program."></textarea>
+
+    <div class="row wrap">
+      <button id="btnRun" class="toolbar-btn primary">Run for everyone</button>
+      <label class="check"><input type="checkbox" id="chkLive" checked> Live</label>
+      <button id="btnUndo" class="toolbar-btn">Undo</button>
+      <button id="btnSeed" class="toolbar-btn" title="New random numbers for RANDOM / RC / PICK">New random</button>
+      <button id="btnFit" class="toolbar-btn">Fit</button>
+      <button id="btnClear" class="toolbar-btn danger">Clear</button>
+    </div>
+    <div class="row wrap">
+      <select id="exampleSel" class="toolbar-btn"><option value="">Examples…</option></select>
+      <button id="btnHelp" class="toolbar-btn">List of Commands</button>
+      <button id="btnAck" class="toolbar-btn">Acknowledge</button>
+    </div>
+    <div class="row">
+      <button id="btnWatchStart" class="toolbar-btn" title="Back to the start">⏮</button>
+      <button id="btnWatchPlay" class="toolbar-btn" title="Watch the turtle draw it">▶ Watch</button>
+      <button id="btnWatchAll" class="toolbar-btn" title="Show everything">⏭</button>
+      <input type="range" id="watchRange" min="0" max="1000" value="1000">
+    </div>
+    <div id="sliders"></div>
+    <pre id="status">Starting…</pre>
+
+    <details id="testing" open>
+      <summary>Testing with several players</summary>
+      <div class="row wrap">
+        <span class="lbl">Pretend players</span>
+        <button id="btnBotDel" class="toolbar-btn">−</button>
+        <b id="botCount">0</b>
+        <button id="btnBotAdd" class="toolbar-btn">+</button>
+        <label class="check"><input type="checkbox" id="chkBotsDraw"> they draw too</label>
+      </div>
+      <div class="row wrap">
+        <button id="btnNewTab" class="toolbar-btn">Open another player (new tab)</button>
+        <button id="btnInvite" class="toolbar-btn">Copy invite link</button>
+        <label class="check"><input type="checkbox" id="chkTablet" checked> Show tablet</label>
+      </div>
+      <div class="row wrap">
+        <span class="lbl">My name</span><input id="nameInput" class="toolbar-btn text" maxlength="16">
+        <span class="lbl">Room</span><input id="roomInput" class="toolbar-btn text" maxlength="24">
+        <button id="btnRoomGo" class="toolbar-btn">Go</button>
+      </div>
+      <pre id="stats"></pre>
+    </details>
+  </aside>
+
+  <main id="stage">
+    <canvas id="gl"></canvas>
+    <button id="btnSideOpen" class="toolbar-btn ghost" hidden>▶ Menu</button>
+    <div id="hud"></div>
+    <div id="tabletDock"></div>
+  </main>
+</div>
+
+<div id="modal" hidden>
+  <div class="box">
+    <div class="row"><b id="modalTitle"></b><span class="grow"></span><button id="modalClose" class="toolbar-btn">Close</button></div>
+    <pre id="modalBody"></pre>
+  </div>
+</div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

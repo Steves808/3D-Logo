@@ -1,0 +1,140 @@
+LOGO 3D QUESTS
+Each quest starts with a line of slashes, then the title.
+GOAL: what to do.  HINT: shown when asked.  START: code put in the editor.
+SOLUTION: draws the dashed target shape (the answer is checked by shape, not by text).
+/////////////////////////
+First steps
+GOAL: The turtle draws a line when it moves. Make it go forward 100 steps.
+HINT: fd means forward. Try: fd 100
+START:
+fd 50
+SOLUTION:
+fd 100
+/////////////////////////
+Turn a corner
+GOAL: Draw an L shape: forward 100, turn right 90 degrees, forward 60.
+HINT: rt 90 turns right by 90 degrees. Then use fd again.
+START:
+fd 100
+SOLUTION:
+fd 100 rt 90 fd 60
+/////////////////////////
+Square
+GOAL: Draw a square with sides of 80. A square is "forward, turn right" four times.
+HINT: fd 80 rt 90 fd 80 rt 90 ... four times in all.
+START:
+fd 80 rt 90
+fd 80 rt 90
+SOLUTION:
+fd 80 rt 90 fd 80 rt 90 fd 80 rt 90 fd 80 rt 90
+/////////////////////////
+Let the computer repeat
+GOAL: Typing the same thing again and again is boring. Draw a square with sides of 120 using repeat.
+HINT: repeat 4 [fd 120 rt 90]
+START:
+repeat 2 [fd 120 rt 90]
+SOLUTION:
+repeat 4 [fd 120 rt 90]
+/////////////////////////
+Triangle
+GOAL: Draw a triangle with sides of 100. How far must the turtle turn at each corner? (All the turns together make one full spin: 360.)
+HINT: 360 divided by 3 corners is 120. repeat 3 [fd 100 rt 120]
+START:
+repeat 3 [fd 100 rt 90]
+SOLUTION:
+repeat 3 [fd 100 rt 120]
+/////////////////////////
+Hexagon
+GOAL: Six sides of 60. Use the same trick: the turn is 360 divided by the number of sides. You can let Logo do the division.
+HINT: repeat 6 [fd 60 rt 360/6]
+START:
+repeat 6 [fd 60 rt 90]
+SOLUTION:
+repeat 6 [fd 60 rt 360/6]
+/////////////////////////
+Star
+GOAL: A five-point star with lines of 150. The turtle turns MORE than a quarter turn at each point.
+HINT: Turn 144 at each point: repeat 5 [fd 150 rt 144]
+START:
+repeat 5 [fd 150 rt 100]
+SOLUTION:
+repeat 5 [fd 150 rt 144]
+/////////////////////////
+Lift off! (3D)
+GOAL: Now leave the floor. Draw a square that stands up like a window: tilt the turtle up 90 degrees first. Drag the picture to look around it.
+HINT: up 90 tilts the nose up. Then draw the square as before: up 90 repeat 4 [fd 80 rt 90]
+START:
+repeat 4 [fd 80 rt 90]
+SOLUTION:
+up 90 repeat 4 [fd 80 rt 90]
+/////////////////////////
+Teach the turtle a new word
+GOAL: "to" teaches the turtle a new word. The word sq is already made. Use it to draw a square on the floor AND a square standing up.
+HINT: Type sq, then up 90, then sq again.
+START:
+to sq repeat 4 [fd 80 rt 90] end
+sq
+SOLUTION:
+to sq repeat 4 [fd 80 rt 90] end
+sq up 90 sq
+/////////////////////////
+Staircase
+GOAL: Build 5 stairs. One stair is: tilt up 90, forward 20, tilt down 90, forward 20.
+HINT: repeat 5 [up 90 fd 20 dn 90 fd 20]
+START:
+up 90 fd 20 dn 90 fd 20
+SOLUTION:
+repeat 5 [up 90 fd 20 dn 90 fd 20]
+/////////////////////////
+Growing spiral
+GOAL: A variable is a box that holds a number. Here the box is called s. Make each line 10 longer than the one before, 12 lines in all.
+HINT: Inside the repeat, add: make s=s+10
+START:
+make s=10
+repeat 12 [fd s rt 90]
+SOLUTION:
+make s=10
+repeat 12 [fd s rt 90 make s=s+10]
+/////////////////////////
+Spring
+GOAL: Go forward a little, turn a little, tilt up a little — again and again — and you get a spring. Make it 120 steps long.
+HINT: repeat 120 [fd 5 rt 10 up 1]
+START:
+repeat 30 [fd 5 rt 10 up 1]
+SOLUTION:
+repeat 120 [fd 5 rt 10 up 1]
+/////////////////////////
+Flower by symmetry
+GOAL: symmetry 8 copies everything the turtle draws 8 times around the middle. Draw ONE petal (a triangle with sides of 70) and get a whole flower.
+HINT: symmetry 8 repeat 3 [fd 70 rt 120]
+START:
+symmetry 8
+fd 70
+SOLUTION:
+symmetry 8
+repeat 3 [fd 70 rt 120]
+/////////////////////////
+A tree that draws itself
+GOAL: A word can use itself! tree draws a branch, then two smaller trees. It stops when the branch is too small. Grow the tree from size 60.
+HINT: The last line should be: tree 60
+START:
+to tree :s
+if :s < 10 [stop]
+fd :s
+lt 30 tree :s*0.7
+rt 60 tree :s*0.7
+lt 30 bk :s
+end
+dn 90
+tree 20
+SOLUTION:
+to tree :s
+if :s < 10 [stop]
+fd :s
+lt 30 tree :s*0.7
+rt 60 tree :s*0.7
+lt 30 bk :s
+end
+dn 90
+tree 60
+/////////////////////////
