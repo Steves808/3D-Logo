@@ -1,0 +1,25 @@
+LOGO 3D -- THANK YOU
+====================
+
+Thank you to Noel Evans and Dan Mellinger.
+
+All of my inspiration comes from years of playing with their iPad app,
+Logo_3D!, and from the list of commands in the readme of Noel's project:
+https://github.com/noelevans555/logo3d
+
+This browser version was written from scratch to run the Logo scripts I
+made on that app. It does not contain any of their code. The command
+names follow theirs, with gratitude.
+
+Thanks also to ChatGPT, which wrote the first versions, and especially
+to Claude AI, which made the major improvements. They did most of this.
+I was like a backseat driver nagging the limo driver.
+
+
+NO RIGHTS RESERVED
+------------------
+I give this away with no restrictions (CC0 1.0, see the LICENSE file).
+Copy it, change it, improve it, share it, sell it. You do not need to
+ask me or credit me.
+
+-- Steve

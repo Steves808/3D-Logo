@@ -1,0 +1,15 @@
+{
+  "name": "logo3d-together",
+  "version": "4.0.0",
+  "description": "Logo 3D Together - multiplayer WebXR Logo 3D on the c17 engine",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run-tests.js",
+    "bots": "node test/bots.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
